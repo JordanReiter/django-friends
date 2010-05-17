@@ -1,12 +1,122 @@
 from django.conf import settings
 from django.utils import simplejson as json
 
-import gdata.contacts.service
-import vobject
-import ybrowserauth
+import re
+from collections import defaultdict
+
+try:
+    import gdata.contacts.service
+except ImportError:
+    pass
+
+try:
+    import vobject
+except ImportError:
+    pass
+
+try:
+    import ybrowserauth
+except ImportError:
+    pass
 
 from friends.models import Contact
 
+
+def import_outlook(stream, user):
+    """
+    Imports the contents of an Outlook CSV file into the contacts of the given user
+    
+    Returns a tuple of (number imported, total number of records).
+    """ 
+    total = 0
+    imported = 0
+    lines = re.split(r"[\r\n]+", stream)
+    # Determine the delimiter
+    csv_fields = lines[0].lower().split(",")
+    tsv_fields = lines[0].lower().split("\t")
+    if len(csv_fields) > len(tsv_fields):
+        fields = csv_fields
+        delim = ","
+    else:
+        fields = tsv_fields
+        delim = "\t"
+    use_fields = True
+    field_lookups = {
+        'email': ["email","e-mail","e-mail address","email address"],
+        'first_name': ["first_name","first name","first"],
+        'last_name': ["last_name","last name","last"],
+        'address': ['address'],
+        'street': ['street address','street','street_address'],
+        'city': ['city'],
+        'state': ['state','province'],
+        'zip': ['zip','zip code','zipcode','postal code','postal_code'],
+        'country': ['country'],
+        'phone':['phone','phone number'],
+        'fax':['fax','fax number'],
+        'mobile':['mobile','mobile phone'],
+        'website':['web page','url','website','home page','homepage']
+    }
+    field_indices = defaultdict(list)
+    for field, lookups in field_lookups.items():
+        current_field = field
+        for lookup in lookups:
+            for c in ["","work","business","home"]:
+                if len(c):
+                    current_field = "%s %s" % (c,lookup)
+                else:
+                    current_field = lookup
+                try:
+                    match = fields.index(current_field)
+                    field_indices[current_field.replace(' ','_')].append(match)
+                except ValueError:
+                    pass
+                for i in range(1,5):
+                    try:
+                        match = fields.index("%s %d" % (lookup,i))
+                        field_indices[current_field.replace(' ','_')].append(match)
+                    except ValueError:
+                        pass
+    print field_indices
+    if len(field_indices) and field_indices.has_key('email'):
+        # we are using the fields, so chop off the first line
+        lines = lines[1:]
+    for line in lines:
+        vals = line.split(delim)
+        contact_vals = {}
+        for col, col_indices in field_indices.items():
+            for col_index in col_indices:
+                if len(vals[col_index].strip()):
+                    if "street" in col:
+                        if contact_vals.has_key(col):
+                            contact_vals[col]="%s, %s" (contact_vals[col], vals[col_index])
+                    else:
+                        contact_vals[col]=vals[col_index]
+                        break
+        if not contact_vals.has_key('email'):
+            if re.match(r"^.*?\b([A-Z0-9._%%+-]+@[A-Z0-9.-]+\.([A-Z]{2,4}|museum))\b.*$", line):
+                contact_vals['email'] = re.sub(r"^.*?\b([A-Z0-9._%%+-]+@[A-Z0-9.-]+\.([A-Z]{2,4}|museum))\b.*$", r"\1", line)
+        if not contact_vals.has_key('address'):
+            for c in ["","work_","business_","home_"]:
+                street = contact_vals.pop(('%sstreet' % c),None)
+                city = contact_vals.pop(('%scity' % c),None)
+                state = contact_vals.pop(('%sstate' % c),None)
+                zip = contact_vals.pop(('%szip' % c),None)
+                if street or city or state:
+                    address = ""
+                    if street:
+                        address += street
+                    if city:
+                        if len(address):
+                            address += ", "
+                        address += city
+                    if state:
+                        if len(address):
+                            address += ", "
+                        address += state
+                    if zip and len(address):
+                        address += " " + zip
+                    contact_vals['address']=address
+        print "For the following line: %s the contact information was %s" % (line,contact_vals)
 
 def import_vcards(stream, user):
     """

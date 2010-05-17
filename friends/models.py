@@ -27,7 +27,14 @@ if "emailconfirmation" in settings.INSTALLED_APPS:
     from emailconfirmation.models import EmailAddress
 else:
     EmailAddress = None
-
+    
+try:
+    from django_countries import CountryField
+except ImportError:
+    class CountryField(models.CharField): 
+        def __init__(self, *args, **kwargs): 
+            kwargs.setdefault('max_length', 50) 
+            super(models.CharField, self).__init__(*args, **kwargs) 
 
 class Contact(models.Model):
     """
@@ -39,7 +46,15 @@ class Contact(models.Model):
     user = models.ForeignKey(User, related_name="contacts")
     
     name = models.CharField(max_length=100, null=True, blank=True)
+    first_name = models.CharField(max_length=50, null=True, blank=True)
+    last_name = models.CharField(max_length=50, null=True, blank=True)
+    address = models.TextField(null=True, blank=True)
+    country = CountryField(null=True, blank=True)
     email = models.EmailField()
+    phone = models.CharField(max_length=50, null=True, blank=True)
+    fax = models.CharField(max_length=50, null=True, blank=True)
+    mobile = models.CharField(max_length=50, null=True, blank=True)
+    website = models.URLField(max_length=250, verify_exists=False, null=True, blank=True)
     added = models.DateField(default=datetime.date.today)
     
     # the user(s) this contact correspond to
@@ -83,6 +98,7 @@ class Friendship(models.Model):
     to_user = models.ForeignKey(User, related_name="friends")
     from_user = models.ForeignKey(User, related_name="_unused_")
     # @@@ relationship types
+    how_related = models.CharField(max_length=100, null=True, blank=True)
     added = models.DateField(default=datetime.date.today)
     
     objects = FriendshipManager()
