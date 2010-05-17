@@ -30,6 +30,8 @@ def import_outlook(stream, user):
     """ 
     total = 0
     imported = 0
+    # Fix lines that have breaks in them
+    stream = re.sub(r'([^"\r\n]*(["][^"\r\n]+["])*[^"\r\n]*"[^"\r\n]+)[\r\n]([^"\r\n]*")',r'\1 \3',stream)
     lines = re.split(r"[\r\n]+", stream)
     # Determine the delimiter
     csv_fields = lines[0].lower().split(",")
@@ -81,42 +83,44 @@ def import_outlook(stream, user):
         # we are using the fields, so chop off the first line
         lines = lines[1:]
     for line in lines:
-        vals = line.split(delim)
-        contact_vals = {}
-        for col, col_indices in field_indices.items():
-            for col_index in col_indices:
-                if len(vals[col_index].strip()):
-                    if "street" in col:
-                        if contact_vals.has_key(col):
-                            contact_vals[col]="%s, %s" (contact_vals[col], vals[col_index])
-                    else:
-                        contact_vals[col]=vals[col_index]
-                        break
-        if not contact_vals.has_key('email'):
-            if re.match(r"^.*?\b([A-Z0-9._%%+-]+@[A-Z0-9.-]+\.([A-Z]{2,4}|museum))\b.*$", line):
-                contact_vals['email'] = re.sub(r"^.*?\b([A-Z0-9._%%+-]+@[A-Z0-9.-]+\.([A-Z]{2,4}|museum))\b.*$", r"\1", line)
-        if not contact_vals.has_key('address'):
-            for c in ["","work_","business_","home_"]:
-                street = contact_vals.pop(('%sstreet' % c),None)
-                city = contact_vals.pop(('%scity' % c),None)
-                state = contact_vals.pop(('%sstate' % c),None)
-                zip = contact_vals.pop(('%szip' % c),None)
-                if street or city or state:
-                    address = ""
-                    if street:
-                        address += street
-                    if city:
-                        if len(address):
-                            address += ", "
-                        address += city
-                    if state:
-                        if len(address):
-                            address += ", "
-                        address += state
-                    if zip and len(address):
-                        address += " " + zip
-                    contact_vals['address']=address
-        print "For the following line: %s the contact information was %s" % (line,contact_vals)
+        if len(line):
+            print "\n\n\n\nLooking at line %s\n\n" % line
+            vals = line.split(delim)
+            contact_vals = {}
+            for col, col_indices in field_indices.items():
+                for col_index in col_indices:
+                    if len(vals[col_index].strip()):
+                        if "street" in col:
+                            if contact_vals.has_key(col):
+                                contact_vals[col]="%s, %s" (contact_vals[col], vals[col_index])
+                        else:
+                            contact_vals[col]=vals[col_index]
+                            break
+            if not contact_vals.has_key('email'):
+                if re.match(r"^.*?\b([A-Z0-9._%%+-]+@[A-Z0-9.-]+\.([A-Z]{2,4}|museum))\b.*$", line):
+                    contact_vals['email'] = re.sub(r"^.*?\b([A-Z0-9._%%+-]+@[A-Z0-9.-]+\.([A-Z]{2,4}|museum))\b.*$", r"\1", line)
+            if not contact_vals.has_key('address'):
+                for c in ["","work_","business_","home_"]:
+                    street = contact_vals.pop(('%sstreet' % c),None)
+                    city = contact_vals.pop(('%scity' % c),None)
+                    state = contact_vals.pop(('%sstate' % c),None)
+                    zip = contact_vals.pop(('%szip' % c),None)
+                    if street or city or state:
+                        address = ""
+                        if street:
+                            address += street
+                        if city:
+                            if len(address):
+                                address += ", "
+                            address += city
+                        if state:
+                            if len(address):
+                                address += ", "
+                            address += state
+                        if zip and len(address):
+                            address += " " + zip
+                        contact_vals['address']=address
+            print "For the following line: %s the contact information was %s" % (line,contact_vals)
 
 def import_vcards(stream, user):
     """
