@@ -1,3 +1,4 @@
+import re
 from django import forms
 from django.conf import settings
 
@@ -77,3 +78,56 @@ class InviteFriendForm(UserForm):
             notification.send([self.user], "friends_invite_sent", {"invitation": invitation})
         self.user.message_set.create(message="Friendship requested with %s" % to_user.username) # @@@ make link like notification
         return invitation
+
+class MultiEmailField(forms.CharField):
+    widget = forms.Textarea(attrs={ 'rows':5, 'cols':50})
+    
+    def to_python(self, value):
+        "Normalize data to a list of strings."
+        # Return an empty list if no input was given.
+        if not value:
+            return []
+        value = re.sub(r'[;,\r\n\t]\s*((["\']?)[^<@>]+\2\s*)?<?\b([^<>]+@[^<>]+)\b>?',r'\r\3',value)
+        return re.split(r'[\s;,]+',value)
+
+    def validate(self, value):
+        "Check if value consists only of valid emails."
+
+        # Use the parent's handling of required fields, etc.
+        super(MultiEmailField, self).validate(value)
+        return True
+
+class MultipleInviteForm(forms.Form):
+    invited_emails = MultiEmailField(max_length=1000)
+    
+    def __init__(self, max_invites=20, *args, **kwargs):
+        super(MultipleInviteForm, self).__init__(*args, **kwargs)
+        self.max_invites=max_invites
+        
+    def clean_invited_emails(self):
+        data = self.cleaned_data.get('invited_emails')
+        bad_emails = []
+        for email in data:
+            if not len(email.strip()):
+                data.remove(email)
+                continue
+            if not (re.match(r'(?u)^[-\w.+]+@[-A-Za-z0-9.]+\.([A-Za-z]{2,4}|museum)$',email) >= 0):
+                bad_emails.append(email)
+        if len(bad_emails):
+            raise forms.ValidationError('The following email addresses had errors: %s' % ','.join(bad_emails))
+        if not data:
+            raise forms.ValidationError('You must enter at least one valid e-mail address.')
+        if self.max_invites and len(data) > self.max_invites:
+            raise forms.ValidationError('You can\'t send out more than %s invitations; you tried to send out to %s emails:' % (self.max_invites,len(data)))
+        return data
+
+    def save(self):
+        to_user = User.objects.get(username=self.cleaned_data["to_user"])
+        invitation = FriendshipInvitation(from_user=self.user, to_user=to_user, message=message, status="2")
+        invitation.save()
+        if notification:
+            notification.send([to_user], "friends_invite", {"invitation": invitation})
+            notification.send([self.user], "friends_invite_sent", {"invitation": invitation})
+        self.user.message_set.create(message="Friendship requested with %s" % to_user.username) # @@@ make link like notification
+        return invitation
+        

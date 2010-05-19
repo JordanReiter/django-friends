@@ -62,7 +62,13 @@ class Contact(models.Model):
     
     def __unicode__(self):
         return "%s (%s's contact)" % (self.email, self.user)
-
+    
+class FriendSuggestion(models.Manager):
+    email = models.EmailField(null=True, blank=True)
+    user = models.ForeignKey(User, null=True, blank=True, related_name="suggested_friends")
+    suggested_user = models.ForeignKey(User, related_name="__unused__")
+    why = models.CharField(max_length=20)
+    active = models.BooleanField(default=True)
 
 class FriendshipManager(models.Manager):
     
@@ -97,7 +103,6 @@ class Friendship(models.Model):
     
     to_user = models.ForeignKey(User, related_name="friends")
     from_user = models.ForeignKey(User, related_name="_unused_")
-    # @@@ relationship types
     how_related = models.CharField(max_length=100, null=True, blank=True)
     added = models.DateField(default=datetime.date.today)
     
