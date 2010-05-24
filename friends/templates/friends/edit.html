@@ -14,6 +14,7 @@
 			{% if 'co-author' in friendship.friendship.how_related %}<li>wrote one or more papers with you</li>{% endif %}
 			{% if 'colleague' in friendship.friendship.how_related %}<li>is your colleague</li>{% endif %}
 			{% if 'friend' in friendship.friendship.how_related %}<li>is your friend</li>{% endif %}
+			{{ friendship.friendship.how_related }}
 		</ul>
 	{% endif %}
 	</dd>
