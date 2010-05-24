@@ -90,7 +90,7 @@ class MultiEmailField(forms.CharField):
             return []
         result = []
         for v in re.split(r'[\s;,]+',value):
-            result.append(re.sub(v,r"[^<>]+<(.*)>",r"\1"))
+            result.append(re.sub(r"[^<>]+<(.*)>",r"\1",v))
         return result
 
     def validate(self, value):
