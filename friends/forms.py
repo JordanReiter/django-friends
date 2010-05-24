@@ -135,7 +135,6 @@ class MultipleInviteForm(forms.Form):
         
 RELATED_CHOICES = (
     ('colleague',_('We are colleagues')),
-    ('friend',_('We are friends')),
     ('co-worker',_('We we work together')),
     ('friend',_('We are friends')),
     ('co-author',_('We are co-authors (co-wrote a paper)')),
@@ -153,7 +152,7 @@ class FriendshipForm(forms.ModelForm):
         required=False
     )
     dont_know_check = forms.BooleanField(
-        label='Don\' know this person:',
+        label='Don\'t know this person:',
         widget=forms.CheckboxInput,
         required=False
     )
