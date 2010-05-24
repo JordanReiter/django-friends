@@ -132,6 +132,8 @@ class MultipleInviteForm(forms.Form):
             notification.send([self.user], "friends_invite_sent", {"invitation": invitation})
         self.user.message_set.create(message="Friendship requested with %s" % to_user.username) # @@@ make link like notification
         return invitation
+
+
         
 RELATED_CHOICES = (
     ('colleague',_('We are colleagues')),

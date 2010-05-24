@@ -7,16 +7,9 @@
 <dl class="friends">
 	<dt>{% firstof friendship.friend.get_full_name friendship.friend.username %}</dt>
 	<dd>
-	{% if friendship.friendship.how_related %}
-		{% firstof friendship.friend.get_full_name friendship.friend.username %}:
-		<ul>
-			{% if 'co-worker' in friendship.friendship.how_related %}<li>works in the same company or organization as you</li>{% endif %}
-			{% if 'co-author' in friendship.friendship.how_related %}<li>wrote one or more papers with you</li>{% endif %}
-			{% if 'colleague' in friendship.friendship.how_related %}<li>is your colleague</li>{% endif %}
-			{% if 'friend' in friendship.friendship.how_related %}<li>is your friend</li>{% endif %}
-			{{ friendship.friendship.how_related }}
-		</ul>
-	{% endif %}
+		{{ friendship.friendship.how_related }}
+		<a href="{% url edit_friend friendship.friend.username %}">Remove</a>
+		<a href="{% url remove_friend friendship.friend.username %}">Remove</a>
 	</dd>
 </dl>
 {% endfor %}
