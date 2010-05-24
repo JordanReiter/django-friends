@@ -7,5 +7,7 @@ urlpatterns = patterns('',
    url(r'^add/(?P<user>[-\w\.]+)/$', add_friend, name="edit_friend"),
    url(r'^remove/(?P<user>[-\w\.]+)/$', remove_friend, name="remove_friend"),
    url(r'^invite/$', invite_users, name="invite_friends"),
+   url(r'^accept/(?P<friend>[\w\.]+)/$', accept_friendship, name=""),
+   url(r'^join/(?P<code>[a-z0-9]+)/?$', accept_invitation, name="friends_accept_join"),
    url(r'^$', edit_friends, name="edit_friends"),
 )

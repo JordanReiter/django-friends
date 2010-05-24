@@ -23,11 +23,8 @@ from django.views.decorators.csrf import csrf_protect
 from django.forms.formsets import formset_factory
 from django.forms.models import modelformset_factory
 
-# Locals (used only in Friends)
-from friends.models import Contact, Friendship, FriendshipInvitation, JoinInvitation, FriendSuggestion                                            
-from friends.forms import *
-from friends.exporter import export_vcards
-from friends.importer import import_vcards
+# Settings
+from django.conf import settings
 
 # Utils
 import re, datetime
@@ -35,6 +32,14 @@ try:
     import json #Works with Python 2.6
 except ImportError:
     from django.utils import simplejson as json
+
+# Locals (used only in Friends)
+from friends.models import Contact, Friendship, FriendshipInvitation, JoinInvitation, FriendSuggestion                                            
+from friends.forms import *
+from friends.exporter import export_vcards
+from friends.importer import import_vcards
+from friends.signals import invite
+
 
 def get_user_profile(user):
     try:
@@ -128,6 +133,19 @@ def add_friend(request,friend,template_name='confirm.html',add_form=InviteFriend
     else:
         add_friend_form = add_form(expert=request.user,friend=friend,prefix="friend")
     return render_to_response('friends/add.html', locals(), RequestContext(request))
+
+
+@oid_views.not_authenticated
+def accept_invitation(request, code, template_name="friendships/accept_invitation.html", failure_redirect='/', login_redirect=settings.LOGIN_REDIRECT_URL):
+    try:
+        joininvitation = JoinInvitation.objects.get(code__iexact=code)
+        invite.send(sender=JoinInvitation, request=request, instance=joininvitation)
+        return render_to_response(template_name, locals(), RequestContext(request))
+    except Invitation.DoesNotExist:
+        messages.add_message(request, messages.ERROR,"Sorry, it looks like this was not a valid invitation code.")
+        if '/' not in failure_redirect:
+            failure_redirect = reverse(failure_redirect)
+        return HttpResponseRedirect(failure_redirect)
 
 
 @csrf_protect

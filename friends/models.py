@@ -162,6 +162,7 @@ class JoinInvitationManager(models.Manager):
         ctx = {
             "SITE_NAME": settings.SITE_NAME,
             "CONTACT_EMAIL": settings.CONTACT_EMAIL,
+            "contact": contact,
             "user": from_user,
             "message": message,
             "accept_url": accept_url,
