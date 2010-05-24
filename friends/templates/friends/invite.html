@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% include 'expert_profiles/options.inc' %}
+
+<h1>{% block title %}Invite your colleagues and contacts to AcademicExperts.org{% endblock title %}</h1>
+
+<strong>
+	<a href="{% url google_contacts %}">Import Contacts from Google</a> |
+	<a href="{% url file_contacts %}">Import Contacts from E-mail Program</a>
+</strong>
+
+<form method="post" action="">{% csrf_token %}
+	<ol class="fields">
+		<li id="invitations-field"{% if invite_users_form.invited_emails.errors %} class="error"{% endif %}>
+			{{ invite_users_form.invited_emails.errors }}<label for="id_invited_emails">{{ invite_users_form.invited_emails.label }}<small>Enter up to {{ invite_users_form.max_invites }} email addresses, separated by commas.</small></label>
+			{{ invite_users_form.invited_emails }}
+		</li>
+		<li>
+			<input type="submit" value=" Send Invites " class="field alone" />
+		</li>
+	</ol>	
+</fieldset>
+</form>
+{% endblock content %}
+
+{% block extra_css %}
+fieldset {
+clear: left
+}
+ol.fields {
+	margin: 0;
+	padding: 0;
+}
+ol.fields .note {
+	clear: left;
+	margin-left: 22%;
+}
+ol.fields li{
+clear: left;
+list-style: none;
+margin: 1em 0;
+padding: 0;
+}
+ol.fields li.error {
+	border: 2px #900 solid;
+}
+.error label {
+	color: #900;
+}
+.errorlist li {
+	color: #900;
+	font-weight: bold;
+	background: url({{ MEDIA_URL }}/images/icons/error.png) no-repeat left top;
+	padding-left: 20px;
+	margin-left: 2em;
+	list-style: none;
+}
+.error input {
+	background: #fed;
+	border-color: #900 !important;
+}
+ol.fields label, ol.fields .label {
+display:block;
+font-weight:bold;
+text-align:right;
+width:22%;
+float:left;
+padding:5px 3px;
+margin:2px 0 10px 0%;
+}
+dl.fields dt {
+display:block;
+font-weight:bold;
+text-align:right;
+width:22%;
+clear: left;
+float:left;
+padding:5px 3px;
+margin:2px 0 10px 0%;
+}
+dl.fields dd {
+float:left;
+width: 65%;
+font-size:1em;
+padding:5px 3px;
+margin:2px 0 10px 2%;
+}
+label.inline {
+display:inline !important;
+text-align:left !important;
+font-weight: normal !important;
+width:auto !important;
+float:none !important;
+}
+ol.fields small{
+color:#666666;
+display:block;
+font-size:0.9em;
+font-weight:normal;
+text-align:right;
+}
+ol.fields input[type='text'], ol.fields textarea, ol.fields select, ol.fields .field {
+float:left;
+font-size:1em;
+padding:5px 3px;
+margin:2px 0 10px 2%;
+}
+.alone {
+	margin: 2px 0 10px 25% !important;
+	padding:5px 3px 5px 6px;
+}
+.fields input[type='submit'] {
+	font-size: larger;
+	font-weight: bold;
+}
+ol.fields input[type='text'], ol.fields select, ol.fields textarea, {
+border:solid 1px #aacfe4;
+}
+.focus-areas li {
+	float: left !important;
+	clear: none !important;
+	width: 30% !important;
+	padding: 0;
+	margin: 0 0.25%
+}
+
+SPAN.tagMatches {
+    display: block;
+	float: left;
+	width: 50%;
+    margin-left: 1em;
+}
+
+SPAN.tagMatches SPAN {
+    display: block;
+	float: left;
+	white-space: nowrap;
+    padding: 2px;
+    margin: 0.25em 0.25em;
+    background-color: #69f;
+    color: #fff;
+    cursor: pointer;
+}
+{% endblock extra_css %}
