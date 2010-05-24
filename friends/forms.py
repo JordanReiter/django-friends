@@ -165,10 +165,9 @@ class FriendshipForm(forms.ModelForm):
         if self.friendship and self.friendship.how_related:
             hr = self.friendship.how_related.split(' ')
             self.fields['choose_how_related'].initial = hr
-            for v in hr:
-                if v in RELATED_CHOICES:
-                    hr.remove(v)
-            if v:
+            for k, _ in RELATED_CHOICES:
+                hr.remove(k)
+            if hr:
                 self.fields['other_related'].initial=' '.join(hr)
                 self.fields['other_related_check'].initial = True
                     
