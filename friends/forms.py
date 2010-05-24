@@ -1,6 +1,7 @@
 import re
 from django import forms
 from django.conf import settings
+from django.utils.translation import ugettext as _
 
 from django.contrib.auth.models import User
 
@@ -123,6 +124,7 @@ class MultipleInviteForm(forms.Form):
 
     def save(self):
         to_user = User.objects.get(username=self.cleaned_data["to_user"])
+        message = self.cleaned_data['message']
         invitation = FriendshipInvitation(from_user=self.user, to_user=to_user, message=message, status="2")
         invitation.save()
         if notification:
@@ -131,3 +133,49 @@ class MultipleInviteForm(forms.Form):
         self.user.message_set.create(message="Friendship requested with %s" % to_user.username) # @@@ make link like notification
         return invitation
         
+RELATED_CHOICES = (
+    ('colleague',_('We are colleagues')),
+    ('friend',_('We are friends')),
+    ('co-worker',_('We we work together')),
+    ('friend',_('We are friends')),
+    ('co-author',_('We are co-authors (co-wrote a paper)')),
+)
+class FriendshipForm(models.ModelForm):
+    choose_how_related = forms.MultipleChoiceField(
+       choices=RELATED_CHOICES,
+       widget=forms.CheckboxSelectMultiple(),
+       required=False
+    )
+    other_related = forms.CharField(required=False, max_length=50)
+    other_related_check = forms.BooleanField(
+        label='Other:',
+        widget=forms.CheckboxInput,
+        required=False
+    )
+    dont_know_check = forms.BooleanField(
+        label='Don\' know this person:',
+        widget=forms.CheckboxInput,
+        required=False
+    )
+
+    def __init__(self, *args, **kwargs):
+        self.friendship = kwargs.get('instance', None)
+        self.user = kwargs.pop('user', None)
+        self.friend = kwargs.pop('friend', None)
+        return super(FriendshipForm,self).__init__(*args,**kwargs)
+    
+    def clean(self):
+        if not self.friendship:
+            raise forms.ValidationError("Tried to save a friendship record for a friendship that does not exist: %s and %s" % (self.user, self.friend))
+        return self.cleaned_data            
+
+    def save(self):
+        how_related = "%s %s" % (self.cleaned_data.get('choose_how_related'),self.cleaned_data.get('other_related'))
+        if not len(how_related.strip()) and self.cleaned_data.get('how_related_check'):
+            how_related = 'other'       
+        friendship = Friendship.objects.get(to_user=self.friend, from_user=self.user)
+        friendship.how_related=how_related
+        friendship.save()
+    
+    class Meta:
+        model=Friendship

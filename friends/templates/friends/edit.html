@@ -1,5 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>{% block title %}Edit Contacts {% endblock title %}</h1>
+<h1>{% block title %}Edit Friends {% endblock title %}</h1>
+
+{% for friend in friends %}
+{{ friend }}
+{% endfor %}
 {% endblock %}

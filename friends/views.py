@@ -344,7 +344,7 @@ def get_google_friends(request):
 
 @csrf_protect
 @login_required
-def edit_relationship(request,friend=None,redirect_to='edit_friends'):
+def edit_relationship(request,friend=None,redirect_to='edit_friends',form_class=FriendshipForm):
     if '/' not in redirect_to:
         redirect_to = reverse(redirect_to)
     try:
@@ -403,9 +403,9 @@ def edit_friends(request, friend=None, redirect_to='edit_friends', form_class=No
             friend_form=XFNContactForm(expert=request.user.get_profile(),friend=friend_profile,prefix="friend")
         else:
             profile_friends = []
-            expert_friends = request.user.get_profile().get_friends()
+            friends = request.user.get_profile().get_friends()
             counter = 0
-            for expert_friend in expert_friends:
+            for f in friends:
                 counter += 1
                 profile_friends.append(XFNContactForm(expert=request.user.get_profile(),friend=expert_friend.friend,prefix='friend_%s' % counter))
     return render_to_response('friends/edit.html', locals(), RequestContext(request))
