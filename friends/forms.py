@@ -88,8 +88,8 @@ class MultiEmailField(forms.CharField):
         # Return an empty list if no input was given.
         if not value:
             return []
-        value = re.sub(r'[;,\r\n\t]+?\s*("?[^<@>]+?"?\s)?<?([A-Za-z0-9._%+-]+?@[A-Za-z0-9.-]+?\.([A-Za-z]{2,4}|museum))>?',r'\n\2\n',str(", %s ," % value),re.IGNORECASE)
-        value = re.sub(r'[;,\r\n\t]+?\s*("?[^<@>]+?"?\s)?<?([A-Za-z0-9._%+-]+?@[A-Za-z0-9.-]+?\.([A-Za-z]{2,4}|museum))>?',r'\n\2\n',str(", %s ," % value),re.IGNORECASE)
+        value = re.sub(r'[;,\r\n\t]+?\s*("?[^<@>]+?"?\s)?<?([A-Za-z0-9._%+-]+?@[A-Za-z0-9.-]+?\.([A-Za-z]{2,4}|museum))>?',r'\t\2\t',str(", %s ," % value),re.IGNORECASE)
+        value = re.sub(r'[;,\r\n\t]+?\s*("?[^<@>]+?"?\s)?<?([A-Za-z0-9._%+-]+?@[A-Za-z0-9.-]+?\.([A-Za-z]{2,4}|museum))>?',r'\t\2\t',str(", %s ," % value),re.IGNORECASE)
         return value
 #        return re.split(r'[\s,;]+',value)
 
