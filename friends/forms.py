@@ -140,7 +140,7 @@ RELATED_CHOICES = (
     ('friend',_('We are friends')),
     ('co-author',_('We are co-authors (co-wrote a paper)')),
 )
-class FriendshipForm(models.ModelForm):
+class FriendshipForm(forms.ModelForm):
     choose_how_related = forms.MultipleChoiceField(
        choices=RELATED_CHOICES,
        widget=forms.CheckboxSelectMultiple(),
