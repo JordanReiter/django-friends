@@ -402,7 +402,7 @@ def edit_friends(request, friend=None, redirect_to='edit_friends', form_class=No
                 return HttpResponseRedirect(redirect_to)
             friend_form=form_class(expert=request.user.get_profile(),friend=friend_profile,prefix="friend")
         else:
-            profile_friends = []
+            friend_forms = []
             friendship_list = request.user.get_profile().get_friends()
             counter = 0
             for f in friendship_list:
