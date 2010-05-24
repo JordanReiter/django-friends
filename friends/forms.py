@@ -89,7 +89,7 @@ class MultiEmailField(forms.CharField):
         if not value:
             return []
         value = re.sub(r'[;,\r\n\t]+?\s*("?[^<@>]+?"?\s)?<?([A-Za-z0-9._%+-]+?@[A-Za-z0-9.-]+?\.([A-Za-z]{2,4}|museum))>?',r'\t\2\t',"\t%s\t" % value,re.IGNORECASE)
-        return re.split(r'[\s,;]+',value)
+        return re.split(r'[\s,;]+',value.strip())
 
     def validate(self, value):
         "Check if value consists only of valid emails."
