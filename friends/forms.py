@@ -108,7 +108,7 @@ class MultipleInviteForm(forms.Form):
     def clean_invited_emails(self):
         data = self.cleaned_data.get('invited_emails')
         bad_emails = []
-        for email in re.split(r'[\s,;]+',data):
+        for email in data:
             if not len(email.strip()):
                 data.remove(email)
                 continue
