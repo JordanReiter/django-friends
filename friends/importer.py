@@ -125,10 +125,11 @@ def import_outlook(stream, user):
                             address += " " + zip
                         contact_vals['address']=address
             try:
-                Contact.objects.get(user=user, email=contact_vals['email'])
+                Contact.objects.get(owner=user, email=contact_vals['email'])
             except Contact.DoesNotExist:
-                Contact(user=user,**contact_vals).save()
+                Contact(owner=user,**contact_vals).save()
                 imported += 1
+    return imported, total
             
 
 def import_vcards(stream, user):
@@ -142,13 +143,44 @@ def import_vcards(stream, user):
     imported = 0
     for card in vobject.readComponents(stream):
         total += 1
+        contact_vals = {}
         try:
-            name = card.fn.value
-            email = card.email.value
+            contact_vals['name'] = card.fn.value
+            contact_vals['email'] = card.email.value
             try:
-                Contact.objects.get(user=user, email=email)
+                name_field = card.contents.get('n')
+                try:
+                    contact_vals['last_name'] = name_field[0].value.family.strip()
+                    contact_vals['first_name'] = name_field[0].value.given.strip()
+                except:
+                    pass
+            except:
+                pass
+
+            try:
+                for tel in card.contents.get('tel'):
+                    try:
+                        type = tel.params
+                    except AttributeError:
+                        type = []
+                    for t in type:
+                        if t == 'CELL' or t == 'MOBILE':
+                            contact_vals['mobile'] = tel.value
+                            break
+                        if t == 'FAX':
+                            contact_vals['fax'] = tel.value
+                            break
+                        else:
+                            if not contact_vals.has_key('phone') or t == 'pref': 
+                                contact_vals['phone'] = t.value
+                                break
+            except:
+                pass
+
+            try:
+                Contact.objects.get(owner=user, email=email)
             except Contact.DoesNotExist:
-                Contact(user=user, name=name, email=email).save()
+                Contact(owner=user, **contact_vals).save()
                 imported += 1
         except AttributeError:
             pass # missing value so don't add anything
@@ -194,7 +226,7 @@ def import_yahoo(bbauth_token, user):
         try:
             Contact.objects.get(user=user, email=email)
         except Contact.DoesNotExist:
-            Contact(user=user, name=name, email=email).save()
+            Contact(user=user, name=name, email=email, first_name=first_name, last_name=last_name).save()
             imported += 1
     
     return imported, total

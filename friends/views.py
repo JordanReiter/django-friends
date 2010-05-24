@@ -24,8 +24,10 @@ from django.forms.formsets import formset_factory
 from django.forms.models import modelformset_factory
 
 # Locals (used only in Friends)
-from friends.models import *                                            
-
+from friends.models import Contact, Friendship, FriendshipInvitation, JoinInvitation, FriendSuggestion                                            
+from friends.forms import *
+from friends.exporter import export_vcards
+from friends.importer import import_vcards
 
 # Utils
 import re, datetime
@@ -34,42 +36,63 @@ try:
 except ImportError:
     from django.utils import simplejson as json
 
-@login_required
-def my_contacts(request):
-    return view_contacts(request,request.user)
+def get_user_profile(user):
+    try:
+        profile = user.get_profile()
+    except AttributeError:
+        user = User.objects.get(code=user)
+        try:
+            profile = user.get_profile()
+        except:
+            profile = None
+    
+    if not profile:
+        raise Http404("No active profile for %s" % user)
+    else:
+        return user, profile
 
-def contact_lookup(request):
+@login_required
+def my_friends(request):
+    return view_friends(request,request.user)
+
+def view_friends(request, user, template_name="friends/friends.html"):
+    user, profile = get_user_profile(user)
+    friends = Friendship.objects.friends_for_user(user)
+    return render_to_response(template_name, locals(), RequestContext(request))
+
+def friend_lookup(request):
     query_tokens = re.split(r'\W+',request.GET.get('q',''))
-    matching_contacts = Contact.objects.all()
+    matching_friends = Contact.objects.all()
     if query_tokens:
         for token in query_tokens:
-            matching_contacts = (
-                matching_contacts.filter(name__icontains=token) |
-                matching_contacts.filter(first_name__icontains=token) |
-                matching_contacts.filter(last_name__icontains=token)
+            matching_friends = (
+                matching_friends.filter(name__icontains=token) |
+                matching_friends.filter(first_name__icontains=token) |
+                matching_friends.filter(last_name__icontains=token)
             )
     else:
-        matching_contacts = []
+        matching_friends = []
     results = []
-    for contact in matching_contacts:
+    for friend in matching_friends:
         results.append({
-            'id':str(contact.id),
-            'name':str(contact.name),
-            'first_name':str(contact.first_name),
-            'last_name':str(contact.last_name),
-            'email':str(contact.email),
-            'user':str(contact.user.id),
+            'id':str(friend.id),
+            'name':str(friend.name),
+            'first_name':str(friend.first_name),
+            'last_name':str(friend.last_name),
+            'email':str(friend.email),
+            'user':str(friend.user.id),
         })
     return HttpResponse(json.dumps(results), mimetype='application/json')
 
+
 @csrf_protect
 @login_required
-def invite_users(request,output_prefix="invite", redirect_to='edit_contacts'):
+def invite_users(request,output_prefix="invite", redirect_to='edit_friends', invite_form=MultipleInviteForm):
     redirect_to = request.REQUEST.get('next',None) or redirect_to
     if '/' not in redirect_to:
         redirect_to = reverse(redirect_to)
     if request.method == 'POST':
-        invite_users_form = InviteForm(data=request.POST)
+        invite_users_form = invite_form(data=request.POST)
         if invite_users_form.is_valid():
             me = request.user.get_profile()
             invited_emails = [email for email in invite_users_form.cleaned_data.get('invited_emails')]
@@ -80,165 +103,168 @@ def invite_users(request,output_prefix="invite", redirect_to='edit_contacts'):
                     invitation = FriendshipInvitation(from_user=request.user, to_user=user, message=None, status="2")
                     invitation.save()
                     if notification:
-                        notification.send([to_user], "friends_invite", {"invitation": invitation})
-                        notification.send([self.user], "friends_invite_sent", {"invitation": invitation})
+                        notification.send([user], "friends_invite", {"invitation": invitation})
+                        notification.send([request.user], "friends_invite_sent", {"invitation": invitation})
                 for user in existing_users:
                     invited_emails.remove(user.email)
             for email in invited_emails:
                 JoinInvitation.objects.send_invitation(request.user, email, None)
     if request.method == 'GET':
-        invite_users_form = InviteForm()
+        invite_users_form = invite_form()
     return render_to_response('friends/invite.html', locals(), RequestContext(request))
 
 
 @csrf_protect
 @login_required
-@has_profile
-def add_contact(request,user,template_name='confirm.html',add_form=AddFriendForm, redirect_to="profile"):
-    try:
-        contact_profile = user.get_profile()
-    except AttributeError:
-        contact = User.objects.get(code=user)
-        try:
-            contact_profile = user.get_profile()
-        except:
-            pass
-
-    if not contact or not user.is_active:
-        return Http404()
+def add_friend(request,friend,template_name='confirm.html',add_form=InviteFriendForm, redirect_to="profile"):
+    friend, friend_profile = get_user_profile()
 
     if request.method == 'POST':
-        add_contact_form = add_form(request.POST,user=request.user,contact=contact,prefix="contact")
-        if add_contact_form.is_valid():
-            add_contact_form.save()
-            messages.add_message(request, messages.SUCCESS,"You have sent a request for %s to be your contact." % (contact.username))
-            return HttpResponseRedirect(reverse(redirect_to,args=[contact]))
+        add_friend_form = add_form(request.POST,user=request.user,friend=friend,prefix="friend")
+        if add_friend_form.is_valid():
+            add_friend_form.save()
+            messages.add_message(request, messages.SUCCESS,"You have sent a request for %s to be your friend." % (friend.username))
+            return HttpResponseRedirect(reverse(redirect_to,args=[friend]))
     else:
-        add_contact_form = add_form(expert=request.user,contact=contact,prefix="contact")
-    return render_to_response('contacts/add.html', locals(), RequestContext(request))
+        add_friend_form = add_form(expert=request.user,friend=friend,prefix="friend")
+    return render_to_response('friends/add.html', locals(), RequestContext(request))
 
 
 @csrf_protect
 @login_required
-def accept_friendship(request,contact,template_name='confirm.html'):
-    me = request.user.get_profile()
-    try:
-        contact_profile=get_active_profile(contact)
-    except:
-        return render_to_response('contacts/noprofile.html',{}, RequestContext(request))
+def accept_friendship(request,friend,template_name='confirm.html'):
+    friend, friend_profile = get_user_profile()
     
     # because of the threat of cross-site scripting, this action has to be the result of a form posting
     if request.method == 'GET':
-        action_display = "approve %s as a contact." % (contact_profile.user.get_full_name() or contact_profile.user.username) 
-        yes_display = "Yes, add as contact"
+        action_display = "approve %s as a friend." % (friend_profile.user.get_full_name() or friend_profile.user.username) 
+        yes_display = "Yes, add as friend"
         no_display = "No, ignore request"
         return render_to_response(template_name, locals(), RequestContext(request))
     elif request.POST.get('confirm_action')=='no':
         messages.add_message(request, messages.INFO,"You canceled the action.")
         return HttpResponseRedirect(
-                reverse('profile',args=[contact])
+                reverse('profile',args=[friend])
             )
-        
     try:
-        me.approve_contact(contact_profile)
-        notification.send([contact_profile.user], "contacts_accept", {'contact': me,})
-        notification.send([request.user], "contacts_accept", {'contact': contact_profile,})
-        messages.add_message(request, messages.SUCCESS,"%s is now your contact." % (contact_profile.user.get_full_name() or contact_profile.user.username))
-    except Expert_Profile.NoContact, inst:
-        messages.add_message(request, messages.ERROR,"%s has definitely not (%s) added you as a contact yet." % (inst, contact_profile.user.username))
-    return HttpResponseRedirect(reverse('profile',args=[contact]))
-
+        invitation = FriendshipInvitation.objects.get(from_user=friend, to_user=request.user)
+        invitation.accept()
+        notification.send([friend], "friends_accept", {'friend': request.user,})
+        notification.send([request.user], "friends_accept", {'friend': friend_profile,})
+        messages.add_message(request, messages.SUCCESS,"%s is now your friend." % (friend_profile.user.get_full_name() or friend_profile.user.username))
+    except FriendshipInvitation.DoesNotExist:
+        messages.add_message(request, messages.ERROR,"Sorry, it looks like %s didn't invite you as a friend." % (friend.get_full_name() or friend.username))
+    return HttpResponseRedirect(reverse('profile',args=[friend.username]))
 
 @csrf_protect
 @login_required
 def remove_contact(request,contact,template_name='confirm.html',redirect_to='edit_contacts'):
-    try:
-        contact_profile=get_active_profile(contact)
-    except:
-        messages.add_message(request, messages.ERROR,"I couldn't find a contact for %s" % contact)
-        return HttpResponseRedirect(redirect_to)
+    contact = get_object_or_404(Contact, pk=contact)
+
     if '/' not in redirect_to:
         redirect_to = reverse(redirect_to)
-    # confirm that the user can remove this person as a contact
-    if not contact_profile.is_contact(request.user.get_profile()):
-        messages.add_message(request, messages.ERROR,"%s is not one of your contacts" % contact_profile.user.username)
-        return HttpResponseRedirect(redirect_to)
+
     #if the method is GET, show a form to avoid csrf
     if request.method == 'GET':
-        action_display = "remove %s as a contact." % contact_profile.user.get_full_name() 
-        yes_display = "Yes, remove as contact"
-        no_display = "No, keep %s as a contact" % contact_profile.user.get_full_name()
+        action_display = "remove %s from contacts." % (contact.name or contact.email) 
+        yes_display = "Yes, remove"
+        no_display = "No, keep" % (contact.name or contact.email)
         return render_to_response(template_name, locals(), RequestContext(request))
     elif request.POST.get('confirm_action')=='no':
         messages.add_message(request, messages.INFO,"You canceled the action.")
         return HttpResponseRedirect(redirect_to)
-    try:
-        ec = Expert_Contact.objects.get(expert_profile=request.user.get_profile(),contact=contact_profile)
-        ec.delete()
-        messages.add_message(request, messages.SUCCESS,"You have removed %s from your contacts." % (contact_profile.user.get_full_name()))
-    except:
-        messages.add_message(request, messages.SUCCESS,"%s is no longer on your contacts list." % (contact_profile.user.get_full_name()))
+
+    contact.deleted = datetime.datetime.now()
+    contact.save()
+    messages.add_message(request, messages.SUCCESS,"You have removed %s from your contacts." % (contact.get_full_name() or contact.username))
     return HttpResponseRedirect(redirect_to)
 
-def export_contacts(request):
-    vcard = export_vcards([ec.contact.user for ec in request.user.get_profile().get_contacts()])
+
+@csrf_protect
+@login_required
+def remove_friend(request,friend,template_name='confirm.html',redirect_to='edit_friends'):
+    friend, friend_profile = get_user_profile()
+
+    if '/' not in redirect_to:
+        redirect_to = reverse(redirect_to)
+
+    # confirm that the user can remove this person as a friend
+    if not friend_profile.is_friend(request.user.get_profile()):
+        messages.add_message(request, messages.ERROR,"%s is not one of your friends" % friend_profile.user.username)
+        return HttpResponseRedirect(redirect_to)
+
+    #if the method is GET, show a form to avoid csrf
+    if request.method == 'GET':
+        action_display = "remove %s as a friend." % friend_profile.user.get_full_name() 
+        yes_display = "Yes, remove as friend"
+        no_display = "No, keep %s as a friend" % friend_profile.user.get_full_name()
+        return render_to_response(template_name, locals(), RequestContext(request))
+    elif request.POST.get('confirm_action')=='no':
+        messages.add_message(request, messages.INFO,"You canceled the action.")
+        return HttpResponseRedirect(redirect_to)
+
+    Friendship.objects.remove(request.user, friend)
+    messages.add_message(request, messages.SUCCESS,"You have removed %s from your friends." % (friend_profile.user.get_full_name()))
+    return HttpResponseRedirect(redirect_to)
+
+def export_friends(request):
+    vcard = export_vcards([ec.friend.user for ec in request.user.get_profile().get_friends()])
     response = HttpResponse(vcard, mimetype='text/x-vcard')
-    response['Content-Disposition'] = 'attachment; filename=contacts.vcf'
-    return response
+    response['Content-Disposition'] = 'attachment; filename=friends.vcf'
+    return response    
     
-    
-def get_file_contacts(request):
+def get_file_friends(request):
     display_import = False
     if request.method == 'POST':
-        contact_file_form=ImportContactForm(request.POST,request.FILES)
-        if contact_file_form.is_valid():
-            contacts_file=request.FILES['contacts_file']
-            if contacts_file.multiple_chunks():
+        friend_file_form=ImportContactForm(request.POST,request.FILES)
+        if friend_file_form.is_valid():
+            friends_file=request.FILES['friends_file']
+            if friends_file.multiple_chunks():
                 messages.add_message(request, messages.ERROR,"The file you uploaded is too large.")
             else:
                 start = True
                 format = None
-                contact_file_content = ""
-                for chunk in contacts_file.chunks():
+                friend_file_content = ""
+                for chunk in friends_file.chunks():
                     if start == True:
                         if 'VCARD' in chunk:
                             format = 'VCARD'
-                    contact_file_content += chunk
+                    friend_file_content += chunk
                 if format == 'VCARD':
                     display_import = True
-                    my_contacts = import_vcards(contact_file_content)
+                    my_friends = import_vcards(friend_file_content)
             if display_import:
-                already_contacts_ids = [ec.contact.user.id for ec in Expert_Contact.objects.filter(expert_profile=request.user.get_profile())]
-                existing_users = User.objects.filter(email__in=[k['email'] for k in my_contacts]).order_by('last_name','first_name')
+                already_friends_ids = [ec.friend.user.id for ec in Expert_Contact.objects.filter(expert_profile=request.user.get_profile())]
+                existing_users = User.objects.filter(email__in=[k['email'] for k in my_friends]).order_by('last_name','first_name')
                 existing_lookup = {}
                 for user in existing_users:
                     existing_lookup[user.email] = user
-                filtered_contacts = []
-                for contact in my_contacts:
-                    if existing_lookup.has_key(contact['email']):
-                        user = existing_lookup.get(contact['email'])
-                        if user.id not in already_contacts_ids:
-                            contact.user = user
+                filtered_friends = []
+                for friend in my_friends:
+                    if existing_lookup.has_key(friend['email']):
+                        user = existing_lookup.get(friend['email'])
+                        if user.id not in already_friends_ids:
+                            friend.user = user
                         else:
                             continue
-                    filtered_contacts.append(contact)
+                    filtered_friends.append(friend)
 
-                return render_to_response('contacts/invite.html', {'my_contacts':filtered_contacts }, RequestContext(request))
+                return render_to_response('friends/invite.html', {'my_friends':filtered_friends }, RequestContext(request))
     else:
-        contact_file_form=ImportContactForm()
-        return render_to_response('contacts/upload_contacts.html', locals(), RequestContext(request))
+        friend_file_form=ImportContactForm()
+        return render_to_response('friends/upload_friends.html', locals(), RequestContext(request))
         
-def email_imported_contacts(request, output_prefix="invite", redirect_to='edit_contacts'): 
+def email_imported_friends(request, output_prefix="invite", redirect_to='edit_friends'): 
     redirect_to = request.REQUEST.get('next',None) or redirect_to
     me = request.user.get_profile()
     if '/' not in redirect_to:
         redirect_to = reverse(redirect_to)
     if request.method == 'POST':
-        invited_emails = [email for email in request.POST.getlist("add_as_contact") if re.match(r'^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,6}$',email.strip(),re.IGNORECASE)]
+        invited_emails = [email for email in request.POST.getlist("add_as_friend") if re.match(r'^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,6}$',email.strip(),re.IGNORECASE)]
         existing_profiles = Expert_Profile.objects.filter(user__email__in=invited_emails)
         all_profiles = Expert_Profile.objects.all()
         if existing_profiles.exists():
-            request.user.get_profile().add_contacts(existing_profiles)
+            request.user.get_profile().add_friends(existing_profiles)
             for profile in existing_profiles:
                 invited_emails.remove(profile.user.email)
         invited_count = len(invited_emails)
@@ -252,87 +278,87 @@ def email_imported_contacts(request, output_prefix="invite", redirect_to='edit_c
             messages_to_send.append(
                 (subject_output,body_output,from_address,[email])
             )
-        add_desired_contacts(request.user.get_profile(),invited_emails)
+        add_desired_friends(request.user.get_profile(),invited_emails)
         send_mass_mail(tuple(messages_to_send), fail_silently=False)
         messages.add_message(request, messages.SUCCESS,'You have sent invitations to a total of %s emails.' % invited_count)
         return HttpResponseRedirect(redirect_to)
     if request.method == 'GET':
-        messages.add_message(request, messages.ERROR,'Please try importing your contacts again.')
+        messages.add_message(request, messages.ERROR,'Please try importing your friends again.')
         return HttpResponseRedirect(redirect_to)
-    return render_to_response('contacts/invite_users.html', locals(), RequestContext(request))
+    return render_to_response('friends/invite_users.html', locals(), RequestContext(request))
         
-def get_google_contacts(request):
+def get_google_friends(request):
     cache_code = "GOOG_%s" % hashlib.md5(request.user.email).hexdigest()
-    my_contacts = cache.get(cache_code,None)
-    if my_contacts == None:
-        import gdata.contacts.service
+    my_friends = cache.get(cache_code,None)
+    if my_friends == None:
+        import gdata.friends.service
         import gdata.auth
         from django_authopenid.utils import get_url_host
         import datetime
         from dateutil.relativedelta import relativedelta
         AUTH_SCOPE = "http://www.google.com/m8/feeds"
-        contacts_service = gdata.contacts.service.ContactsService()
+        friends_service = gdata.friends.service.ContactsService()
         if request.GET.has_key('token'):
             rsa_key = open(settings.PRIVATE_KEY,'r').read()
             token = gdata.auth.extract_auth_sub_token_from_url(request.get_full_path(),rsa_key=rsa_key)
-            contacts_service.SetAuthSubToken(token)
-            contacts_service.UpgradeToSessionToken()
-            query = gdata.contacts.service.ContactsQuery()
+            friends_service.SetAuthSubToken(token)
+            friends_service.UpgradeToSessionToken()
+            query = gdata.friends.service.ContactsQuery()
             d = datetime.datetime.now() + relativedelta(years=-1)
             query.updated_min = d.strftime('%Y-%m-%dT%H:%M:%S%z')
-            contacts = []
-            feed = contacts_service.GetContactsFeed(query.ToUri())
-            contacts.extend(sum([[email.address for email in entry.email] for entry in feed.entry], []))
+            friends = []
+            feed = friends_service.GetContactsFeed(query.ToUri())
+            friends.extend(sum([[email.address for email in entry.email] for entry in feed.entry], []))
             next_link = feed.GetNextLink()
             link_counter = 0
             while next_link and link_counter < 20:
                 link_counter += 1
-                feed = contacts_service.GetContactsFeed(uri=next_link.href)
-                contacts.extend(sum([[email.address for email in entry.email] for entry in feed.entry], []))
+                feed = friends_service.GetContactsFeed(uri=next_link.href)
+                friends.extend(sum([[email.address for email in entry.email] for entry in feed.entry], []))
                 next_link = feed.GetNextLink()
-            my_contacts = [{ 'name':None, 'email':email} for email in contacts ]
-            cache.set(cache_code,my_contacts,3000)
+            my_friends = [{ 'name':None, 'email':email} for email in friends ]
+            cache.set(cache_code,my_friends,3000)
         else:
             next = "http://%s%s" % (
                     Site.objects.get_current(),
-                    reverse('google_contacts') 
+                    reverse('google_friends') 
             )
-            url = contacts_service.GenerateAuthSubURL(next, AUTH_SCOPE, False, 1)
+            url = friends_service.GenerateAuthSubURL(next, AUTH_SCOPE, False, 1)
             return HttpResponseRedirect(url)
         counter = 0
-        my_contacts_lookup = {}
-        for k in my_contacts:
-            my_contacts_lookup[k['email']] = counter
+        my_friends_lookup = {}
+        for k in my_friends:
+            my_friends_lookup[k['email']] = counter
             counter += 1
-        already_contacts_ids = [ec.contact.user.id for ec in Expert_Contact.objects.filter(expert_profile=request.user.get_profile())]
-        existing_users = User.objects.filter(email__in=[k['email'] for k in my_contacts]).order_by('last_name','first_name')
+        already_friends_ids = [ec.friend.user.id for ec in Expert_Contact.objects.filter(expert_profile=request.user.get_profile())]
+        existing_users = User.objects.filter(email__in=[k['email'] for k in my_friends]).order_by('last_name','first_name')
         for u in existing_users:
-            if my_contacts_lookup.has_key(u.email):
-                if u.id in already_contacts_ids:
-                    del my_contacts[my_contacts_lookup[u.email]]
+            if my_friends_lookup.has_key(u.email):
+                if u.id in already_friends_ids:
+                    del my_friends[my_friends_lookup[u.email]]
                     continue
-                my_contacts[my_contacts_lookup[u.email]]['user']=u
-        return render_to_response('contacts/invite_contacts.html', {'my_contacts':my_contacts }, RequestContext(request))
+                my_friends[my_friends_lookup[u.email]]['user']=u
+        return render_to_response('friends/invite_friends.html', {'my_friends':my_friends }, RequestContext(request))
 
     
 
 @csrf_protect
 @login_required
-def edit_relationship(request,contact=None,redirect_to='edit_contacts'):
+def edit_relationship(request,friend=None,redirect_to='edit_friends'):
     if '/' not in redirect_to:
         redirect_to = reverse(redirect_to)
     try:
-        contact_profile=Expert_Profile.objects.get(code=contact)
+        friend_profile=Expert_Profile.objects.get(code=friend)
     except Expert_Profile.DoesNotExist:
-        messages.add_message(request, messages.ERROR,"I couldn't find a contact for %s" % contact)
+        messages.add_message(request, messages.ERROR,"I couldn't find a friend for %s" % friend)
         return HttpResponseRedirect(redirect_to)
     try:
-        ec = Expert_Contact.objects.get(expert_profile=contact_profile,contact=request.user.get_profile(),approved=True)
+        ec = Expert_Contact.objects.get(expert_profile=friend_profile,friend=request.user.get_profile(),approved=True)
     except:
-        messages.add_message(request, messages.ERROR,"%s is not one of your contacts, or you're not one of their contacts." % contact)
+        messages.add_message(request, messages.ERROR,"%s is not one of your friends, or you're not one of their friends." % friend)
         return HttpResponseRedirect(redirect_to)
     if request.method == 'POST':
-        contact_form=XFNContactForm(request.POST,expert=request.user.get_profile(),contact=contact_profile,prefix="contact")
+        friend_form=XFNContactForm(request.POST,expert=request.user.get_profile(),friend=friend_profile,prefix="friend")
         if request.POST.get('update_approval'):
             approve_related = request.POST.getlist('approve_related')
             for rel in approve_related:
@@ -342,45 +368,45 @@ def edit_relationship(request,contact=None,redirect_to='edit_contacts'):
             ec.how_related = ' '.join(approve_related)
             ec.how_related_approved = True
             ec.save()
-        if contact_form.is_valid():
-            contact_form.save()
-            messages.add_message(request, messages.SUCCESS,"Your relationship details with %s have been saved." % contact)
+        if friend_form.is_valid():
+            friend_form.save()
+            messages.add_message(request, messages.SUCCESS,"Your relationship details with %s have been saved." % friend)
             return HttpResponseRedirect(redirect_to)
     else:
-        contact_form=XFNContactForm(expert=request.user.get_profile(),contact=contact_profile,prefix="contact")
-    return render_to_response('contacts/edit_relationship.html', locals(), RequestContext(request))
-
+        friend_form=XFNContactForm(expert=request.user.get_profile(),friend=friend_profile,prefix="friend")
+    return render_to_response('friends/edit_relationship.html', locals(), RequestContext(request))
 
 @csrf_protect
 @login_required
-def edit_contacts(request,contact=None,redirect_to='edit_contacts'):
+def edit_friend(request, friend=None, redirect_to='edit_friends', form_class=None):
+    return HttpResponse("Editing friendship")
+
+@csrf_protect
+@login_required
+def edit_friends(request, friend=None, redirect_to='edit_friends', form_class=None):
     if '/' not in redirect_to:
         redirect_to = reverse(redirect_to)
     if request.method == 'POST':
-        try:
-            contact_profile=Expert_Profile.objects.get(code=contact)
-        except Expert_Profile.DoesNotExist:
-            messages.add_message(request, messages.ERROR,"I couldn't find a contact for %s" % contact)
-            return HttpResponseRedirect(redirect_to)
-        contact_form=XFNContactForm(request.POST,expert=request.user.get_profile(),contact=contact_profile,prefix=request.POST.get('prefix'))
-        if contact_form.is_valid():
-            contact_form.save()
-            messages.add_message(request, messages.SUCCESS,"Contact information for %s saved." % contact)
+        friend, friend_profile = get_user_profile(friend)
+        friend_form=friend_form(request.POST,expert=request.user.get_profile(),friend=friend_profile,prefix=request.POST.get('prefix'))
+        if friend_form.is_valid():
+            friend_form.save()
+            messages.add_message(request, messages.SUCCESS,"Contact information for %s saved." % friend)
             return HttpResponseRedirect(redirect_to)
     else:
-        if contact:
+        if friend:
             try:
-                contact_profile=Expert_Profile.objects.get(code=contact)
+                friend_profile=Expert_Profile.objects.get(code=friend)
             except Expert_Profile.DoesNotExist:
-                messages.add_message(request, messages.ERROR,"I couldn't find a contact for %s" % contact)
+                messages.add_message(request, messages.ERROR,"I couldn't find a friend for %s" % friend)
                 return HttpResponseRedirect(redirect_to)
-            contact_form=XFNContactForm(expert=request.user.get_profile(),contact=contact_profile,prefix="contact")
+            friend_form=XFNContactForm(expert=request.user.get_profile(),friend=friend_profile,prefix="friend")
         else:
-            profile_contacts = []
-            expert_contacts = request.user.get_profile().get_contacts()
+            profile_friends = []
+            expert_friends = request.user.get_profile().get_friends()
             counter = 0
-            for expert_contact in expert_contacts:
+            for expert_friend in expert_friends:
                 counter += 1
-                profile_contacts.append(XFNContactForm(expert=request.user.get_profile(),contact=expert_contact.contact,prefix='contact_%s' % counter))
-    return render_to_response('contacts/edit.html', locals(), RequestContext(request))
+                profile_friends.append(XFNContactForm(expert=request.user.get_profile(),friend=expert_friend.friend,prefix='friend_%s' % counter))
+    return render_to_response('friends/edit.html', locals(), RequestContext(request))
 

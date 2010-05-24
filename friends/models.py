@@ -36,14 +36,25 @@ except ImportError:
             kwargs.setdefault('max_length', 50) 
             super(models.CharField, self).__init__(*args, **kwargs) 
 
+class ContactManager(models.Manager):
+    """
+    Deleted records are now hidden most of the time
+    Stolen from django-logicaldelete by paltman http://github.com/paltman/django-logicaldelete
+    """
+    def filter(self, *args, **kwargs):
+        if 'pk' in kwargs or 'deleted' in kwargs:
+            return super(ContactManager, self).filter(*args, **kwargs)
+        else:
+            kwargs.update({'deleted__isnull':True})
+
 class Contact(models.Model):
     """
     A contact is a person known by a user who may or may not themselves
     be a user.
     """
     
-    # the user who created the contact
-    user = models.ForeignKey(User, related_name="contacts")
+    # the user who created the contact; switched to owner so I can use 'user' for the actual user this corresponds to
+    owner = models.ForeignKey(User, related_name="contacts")
     
     name = models.CharField(max_length=100, null=True, blank=True)
     first_name = models.CharField(max_length=50, null=True, blank=True)
@@ -56,13 +67,21 @@ class Contact(models.Model):
     mobile = models.CharField(max_length=50, null=True, blank=True)
     website = models.URLField(max_length=250, verify_exists=False, null=True, blank=True)
     added = models.DateField(default=datetime.date.today)
+    deleted = models.DateField(null=True, blank=True)
     
-    # the user(s) this contact correspond to
-    users = models.ManyToManyField(User)
+    # the user this contact corresponds to -- I'm not allowing more than one user/email
+    user = models.ForeignKey(User, null=True, blank=True)
+    
+    objects = ContactManager()
     
     def __unicode__(self):
         return "%s (%s's contact)" % (self.email, self.user)
-    
+
+def contact_update_user(self, sender, instance, created=False, *args, **kwargs):
+    if created:
+        Contact.objects.filter(email=instance.email).update(user=instance)
+signals.post_save.connect(contact_update_user, sender=User)
+
 class FriendSuggestion(models.Manager):
     email = models.EmailField(null=True, blank=True)
     user = models.ForeignKey(User, null=True, blank=True, related_name="suggested_friends")
