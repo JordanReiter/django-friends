@@ -88,6 +88,7 @@ class MultiEmailField(forms.CharField):
         # Return an empty list if no input was given.
         if not value:
             return []
+        value = re.sub(r'[;,\r\n\t][^<>]+<(.*)>',r'\r\1',value)
         return re.split(r'[\s;,]+',value)
 
     def validate(self, value):
