@@ -169,7 +169,7 @@ class FriendshipForm(forms.ModelForm):
                 if v in RELATED_CHOICES:
                     hr.remove(v)
             if v:
-                self.fields['other_related'].initial=' '.join(v)
+                self.fields['other_related'].initial=' '.join(hr)
                 self.fields['other_related_check'].initial = True
                     
         return form
