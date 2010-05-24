@@ -3,23 +3,19 @@
 {% block content %}
 <h1>{% block title %}Edit Friends {% endblock title %}</h1>
 
-{% for form in friend_forms %}
-<ol class="fields">
-			<li>
-				<label for="choose_how_related_id">How do you know {% firstof form.friend.first_name form.friend.username %}?</label>
-				<div class="field">
-				{{ form.choose_how_related }}
-			</li>
-			<li class="field">
-					<label class="inline">{{ form.other_related_check }} Other:</label>
-					{{ form.other_related }}
-			</li>
-			<li class="field">
-					<label class="inline">{{ form.dont_know_check }} I don't know {% firstof form.friend.first_name form.friend.username %}</label>
-			</li>
-			<li>
-				<input type="submit" value=" Save " />
-			</li>
-</ol>
+{% for friendship in friendship_list %}
+<dl class="friends">
+	<dt>{% firstof friendship.friend.get_full_name friendship.friend.username %}</dt>
+	<dd>
+	{% if friendship.friendship.how_related %}
+		{% firstof friendship.friend.get_full_name friendship.friend.username %}:
+		<ul>
+			{% if 'co-worker' in friendship.friendship.how_related %}<li>works in the same company or organization as you</li>{% endif %}
+			{% if 'co-author' in friendship.friendship.how_related %}<li>wrote one or more papers with you</li>{% endif %}
+			{% if 'colleague' in friendship.friendship.how_related %}<li>is your colleague</li>{% endif %}
+			{% if 'friend' in friendship.friendship.how_related %}<li>is your friend</li>{% endif %}
+		</ul>
+	</dd>
+</dl>
 {% endfor %}
 {% endblock %}
