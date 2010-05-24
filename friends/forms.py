@@ -161,7 +161,18 @@ class FriendshipForm(forms.ModelForm):
         self.friendship = kwargs.get('instance', None)
         self.user = kwargs.pop('user', None)
         self.friend = kwargs.pop('friend', None)
-        return super(FriendshipForm,self).__init__(*args,**kwargs)
+        form = super(FriendshipForm,self).__init__(*args,**kwargs)
+        if self.friendship and self.friendship.how_related:
+            hr = self.friendship.how_related.split(' ')
+            self.fields['choose_how_related'].initial = hr
+            for v in hr:
+                if v in RELATED_CHOICES:
+                    hr.remove(v)
+            if v:
+                self.fields['other_related'].initial=' '.join(v)
+                self.fields['other_related_check'].initial = True
+                    
+        return form
     
     def clean(self):
         if not self.friendship:
