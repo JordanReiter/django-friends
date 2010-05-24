@@ -358,7 +358,7 @@ def edit_relationship(request,friend=None,redirect_to='edit_friends',form_class=
         messages.add_message(request, messages.ERROR,"%s is not one of your friends, or you're not one of their friends." % friend)
         return HttpResponseRedirect(redirect_to)
     if request.method == 'POST':
-        friend_form=XFNContactForm(request.POST,expert=request.user.get_profile(),friend=friend_profile,prefix="friend")
+        friend_form=form_class(request.POST,expert=request.user.get_profile(),friend=friend_profile,prefix="friend")
         if request.POST.get('update_approval'):
             approve_related = request.POST.getlist('approve_related')
             for rel in approve_related:
@@ -373,7 +373,7 @@ def edit_relationship(request,friend=None,redirect_to='edit_friends',form_class=
             messages.add_message(request, messages.SUCCESS,"Your relationship details with %s have been saved." % friend)
             return HttpResponseRedirect(redirect_to)
     else:
-        friend_form=XFNContactForm(expert=request.user.get_profile(),friend=friend_profile,prefix="friend")
+        friend_form=form_class(expert=request.user.get_profile(),friend=friend_profile,prefix="friend")
     return render_to_response('friends/edit_relationship.html', locals(), RequestContext(request))
 
 @csrf_protect
@@ -400,13 +400,13 @@ def edit_friends(request, friend=None, redirect_to='edit_friends', form_class=No
             except Expert_Profile.DoesNotExist:
                 messages.add_message(request, messages.ERROR,"I couldn't find a friend for %s" % friend)
                 return HttpResponseRedirect(redirect_to)
-            friend_form=XFNContactForm(expert=request.user.get_profile(),friend=friend_profile,prefix="friend")
+            friend_form=form_class(expert=request.user.get_profile(),friend=friend_profile,prefix="friend")
         else:
             profile_friends = []
-            friends = request.user.get_profile().get_friends()
+            friendship_list = request.user.get_profile().get_friends()
             counter = 0
-            for f in friends:
+            for f in friendship_list:
                 counter += 1
-                profile_friends.append(XFNContactForm(expert=request.user.get_profile(),friend=expert_friend.friend,prefix='friend_%s' % counter))
+                friend_forms.append(form_class(friendship=f.friendship, user=request.user, friend=f.friend, prefix='friend_%s' % counter))
     return render_to_response('friends/edit.html', locals(), RequestContext(request))
 
