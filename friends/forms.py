@@ -89,6 +89,7 @@ class MultiEmailField(forms.CharField):
         if not value:
             return []
         value = re.sub(r'(\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.([A-Z]{2,4}|museum)\b)',r'\n\n one=\1;two=\2,three=\3\n\n',value, re.IGNORECASE)
+        return 'KERMEEEEEEE'
         return value
 #        return re.split(r'[\s;,]+',value)
 
