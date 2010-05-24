@@ -407,6 +407,6 @@ def edit_friends(request, friend=None, redirect_to='edit_friends', form_class=No
             counter = 0
             for f in friendship_list:
                 counter += 1
-                friend_forms.append(form_class(friendship=f.friendship, user=request.user, friend=f.friend, prefix='friend_%s' % counter))
+                friend_forms.append(form_class(friendship=f['friendship'], user=request.user, friend=f['friend'], prefix='friend_%s' % counter))
     return render_to_response('friends/edit.html', locals(), RequestContext(request))
 
