@@ -120,10 +120,10 @@ class Friendship(models.Model):
     have both agreed to the association.
     """
     
-    to_user = models.ForeignKey(User, related_name="friends")
-    from_user = models.ForeignKey(User, related_name="_unused_")
+    to_user = models.ForeignKey(User, related_name="friends", editable=False)
+    from_user = models.ForeignKey(User, related_name="_unused_", editable=False)
     how_related = models.CharField(max_length=100, null=True, blank=True)
-    added = models.DateField(default=datetime.date.today)
+    added = models.DateField(default=datetime.date.today, editable=False)
     
     objects = FriendshipManager()
     
