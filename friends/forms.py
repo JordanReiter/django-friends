@@ -241,20 +241,20 @@ class ContactForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.contact=kwargs.get('instance',None)
         self.user=kwargs.pop('user',None)
-        try:
-            self.is_friend = Friendship.objects.are_friends(self.contact.user, self.user)
-            if self.is_friend:
-                try:
-                    friendship = Friendship.objects.get(from_user=self.user, to_user=self.contact.user)
-                    parse_related(self, friendship.how_related)
-                except Friendship.DoesNotExist:
-                    pass
-                except Exception, inst:
-                    raise Exception("%s" % inst)
-        except AttributeError:
-            self.is_friend = False
         super(ContactForm, self).__init__(*args, **kwargs)
-        if self.contact.user:
+        if self.contact and self.contact.user:
+            try:
+                self.is_friend = Friendship.objects.are_friends(self.contact.user, self.user)
+                if self.is_friend:
+                    try:
+                        friendship = Friendship.objects.get(from_user=self.user, to_user=self.contact.user)
+                        parse_related(self, friendship.how_related)
+                    except Friendship.DoesNotExist:
+                        pass
+                    except Exception, inst:
+                        raise Exception("%s" % inst)
+            except AttributeError:
+                self.is_friend = False
             show = self.contact.user.get_profile().get_access(self.user)
             for f, v  in self.fields.items():
                 if show.get(f,True) != False:
