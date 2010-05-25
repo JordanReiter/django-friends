@@ -15,6 +15,21 @@
 		<li {%if form.address.errors %}class="errors"{% endif %}>{{ form.address.errors }}<label for="id_address">{{ form.address.label }}</label> {{ form.address }}</li>
 		<li {%if form.country.errors %}class="errors"{% endif %}>{{ form.country.errors }}<label for="id_country">{{ form.country.label }}</label> {{ form.country }}</li>
 		<li {%if form.website.errors %}class="errors"{% endif %}>{{ form.website.errors }}<label for="id_website">{{ form.website.label }}</label> {{ form.website }}</li>
+		{% if form.is_friend %}
+			<li>
+				<label for="choose_how_related_id">How do you know {% firstof contact.user.first_name contact.user.username %}?</label>
+				<div class="field">
+				{{ form.choose_how_related }}
+			</li>
+			<li class="field">
+				<label class="inline">{{ form.contact.other_related_check }} Other:</label>
+				{{ form.other_related }}
+			</li>
+			<li class="field">
+				<label class="inline">{{ form.dont_know_check }} I don't know {% firstof contact.user.first_name contact.user.username %}</label>
+			</li>
+		{% endif %}
+		<input type="submit" value="Save Information" />
 	</ol>
 </form>
 

@@ -23,6 +23,7 @@ RELATED_CHOICES = (
     ('co-worker',_('We we work together')),
     ('friend',_('We are friends')),
     ('co-author',_('We are co-authors (co-wrote a paper)')),
+    ('unknown',_('I don\'t know them')),
 )
 
 def format_how_related(form):
@@ -197,11 +198,6 @@ class FriendshipForm(forms.ModelForm):
         widget=forms.CheckboxInput,
         required=False
     )
-    dont_know_check = forms.BooleanField(
-        label='Don\'t know this person:',
-        widget=forms.CheckboxInput,
-        required=False
-    )
 
     def __init__(self, *args, **kwargs):
         self.friendship = kwargs.get('instance', None)
@@ -238,11 +234,6 @@ class ContactForm(forms.ModelForm):
     other_related = forms.CharField(required=False, max_length=50)
     other_related_check = forms.BooleanField(
         label='Other:',
-        widget=forms.CheckboxInput,
-        required=False
-    )
-    dont_know_check = forms.BooleanField(
-        label='Don\'t know this person:',
         widget=forms.CheckboxInput,
         required=False
     )
