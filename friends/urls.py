@@ -9,5 +9,6 @@ urlpatterns = patterns('',
    url(r'^invite/$', invite_users, name="invite_friends"),
    url(r'^accept/(?P<friend>[\w\.]+)/$', accept_friendship, name=""),
    url(r'^join/(?P<key>[a-z0-9]+)/?$', accept_invitation, name="friends_accept_join"),
+   url(r'^addressbook/$', addressbook, name="edit_friends"),
    url(r'^$', edit_friends, name="edit_friends"),
 )
