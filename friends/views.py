@@ -402,7 +402,7 @@ def edit_friend(request, friend=None, redirect_to='edit_friends', form_class=Non
 
 @csrf_protect
 @login_required
-def edit_friends(request, friend=None, redirect_to='edit_friends', form_class=FriendshipForm):
+def edit_friends(request, friend=None, redirect_to='edit_friends', form_class=FriendshipForm, template_name="friends/edit.html"):
     if '/' not in redirect_to:
         redirect_to = reverse(redirect_to)
     if request.method == 'POST':
@@ -427,9 +427,10 @@ def edit_friends(request, friend=None, redirect_to='edit_friends', form_class=Fr
             for f in friendship_list:
                 counter += 1
                 friend_forms.append(form_class(instance=f['friendship'], user=request.user, friend=f['friend'], prefix='friend_%s' % counter))
-    return render_to_response('friends/edit.html', locals(), RequestContext(request))
+    return render_to_response(template_name, locals(), RequestContext(request))
 
 
 @login_required
-def addressbook(request):
+def addressbook(request, template_name="friends/addressbook.html"):
     contacts = Contact.objects.filter(owner=request.user)
+    return render_to_response(template_name, locals(), RequestContext(request))
