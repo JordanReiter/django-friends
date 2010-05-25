@@ -115,6 +115,12 @@ class FriendSuggestion(models.Manager):
     why = models.CharField(max_length=100)
     active = models.BooleanField(default=True)
 
+def suggest_friend_from_invite(sender, instance, created, *args, **kwargs):
+    if created:
+        FriendSuggestion.objects.get_or_create(suggested_user=instance.from_user, email=instance.contact.email)
+
+
+
 class FriendshipManager(models.Manager):
     
     def friends_for_user(self, user):
@@ -307,8 +313,6 @@ def delete_friendship(sender, instance, **kwargs):
             friendship_invitation.save()
 
 
-
-
 # moves existing friendship invitation from user to user to FriendshipInvitationHistory before saving new invitation
 def friendship_invitation(sender, instance, **kwargs):
     friendship_invitations = FriendshipInvitation.objects.filter(to_user=instance.to_user, from_user=instance.from_user)
@@ -330,3 +334,4 @@ signals.pre_save.connect(friendship_invitation, sender=FriendshipInvitation)
 signals.post_save.connect(contact_update_user, sender=User)
 signals.post_save.connect(contact_create_for_friendship, sender=Friendship)
 signals.pre_delete.connect(delete_friendship, sender=Friendship)
+signals.post_save.connect(suggest_friend_from_invite, sender=JoinInvitation)

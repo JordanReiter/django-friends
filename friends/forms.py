@@ -256,7 +256,8 @@ class ContactForm(forms.ModelForm):
         contact=super(ContactForm, self).save(*args, **kwargs)
         if self.is_friend:
             friendship, _ = Friendship.objects.get_or_create(from_user=self.user, to_user=contact.user)
-            friendship.how_related = format_how_related(self) 
+            friendship.how_related = format_how_related(self)
+            friendship.save()
         return contact
 
     class Meta:
