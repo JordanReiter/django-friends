@@ -115,7 +115,7 @@ def invite_users(request,output_prefix="invite", redirect_to='edit_friends', inv
             for email in invited_emails:
                 JoinInvitation.objects.send_invitation(request.user, email, None)
                 messages.add_message(request, messages.SUCCESS,"You have sent invitations to %(invite_count)d email addresses." % {'invite_count':len(invited_emails)})
-                HttpResponseRedirect(redirect_to)
+                return HttpResponseRedirect(redirect_to)
     if request.method == 'GET':
         invite_users_form = invite_form()
     return render_to_response('friends/invite.html', locals(), RequestContext(request))
