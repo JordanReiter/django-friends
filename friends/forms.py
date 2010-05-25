@@ -241,9 +241,9 @@ class ContactForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         self.contact=kwargs.get('instance',None)
         self.user=kwargs.pop('user',None)
-        if self.contact.user:
+        try:
             self.is_friend = Friendship.objects.are_friends(self.contact.user, self.user)
-        else:
+        except AttributeError:
             self.is_friend = False
         super(ContactForm, self).__init__(*args, **kwargs)
         if self.contact.user:
@@ -253,6 +253,8 @@ class ContactForm(forms.ModelForm):
                     d = getattr(self.contact.user,f, getattr(self.contact.user.get_profile(), f, None))
                 else:
                     d = None
+                if not (v.initial and len(v.initial)):
+                    self.fields[f].initial = getattr(self.contact,f,None) or d
                 
         
     def save(self, *args, **kwargs):
