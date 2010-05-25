@@ -255,7 +255,6 @@ class ContactForm(forms.ModelForm):
                     self.fields[f].initial=getattr(contact.user,f)
         else:
             self.is_friend = False
-        return self
         
     def save(self, *args, **kwargs):
         contact=super(ContactForm, self).save(*args, **kwargs)
