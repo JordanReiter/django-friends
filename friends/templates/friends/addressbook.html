@@ -10,15 +10,22 @@
 	<dt>
 	{# This is a user on the site, so display site user information #}
 	{% if contact.user.get_profile.photo %}
-		<a href="{{ contact.user.get_profile.get_absolute_url }}" /><img src="{{ MEDIA_URL }}/{{ contact.user.get_profile.photo.thumbnail.url }}" style="border: 0; vertical-align: middle;"  /></a>
+		<a href="{{ contact.user.get_profile.get_absolute_url }}" /><img src="{{ MEDIA_URL }}/{{ contact.user.get_profile.photo.thumbnail.url }}" style="border: 0; float: middle;"  /></a>
 	{% else %}
 		<a href="{{ contact.user.get_profile.get_absolute_url }}" /><img src="{{ MEDIA_URL }}/images/unknown_thumbnail.png" style="border: 0; vertical-align: middle;" /></a>
 	{% endif %} 
 	<strong><a href="{{ contact.user.get_profile.get_absolute_url }}" />{% firstof contact.user.get_profile.user.get_full_name contact.user.get_profile.user.username %}</a></strong><br />
-	{% if contact.user.get_profile.job %}{% if contact.user.get_profile.job.role %}{{ contact.user.get_profile.job.role }} at {% endif %}{{ contact.user.get_profile.job.name }}<br />{% endif %}
-	{% if contact.user.get_profile.country %}{{ contact.user.get_profile.country.name }}<br />{% endif %}
-	{% if request.user in contact.user.get_profile.get_friends_as_users %}{{ contact.user.first_name}} is your contact.{% endif %}
+		{% if request.user in contact.user.get_profile.get_friends_as_users %}{{ contact.user.first_name}} is your contact.{% endif %}
 	</dt>
+	<dd>
+		{% if contact.user.get_profile.job %}{% if contact.user.get_profile.job.role %}{{ contact.user.get_profile.job.role }} at {% endif %}{{ contact.user.get_profile.job.name }}<br />{% endif %}
+		{% if contact.user.get_profile.country %}{{ contact.user.get_profile.country.name }}<br />{% endif %}
+		{% if contact.address %}{{ contact.address }}<br />{% endif %}
+		{% if contact.phone %}Phone: {{ contact.phone }}<br />{% endif %}
+		{% if contact.mobile %}Mobile: {{ contact.mobile }}<br />{% endif %}
+		{% if contact.fax %}Fax: {{ contact.fax }}<br />{% endif %}
+		{% if contact.website %}Website: <a href="{{ contact.website }}">{{ contact.website }}</a><br />{% endif %}
+	</dd>
 {% else %}
 	<dt>
 		{% if contact.name %}
