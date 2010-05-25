@@ -5,7 +5,15 @@
 
 {% for friendship in friendship_list %}
 <dl class="friends">
-	<dt>{% firstof friendship.friend.get_full_name friendship.friend.username %}</dt>
+	<dt>
+	{# This is a user on the site, so display site user information #}
+	{% if contact.user.get_profile.photo %}
+		<a href="{{ contact.user.get_profile.get_absolute_url }}" /><img src="{{ MEDIA_URL }}/{{ contact.user.get_profile.photo.thumbnail.url }}" style="border: 0; float: middle;"  /></a>
+	{% else %}
+		<a href="{{ contact.user.get_profile.get_absolute_url }}" /><img src="{{ MEDIA_URL }}/images/unknown_thumbnail.png" style="border: 0; vertical-align: middle;" /></a>
+	{% endif %} 
+	<strong><a href="{{ contact.user.get_profile.get_absolute_url }}" />{% firstof contact.user.get_profile.user.get_full_name contact.user.get_profile.user.username %}</a></strong><br />
+	</dt>
 	<dd>
 		{{ friendship.friendship.how_related }}
 		<a href="{% url edit_friend friendship.friend.username %}">Edit</a>
