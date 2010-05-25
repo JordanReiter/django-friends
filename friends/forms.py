@@ -248,11 +248,11 @@ class ContactForm(forms.ModelForm):
     )
 
     def __init__(self, user=None, *args, **kwargs):
-        contact=kwargs.get('instance',None)
+        self.contact=kwargs.get('instance',None)
         self.user=user
         form = super(ContactForm, self).__init__(*args, **kwargs)
-        if contact.user:
-            self.is_friend = Friendship.objects.are_friends(contact.user, self.user)
+        if self.contact.user:
+            self.is_friend = Friendship.objects.are_friends(self.contact.user, self.user)
         else:
             self.is_friend = False
         
