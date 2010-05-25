@@ -1,0 +1,1 @@
+{% firstof user.get_full_name user.username %} has invited you to {{ SITE_NAME }}

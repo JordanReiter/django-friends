@@ -1,0 +1,19 @@
+{% if contact.name %}Dear {{ name }},
+
+{% endif %}
+You have been invited to join {{ SITE_NAME }}, the primary website for experts in the field of education.
+
+Your invitation is from {% firstof user.get_full_name user.username %}, who would like to be one of our contacts!
+
+{% if message %}
+	{% firstof user.first_name user.username %} added the following message:
+	{{ message }}
+{% endif %}
+
+To join, please follow this URL:
+{{ accept_url }} 
+
+Thank you for joining us. If you have any questions, please send us an e-mail at {{ CONTACT_EMAIL }}.
+
+Gary Marks
+AcademicExperts.org
