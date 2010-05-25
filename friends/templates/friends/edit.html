@@ -8,7 +8,7 @@
 	<dt>{% firstof friendship.friend.get_full_name friendship.friend.username %}</dt>
 	<dd>
 		{{ friendship.friendship.how_related }}
-		<a href="{% url edit_friend friendship.friend.username %}">Remove</a>
+		<a href="{% url edit_friend friendship.friend.username %}">Edit</a>
 		<a href="{% url remove_friend friendship.friend.username %}">Remove</a>
 	</dd>
 </dl>
