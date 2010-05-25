@@ -247,11 +247,15 @@ class ContactForm(forms.ModelForm):
     def __init__(self, user=None, *args, **kwargs):
         contact=kwargs.get('instance',None)
         self.user=user
+        form = super(ContactForm, self).__init__(*args, **kwargs)
         if contact.user:
             self.is_friend = Friendship.objects.are_friends(contact.user, self.user)
+            for f, v in self.fields.items():
+                if not v and hasattr(contact.user,f):
+                    self.fields[f].initial=getattr(contact.user,f)
         else:
             self.is_friend = False
-        return super(ContactForm, self).__init__(*args, **kwargs)
+        return self
         
     def save(self, *args, **kwargs):
         contact=super(ContactForm, self).save(*args, **kwargs)
