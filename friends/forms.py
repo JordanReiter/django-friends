@@ -130,7 +130,7 @@ class MultiEmailField(forms.CharField):
 
 class MultipleInviteForm(forms.Form):
     invited_emails = MultiEmailField(max_length=1000)
-    message = models.CharField(max_length=300, required=False)
+    message = forms.CharField(max_length=300, required=False)
     
     def __init__(self, user=None, max_invites=20, *args, **kwargs):
         self.user = user
