@@ -100,12 +100,12 @@ def import_outlook(stream, user):
                 if re.match(r"^.*?\b([A-Z0-9._%%+-]+@[A-Z0-9.-]+\.([A-Z]{2,4}|museum))\b.*$", line):
                     contact_vals['email'] = re.sub(r"^.*?\b([A-Z0-9._%%+-]+@[A-Z0-9.-]+\.([A-Z]{2,4}|museum))\b.*$", r"\1", line)
             for c in ["","work_","business_","home_"]:
-                if contact_vals.has_key("%semail"):
-                    email=contact_vals.pop("%semail")
+                if contact_vals.has_key("%semail" % c):
+                    email=contact_vals.pop("%semail" % c)
                     if not contact_vals.get('email',''):
                         contact_vals['email']=email
-                if contact_vals.has_key("%saddress"):
-                    addr=contact_vals.pop("%saddress")
+                if contact_vals.has_key("%saddress" % c):
+                    addr=contact_vals.pop("%saddress" % c)
                     if not contact_vals.get('address',''):
                         contact_vals['address']=addr
                 street = contact_vals.pop(('%sstreet' % c),None)
