@@ -429,3 +429,7 @@ def edit_friends(request, friend=None, redirect_to='edit_friends', form_class=Fr
                 friend_forms.append(form_class(instance=f['friendship'], user=request.user, friend=f['friend'], prefix='friend_%s' % counter))
     return render_to_response('friends/edit.html', locals(), RequestContext(request))
 
+
+@login_required
+def addressbook(request):
+    contacts = Contact.objects.filter(owner=request.user)
