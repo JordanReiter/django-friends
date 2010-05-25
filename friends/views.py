@@ -303,10 +303,8 @@ def edit_contact(request, contact_id=None, redirect_to='edit_contacts', form_cla
 def edit_friend(request, friend=None, redirect_to='edit_friends', form_class=FriendshipForm, template_name="friends/edit_contact.html"):
     if '/' not in redirect_to:
         redirect_to = reverse(redirect_to)
-    friend, friend_profile = get_user_profile(friend)
-    if Friendship.objects.are_friends(friend, request.user):
-        friendship, _ = Friendship.objects.get_or_create(from_user=request.user, to_user=friend)
-    else:
+    friend, _ = get_user_profile(friend)
+    if not Friendship.objects.are_friends(friend, request.user):
         messages.add_message(request, messages.ERROR,"You are not friends with %s." % (friend.get_full_name() or friend.username))
         return HttpResponseRedirect(redirect_to)
     contact, _ = Contact.objects.get_or_create(owner=request.user, email=friend.email)
