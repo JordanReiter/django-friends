@@ -227,7 +227,7 @@ class FriendshipForm(forms.ModelForm):
         
 
 class ContactForm(forms.ModelForm):
-    name = forms.CharField(max_length=100)
+    name = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'size':50}))
     address = forms.CharField(max_length=300, required=False, widget=forms.Textarea(attrs={'rows':5, 'cols':50}))
     website = forms.URLField(required=False, widget=forms.TextInput(attrs={'size':50}))
     choose_how_related = forms.MultipleChoiceField(
