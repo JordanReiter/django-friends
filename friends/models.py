@@ -183,7 +183,7 @@ class JoinInvitation(models.Model):
     
     from_user = models.ForeignKey(User, related_name="join_from")
     contact = models.ForeignKey(Contact)
-    message = models.TextField()
+    message = models.TextField(null=True, blank=True)
     sent = models.DateField(default=datetime.date.today)
     status = models.CharField(max_length=1, choices=INVITE_STATUS)
     confirmation_key = models.CharField(max_length=40)
@@ -221,7 +221,7 @@ class FriendshipInvitation(models.Model):
     
     from_user = models.ForeignKey(User, related_name="invitations_from")
     to_user = models.ForeignKey(User, related_name="invitations_to")
-    message = models.TextField()
+    message = models.TextField(null=True, blank=True)
     sent = models.DateField(default=datetime.date.today)
     status = models.CharField(max_length=1, choices=INVITE_STATUS)
     
@@ -253,7 +253,7 @@ class FriendshipInvitationHistory(models.Model):
     
     from_user = models.ForeignKey(User, related_name="invitations_from_history")
     to_user = models.ForeignKey(User, related_name="invitations_to_history")
-    message = models.TextField()
+    message = models.TextField(null=True, blank=True)
     sent = models.DateField(default=datetime.date.today)
     status = models.CharField(max_length=1, choices=INVITE_STATUS)
 
