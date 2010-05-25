@@ -239,13 +239,22 @@ class ContactForm(forms.ModelForm):
     )
 
     def __init__(self, user=None, *args, **kwargs):
-        self.contact=kwargs.get('instance',None)
+        self.contact=kwargs.get('contact',None)
         self.user=user
-        form = super(ContactForm, self).__init__(*args, **kwargs)
         if self.contact.user:
             self.is_friend = Friendship.objects.are_friends(self.contact.user, self.user)
         else:
             self.is_friend = False
+            kwargs.update({'instance':self.contact})
+        super(ContactForm, self).__init__(*args, **kwargs)
+        if self.contact.user:
+            show = self.contact.user.get_profile().get_access(self.user)
+            for f, v  in self.fields.items():
+                if show.get(f,True) != False:
+                    d = getattr(self.contact.user,f, getattr(self.contact.user.get_profile(), f, None))
+                else:
+                    d = None
+                
         
     def save(self, *args, **kwargs):
         contact=super(ContactForm, self).save(*args, **kwargs)
