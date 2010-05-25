@@ -191,3 +191,7 @@ class FriendshipForm(forms.ModelForm):
     
     class Meta:
         model=Friendship
+        
+class ContactForm(forms.ModelForm):
+    class Meta:
+        model = Contact
