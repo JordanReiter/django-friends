@@ -100,31 +100,34 @@ def import_outlook(stream, user):
                 if re.match(r"^.*?\b([A-Z0-9._%%+-]+@[A-Z0-9.-]+\.([A-Z]{2,4}|museum))\b.*$", line):
                     contact_vals['email'] = re.sub(r"^.*?\b([A-Z0-9._%%+-]+@[A-Z0-9.-]+\.([A-Z]{2,4}|museum))\b.*$", r"\1", line)
             for c in ["","work_","business_","home_"]:
-                if not contact_vals.get('email','') and contact_vals.has_key("%semail"):
-                    contact_vals['email']=contact_vals.pop("%semail")
-                if not contact_vals.has_key('address'):
-                    if contact_vals.has_key("%saddress"):
-                        contact_vals['address']=contact_vals.pop("%saddress")
-                        break
-                    street = contact_vals.pop(('%sstreet' % c),None)
-                    city = contact_vals.pop(('%scity' % c),None)
-                    state = contact_vals.pop(('%sstate' % c),None)
-                    zip = contact_vals.pop(('%szip' % c),None)
-                    if (street or city or state) and not contact_vals.has_key('address'):
-                        address = ""
-                        if street:
-                            address += street
-                        if city:
-                            if len(address):
-                                address += ", "
-                            address += city
-                        if state:
-                            if len(address):
-                                address += ", "
-                            address += state
-                        if zip and len(address):
-                            address += " " + zip
-                        contact_vals['address']=address
+                if contact_vals.has_key("%semail"):
+                    email=contact_vals.pop("%semail")
+                    if not contact_vals.get('email',''):
+                        contact_vals['email']=email
+                if contact_vals.has_key("%saddress"):
+                    addr=contact_vals.pop("%saddress")
+                    if not contact_vals.get('address',''):
+                        contact_vals['address']=addr                        
+                    break
+                street = contact_vals.pop(('%sstreet' % c),None)
+                city = contact_vals.pop(('%scity' % c),None)
+                state = contact_vals.pop(('%sstate' % c),None)
+                zip = contact_vals.pop(('%szip' % c),None)
+                if (street or city or state) and not contact_vals.has_key('address'):
+                    address = ""
+                    if street:
+                        address += street
+                    if city:
+                        if len(address):
+                            address += ", "
+                        address += city
+                    if state:
+                        if len(address):
+                            address += ", "
+                        address += state
+                    if zip and len(address):
+                        address += " " + zip
+                    contact_vals['address']=address
             try:
                 Contact.objects.get(owner=user, email=contact_vals['email'])
             except Contact.DoesNotExist:
