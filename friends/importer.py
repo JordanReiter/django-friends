@@ -107,8 +107,7 @@ def import_outlook(stream, user):
                 if contact_vals.has_key("%saddress"):
                     addr=contact_vals.pop("%saddress")
                     if not contact_vals.get('address',''):
-                        contact_vals['address']=addr                        
-                    break
+                        contact_vals['address']=addr
                 street = contact_vals.pop(('%sstreet' % c),None)
                 city = contact_vals.pop(('%scity' % c),None)
                 state = contact_vals.pop(('%sstate' % c),None)
