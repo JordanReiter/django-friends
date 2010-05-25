@@ -247,9 +247,9 @@ def export_friends(request):
     return response    
 
     
-def import_file_contacts(request):
+def import_file_contacts(request, form_class=ImportContactForm, template_name='friends/upload_contacts.html'):
     if request.method == 'POST':
-        friend_file_form=ImportContactForm(request.POST,request.FILES)
+        friend_file_form=form_class(request.POST,request.FILES)
         if friend_file_form.is_valid():
             friends_file=request.FILES['friends_file']
             if friends_file.multiple_chunks():
@@ -280,8 +280,8 @@ def import_file_contacts(request):
             imported_contacts = Contact.objects.filter(owner=request.user, type=imported_type)
             return render_to_response('friends/invite_imported.html', {'contacts':imported_contacts }, RequestContext(request))
     else:
-        friend_file_form=ImportContactForm()
-        return render_to_response('friends/upload_friends.html', locals(), RequestContext(request))
+        friend_file_form=form_class()
+        return render_to_response(template_name, locals(), RequestContext(request))
 
 
 def invite_imported(request):
