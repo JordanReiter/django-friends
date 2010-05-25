@@ -46,8 +46,8 @@ def parse_related(form, how_related):
 
 class UserForm(forms.Form):
     
-    def __init__(self, user=None, *args, **kwargs):
-        self.user = user
+    def __init__(self, *args, **kwargs):
+        self.user = kwargs.pop('user',None)
         super(UserForm, self).__init__(*args, **kwargs)
 
 
@@ -84,8 +84,8 @@ class InviteFriendForm(UserForm):
             
         return self.cleaned_data["to_user"]
     
-    def __init__(self, friend=None, *args, **kwargs):
-        self.friend = friend
+    def __init__(self, *args, **kwargs):
+        self.friend = kwargs.pop('friend', None)
         super(UserForm, self).__init__(*args, **kwargs)
         self.fields['to_user'].initial = self.friend.username
     
@@ -133,8 +133,8 @@ class MultipleInviteForm(forms.Form):
     invited_emails = MultiEmailField(max_length=1000)
     message = forms.CharField(max_length=300, required=False)
     
-    def __init__(self, user=None, max_invites=20, *args, **kwargs):
-        self.user = user
+    def __init__(self, max_invites=20, *args, **kwargs):
+        self.user = kwargs.pop('user', None)
         super(MultipleInviteForm, self).__init__(*args, **kwargs)
         self.max_invites=max_invites
         
@@ -238,9 +238,9 @@ class ContactForm(forms.ModelForm):
         required=False
     )
 
-    def __init__(self, user=None, *args, **kwargs):
+    def __init__(self, *args, **kwargs):
         self.contact=kwargs.get('instance',None)
-        self.user=user
+        self.user=kwargs.pop('user',None)
         if self.contact.user:
             self.is_friend = Friendship.objects.are_friends(self.contact.user, self.user)
         else:
