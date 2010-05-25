@@ -249,6 +249,8 @@ class ContactForm(forms.ModelForm):
                     parse_related(self, friendship.how_related)
                 except Friendship.DoesNotExist:
                     pass
+                except Exception, inst:
+                    raise Exception("%s" % inst)
         except AttributeError:
             self.is_friend = False
         super(ContactForm, self).__init__(*args, **kwargs)
