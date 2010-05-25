@@ -22,11 +22,8 @@
 				{{ form.choose_how_related }}
 			</li>
 			<li class="field">
-				<label class="inline">{{ form.contact.other_related_check }} Other:</label>
+				<label class="inline">{{ form.other_related_check }} Other:</label>
 				{{ form.other_related }}
-			</li>
-			<li class="field">
-				<label class="inline">{{ form.dont_know_check }} I don't know {% firstof contact.user.first_name contact.user.username %}</label>
 			</li>
 		{% endif %}
 		<input type="submit" value="Save Information" />
