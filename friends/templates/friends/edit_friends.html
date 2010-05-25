@@ -7,12 +7,12 @@
 <dl class="friends">
 	<dt>
 	{# This is a user on the site, so display site user information #}
-	{% if contact.user.get_profile.photo %}
-		<a href="{{ contact.user.get_profile.get_absolute_url }}" /><img src="{{ MEDIA_URL }}/{{ contact.user.get_profile.photo.thumbnail.url }}" style="border: 0; float: middle;"  /></a>
+	{% if friendship.friend.get_profile.photo %}
+		<a href="{{ friendship.friend.get_profile.get_absolute_url }}" /><img src="{{ MEDIA_URL }}/{{ friendship.friend.get_profile.photo.thumbnail.url }}" style="border: 0; float: middle;"  /></a>
 	{% else %}
-		<a href="{{ contact.user.get_profile.get_absolute_url }}" /><img src="{{ MEDIA_URL }}/images/unknown_thumbnail.png" style="border: 0; vertical-align: middle;" /></a>
+		<a href="{{ friendship.friend.get_profile.get_absolute_url }}" /><img src="{{ MEDIA_URL }}/images/unknown_thumbnail.png" style="border: 0; vertical-align: middle;" /></a>
 	{% endif %} 
-	<strong><a href="{{ contact.user.get_profile.get_absolute_url }}" />{% firstof contact.user.get_profile.user.get_full_name contact.user.get_profile.user.username %}</a></strong><br />
+	<strong><a href="{{ friendship.friend.get_profile.get_absolute_url }}" />{% firstof friendship.friend.get_profile.user.get_full_name friendship.friend.get_profile.user.username %}</a></strong><br />
 	</dt>
 	<dd>
 		{{ friendship.friendship.how_related }}
