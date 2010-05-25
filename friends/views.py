@@ -50,7 +50,7 @@ def get_user_profile(user):
     try:
         profile = user.get_profile()
     except AttributeError:
-        user = User.objects.get(code=user)
+        user = User.objects.get(username=user)
         try:
             profile = user.get_profile()
         except:
@@ -65,8 +65,17 @@ def get_user_profile(user):
 def my_friends(request):
     return view_friends(request,request.user)
 
-def view_friends(request, user, template_name="friends/friends.html"):
+def view_friends(request, user, template_name="friends/friends.html", redirect_to='/'):
+    if '/' not in redirect_to:
+        redirect_to = reverse(redirect_to)
     user, profile = get_user_profile(user)
+    try:
+        show = profile.get_access(request.user)
+        if show.get('friends',True)==False or show.get('contacts',True)==False:
+            messages.add_message(request, messages.ERROR,"You're not allowed to view contacts for %s." % (user.get_full_name() or user.username))
+            return HttpResponseRedirect(redirect_to)
+    except AttributeError:
+        pass
     friends = Friendship.objects.friends_for_user(user)
     return render_to_response(template_name, locals(), RequestContext(request))
 
@@ -156,7 +165,7 @@ def accept_invitation(request, key, template_name="friends/accept_invitation.htm
 @csrf_protect
 @login_required
 def accept_friendship(request,friend,template_name='confirm.html'):
-    friend, friend_profile = get_user_profile()
+    friend, friend_profile = get_user_profile(friend)
     
     # because of the threat of cross-site scripting, this action has to be the result of a form posting
     if request.method == 'GET':
@@ -206,7 +215,7 @@ def remove_contact(request,contact,template_name='confirm.html',redirect_to='edi
 @csrf_protect
 @login_required
 def remove_friend(request,friend,template_name='confirm.html',redirect_to='edit_friends'):
-    friend, friend_profile = get_user_profile()
+    friend, friend_profile = get_user_profile(friend)
 
     if '/' not in redirect_to:
         redirect_to = reverse(redirect_to)
