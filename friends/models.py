@@ -160,7 +160,7 @@ class JoinInvitationManager(models.Manager):
         )
         
         ctx = {
-            "SITE_NAME": settings.SITE_NAME,
+            "SITE_NAME": Site.object.get_current_site().name,
             "CONTACT_EMAIL": settings.CONTACT_EMAIL,
             "contact": contact,
             "user": from_user,
