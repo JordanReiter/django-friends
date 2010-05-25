@@ -12,13 +12,6 @@ from django.contrib.auth.models import User
 import multi_oauth.oauth as oauth
 import multi_oauth.utils as oauth_utils
 
-# Messaging
-if "notification" in settings.INSTALLED_APPS:
-    from notification import models as notification
-else:
-    notification = None
-
-
 # Queries, Results & Searching
 from django.core.paginator import InvalidPage, Paginator
 from django.db.models import Avg, Count, Max, Min, Q
@@ -38,6 +31,12 @@ try:
     import json #Works with Python 2.6
 except ImportError:
     from django.utils import simplejson as json
+
+# Messaging
+if "notification" in settings.INSTALLED_APPS:
+    from notification import models as notification
+else:
+    notification = None
 
 # Locals (used only in Friends)
 from friends.models import Contact, Friendship, FriendshipInvitation, JoinInvitation, FriendSuggestion                                            
