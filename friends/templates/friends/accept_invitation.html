@@ -5,6 +5,5 @@
 {% if request.session.invitation.name %}
 <p>Welcome, {{ request.session.invitation.name }}!</p>
 {% endif %} 
-{% render_page "invitation" %}
 {% include "accounts/signinform.inc" %}
 {% endblock content %}
