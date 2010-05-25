@@ -313,6 +313,11 @@ def edit_contact(request, contact_id=None, redirect_to='edit_contacts', form_cla
             return HttpResponseRedirect(redirect_to)
     else:
         form=form_class(instance=contact, user=request.user)
+    if contact.user:
+        try:
+            show = contact.user.get_profile().get_access(request.user)
+        except:
+            pass
     return render_to_response(template_name, locals(), RequestContext(request))
 
 

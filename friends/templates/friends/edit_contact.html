@@ -4,17 +4,59 @@
 <h1>{% block title %}Editing Details{% if contact.name %} for {{ contact.name }}{% endif %}{% endblock title %}</h1>
 
 <form method="post" action="">{% csrf_token %}
-	<ol class="fields">
-		<li {%if form.name.errors %}class="errors"{% endif %}>{{ form.name.errors }}<label for="id_name">{{ form.name.label }}</label> {{ form.name }}</li>
-		<li {%if form.first_name.errors %}class="errors"{% endif %}>{{ form.first_name.errors }}<label for="id_first_name">{{ form.first_name.label }}</label> {{ form.first_name }}</li>
-		<li {%if form.last_name.errors %}class="errors"{% endif %}>{{ form.last_name.errors }}<label for="id_last_name">{{ form.last_name.label }}</label> {{ form.last_name }}</li>
-		<li {%if form.email.errors %}class="errors"{% endif %}>{{ form.email.errors }}<label for="id_email">{{ form.email.label }}</label> {{ form.email }}</li>
-		<li {%if form.phone.errors %}class="errors"{% endif %}>{{ form.phone.errors }}<label for="id_phone">{{ form.phone.label }}</label> {{ form.phone }}</li>
-		<li {%if form.mobile.errors %}class="errors"{% endif %}>{{ form.mobile.errors }}<label for="id_mobile">{{ form.mobile.label }}</label> {{ form.mobile }}</li>
-		<li {%if form.fax.errors %}class="errors"{% endif %}>{{ form.fax.errors }}<label for="id_fax">{{ form.fax.label }}</label> {{ form.fax }}</li>
-		<li {%if form.address.errors %}class="errors"{% endif %}>{{ form.address.errors }}<label for="id_address">{{ form.address.label }}</label> {{ form.address }}</li>
-		<li {%if form.country.errors %}class="errors"{% endif %}>{{ form.country.errors }}<label for="id_country">{{ form.country.label }}</label> {{ form.country }}</li>
-		<li {%if form.website.errors %}class="errors"{% endif %}>{{ form.website.errors }}<label for="id_website">{{ form.website.label }}</label> {{ form.website }}</li>
+	{% if show %}
+		<table>
+		<tr><th></th><th>Your Values</th><th>Their Data</th></tr>
+		<tr {%if form.name.errors %}class="errors"{% endif %}>
+			<th><label for="id_name">{{ form.name.label }}</label>{{ form.name.errors }}</th>
+			<td>{{ form.name }}</td>
+			<td>{% if show.name %}{{ contact.user.name }}{% endif %}</td>
+		</tr>
+		<tr {%if form.first_name.errors %}class="errors"{% endif %}>
+			<th><label for="id_first_name">{{ form.first_name.label }}</label>{{ form.first_name.errors }}</th>
+			<td>{{ form.first_name }}</td>
+			<td>{{ contact.user.first_name }}</td>
+		</tr>
+		<tr {%if form.last_name.errors %}class="errors"{% endif %}>
+			<th><label for="id_last_name">{{ form.last_name.label }}</label>{{ form.last_name.errors }}</th>
+			<td>{{ form.last_name }}</td>
+			<td>{{ contact.user.last_name }}</td>
+		</tr>
+		<tr {%if form.email.errors %}class="errors"{% endif %}>
+			<th><label for="id_email">{{ form.email.label }}</label>{{ form.email.errors }}</th>
+			<td>{{ form.email }}</td>
+			<td>{% if show.email %}{{ contact.user.email }}{% endif %}</td>
+		</tr>
+		<tr {%if form.phone.errors %}class="errors"{% endif %}>
+			<th><label for="id_phone">{{ form.phone.label }}</label>{{ form.phone.errors }}</th>
+			<td>{{ form.phone }}</td>
+			<td>{% if show.phone %}{{ contact.user.phone }}{% endif %}</td>
+		</tr>
+		<tr {%if form.mobile.errors %}class="errors"{% endif %}>
+			<th><label for="id_mobile">{{ form.mobile.label }}</label>{{ form.mobile.errors }}</th>
+			<td>{{ form.mobile }}</td>
+			<td>{% if show.mobile %}{{ contact.user.mobile }}{% endif %}</td>
+		</tr>
+		<tr {%if form.fax.errors %}class="errors"{% endif %}>
+			<th><label for="id_fax">{{ form.fax.label }}</label>{{ form.fax.errors }}</th>
+			<td>{{ form.fax }}</td>
+			<td>{% if show.fax %}{{ contact.user.fax }}{% endif %}</td>
+		</tr>
+		<tr {%if form.address.errors %}class="errors"{% endif %}>
+			<th><label for="id_address">{{ form.address.label }}</label>{{ form.address.errors }}</th>
+			<td>{{ form.address }}</td>
+			<td>{% if show.address %}{{ contact.user.address }}{% endif %}</td>
+		</tr>
+		<tr {%if form.country.errors %}class="errors"{% endif %}>
+			<th><label for="id_country">{{ form.country.label }}</label>{{ form.country.errors }}</th>
+			<td>{{ form.country }}</td>
+			<td>{% if show.country %}{% firstof contact.user.get_profile.country.name  contact.user.get_profile.country %}{% endif %}</td>
+		</tr>
+		<tr {%if form.website.errors %}class="errors"{% endif %}>
+			<th><label for="id_website">{{ form.website.label }}</label>{{ form.website.errors }}</th>
+			<td>{{ form.website }}</td>
+			<td>{% if show.website %}{{ contact.user.get_profile.website }}{% endif %}</td>
+		</tr>
 		{% if form.is_friend %}
 			<li>
 				<label for="choose_how_related_id">How do you know {% firstof contact.user.first_name contact.user.username %}?</label>
@@ -27,7 +69,33 @@
 			</li>
 		{% endif %}
 		<input type="submit" value="Save Information" />
-	</ol>
+		</table>
+	{% else %}
+		<ol class="fields">
+			<li {%if form.name.errors %}class="errors"{% endif %}>{{ form.name.errors }}<label for="id_name">{{ form.name.label }}</label> {{ form.name }}</li>
+			<li {%if form.first_name.errors %}class="errors"{% endif %}>{{ form.first_name.errors }}<label for="id_first_name">{{ form.first_name.label }}</label> {{ form.first_name }}</li>
+			<li {%if form.last_name.errors %}class="errors"{% endif %}>{{ form.last_name.errors }}<label for="id_last_name">{{ form.last_name.label }}</label> {{ form.last_name }}</li>
+			<li {%if form.email.errors %}class="errors"{% endif %}>{{ form.email.errors }}<label for="id_email">{{ form.email.label }}</label> {{ form.email }}</li>
+			<li {%if form.phone.errors %}class="errors"{% endif %}>{{ form.phone.errors }}<label for="id_phone">{{ form.phone.label }}</label> {{ form.phone }}</li>
+			<li {%if form.mobile.errors %}class="errors"{% endif %}>{{ form.mobile.errors }}<label for="id_mobile">{{ form.mobile.label }}</label> {{ form.mobile }}</li>
+			<li {%if form.fax.errors %}class="errors"{% endif %}>{{ form.fax.errors }}<label for="id_fax">{{ form.fax.label }}</label> {{ form.fax }}</li>
+			<li {%if form.address.errors %}class="errors"{% endif %}>{{ form.address.errors }}<label for="id_address">{{ form.address.label }}</label> {{ form.address }}</li>
+			<li {%if form.country.errors %}class="errors"{% endif %}>{{ form.country.errors }}<label for="id_country">{{ form.country.label }}</label> {{ form.country }}</li>
+			<li {%if form.website.errors %}class="errors"{% endif %}>{{ form.website.errors }}<label for="id_website">{{ form.website.label }}</label> {{ form.website }}</li>
+			{% if form.is_friend %}
+				<li>
+					<label for="choose_how_related_id">How do you know {% firstof contact.user.first_name contact.user.username %}?</label>
+					<div class="field">
+					{{ form.choose_how_related }}
+				</li>
+				<li class="field">
+					<label class="inline">{{ form.other_related_check }} Other:</label>
+					{{ form.other_related }}
+				</li>
+			{% endif %}
+			<input type="submit" value="Save Information" />
+		</ol>
+	{% endif %}
 </form>
 
 {% endblock content %}
