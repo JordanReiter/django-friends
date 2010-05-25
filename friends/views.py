@@ -137,9 +137,9 @@ def add_friend(request,friend,template_name='confirm.html',add_form=InviteFriend
     return render_to_response('friends/add.html', locals(), RequestContext(request))
 
 
-def accept_invitation(request, code, template_name="friendships/accept_invitation.html", failure_redirect='/', login_redirect=settings.LOGIN_REDIRECT_URL):
+def accept_invitation(request, key, template_name="friendships/accept_invitation.html", failure_redirect='/', login_redirect=settings.LOGIN_REDIRECT_URL):
     try:
-        joininvitation = JoinInvitation.objects.get(code__iexact=code)
+        joininvitation = JoinInvitation.objects.get(confirmation_key__iexact=key)
         invite.send(sender=JoinInvitation, request=request, instance=joininvitation)
         return render_to_response(template_name, locals(), RequestContext(request))
     except JoinInvitation.DoesNotExist:
