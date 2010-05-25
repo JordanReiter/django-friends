@@ -312,7 +312,7 @@ def edit_friend(request, friend=None, redirect_to='edit_friends', form_class=Fri
     contact, _ = Contact.objects.get_or_create(owner=request.user, email=friend.email)
     contact.user = friend
     contact.save()
-    return edit_contact(request, contact_id=contact.id)
+    return edit_contact(request, contact_id=contact.id, redirect_to=redirect_to, template_name=template_name)
 
 @csrf_protect
 @login_required
