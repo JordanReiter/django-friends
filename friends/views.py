@@ -344,7 +344,7 @@ def invite_contact(request,contact_id=None, template_name="confirm.html", redire
 
 @csrf_protect
 @login_required
-def edit_friends(request, friend=None, redirect_to='edit_friends', form_class=FriendshipForm, template_name="friends/edit.html"):
+def edit_friends(request, friend=None, redirect_to='edit_friends', form_class=FriendshipForm, template_name="friends/edit_friends.html"):
     if '/' not in redirect_to:
         redirect_to = reverse(redirect_to)
     if friend:
