@@ -227,6 +227,9 @@ class FriendshipForm(forms.ModelForm):
         
 
 class ContactForm(forms.ModelForm):
+    name = forms.CharField(max_length=100)
+    address = forms.CharField(max_length=300, required=False, widget=forms.Textarea(attrs={'rows':5, 'cols':50}))
+    website = forms.URLField(required=False, widget=forms.TextInput(attrs={'size':50}))
     choose_how_related = forms.MultipleChoiceField(
        choices=RELATED_CHOICES,
        widget=forms.CheckboxSelectMultiple(),
@@ -250,11 +253,6 @@ class ContactForm(forms.ModelForm):
         form = super(ContactForm, self).__init__(*args, **kwargs)
         if contact.user:
             self.is_friend = Friendship.objects.are_friends(contact.user, self.user)
-            for f, v in self.fields.items():
-                if not (v.initial and len(v.initial.strip())) and hasattr(contact.user,f):
-                    self.fields[f].initial="Valis %s" % getattr(contact.user,f)
-                else:
-                    self.fields[f].initial="No idear %s" % f
         else:
             self.is_friend = False
         
