@@ -51,8 +51,7 @@ class ContactManager(models.Manager):
     def all(self, *args, **kwargs):
         kwargs.update({'deleted__isnull':True})
         return super(ContactManager, self).filter(*args, **kwargs)
-c
-lass Contact(models.Model):
+class Contact(models.Model):
     """
     A contact is a person known by a user who may or may not themselves
     be a user.
