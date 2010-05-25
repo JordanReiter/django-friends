@@ -64,9 +64,9 @@ def import_outlook(stream, user):
         for lookup in lookups:
             for c in ["","work","business","home"]:
                 if len(c):
-                    current_field = "%s %s" % (c,lookup)
+                    current_field = "%s %s" % (c,field)
                 else:
-                    current_field = lookup
+                    current_field = field
                 try:
                     match = fields.index(current_field)
                     field_indices[current_field.replace(' ','_')].append(match)
@@ -78,7 +78,6 @@ def import_outlook(stream, user):
                         field_indices[current_field.replace(' ','_')].append(match)
                     except ValueError:
                         pass
-    raise Exception(field_indices)
     if len(field_indices) and field_indices.has_key('email'):
         # we are using the fields, so chop off the first line
         lines = lines[1:]
