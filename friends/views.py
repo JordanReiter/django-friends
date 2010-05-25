@@ -249,8 +249,8 @@ def export_friends(request):
     
 def import_file_contacts(request, form_class=ImportContactForm, template_name='friends/upload_contacts.html'):
     if request.method == 'POST':
-        friend_file_form=form_class(request.POST,request.FILES)
-        if friend_file_form.is_valid():
+        contacts_file_form=form_class(request.POST,request.FILES)
+        if contacts_file_form.is_valid():
             friends_file=request.FILES['friends_file']
             if friends_file.multiple_chunks():
                 messages.add_message(request, messages.ERROR,"The file you uploaded is too large.")
@@ -280,7 +280,7 @@ def import_file_contacts(request, form_class=ImportContactForm, template_name='f
             imported_contacts = Contact.objects.filter(owner=request.user, type=imported_type)
             return render_to_response('friends/invite_imported.html', {'contacts':imported_contacts }, RequestContext(request))
     else:
-        friend_file_form=form_class()
+        contacts_file_form=form_class()
         return render_to_response(template_name, locals(), RequestContext(request))
 
 
