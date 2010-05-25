@@ -15,7 +15,7 @@
 	<strong><a href="{{ friendship.friend.get_profile.get_absolute_url }}" />{% firstof friendship.friend.get_profile.user.get_full_name friendship.friend.get_profile.user.username %}</a></strong><br />
 	</dt>
 	<dd>
-		{{ friendship.friendship.how_related }}
+		{% if friendship.friendship.how_related %}{{ friendship.friendship.how_related }}{% endif %}
 		<a href="{% url edit_friend friendship.friend.username %}">Edit</a>
 		<a href="{% url remove_friend friendship.friend.username %}">Remove</a>
 	</dd>

@@ -33,14 +33,15 @@ def format_how_related(form):
     return how_related
 
 def parse_related(form, how_related):
-    hr = how_related.strip().split(' ')
-    form.fields['choose_how_related'].initial = list(hr)
-    for k, _ in RELATED_CHOICES:
-        if k in hr:
-            hr.remove(k)
-    if hr and len(hr):
-        form.fields['other_related'].initial=' '.join(hr)
-        form.fields['other_related_check'].initial = True
+    if hr != None:
+        hr = how_related.strip().split(' ')
+        form.fields['choose_how_related'].initial = list(hr)
+        for k, _ in RELATED_CHOICES:
+            if k in hr:
+                hr.remove(k)
+        if hr and len(hr):
+            form.fields['other_related'].initial=' '.join(hr)
+            form.fields['other_related_check'].initial = True
 
 
 
