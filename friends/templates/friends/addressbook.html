@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>{% block title %}Address Book{% endblock title %}</h1>
+<p>Below are all of the people in your address book. Not all of them are users on the site.</p>
+
+<dl>
+{% for contact in contacts %}
+{% if contact.user.get_profile %}
+	<dt>
+	{# This is a user on the site, so display site user information #}
+	{% if contact.user.get_profile.photo %}
+		<a href="{{ contact.user.get_profile.get_absolute_url }}" /><img src="{{ MEDIA_URL }}/{{ contact.user.get_profile.photo.thumbnail.url }}" style="border: 0; vertical-align: middle;"  /></a>
+	{% else %}
+		<a href="{{ contact.user.get_profile.get_absolute_url }}" /><img src="{{ MEDIA_URL }}/images/unknown_thumbnail.png" style="border: 0; vertical-align: middle;" /></a>
+	{% endif %} 
+	<strong><a href="{{ contact.user.get_profile.get_absolute_url }}" />{% firstof contact.user.get_profile.user.get_full_name contact.user.get_profile.user.username %}</a></strong><br />
+	{% if contact.user.get_profile.job %}{% if contact.user.get_profile.job.role %}{{ contact.user.get_profile.job.role }} at {% endif %}{{ contact.user.get_profile.job.name }}<br />{% endif %}
+	{% if contact.user.get_profile.country %}{{ contact.user.get_profile.country.name }}<br />{% endif %}
+	{% if request.user in contact.user.get_profile.get_friends_as_users %}{{ contact.user.first_name}} is your contact.{% endif %}
+	</dt>
+{% else %}
+	<dt>
+		{% if contact.name %}
+			<strong>{{ contact.name }}</strong><br /><a href="mailto:{{ contact.email }}">{{ contact.email }}</a>
+		{% else %}
+			<strong>&lt;<a href="mailto:{{ contact.email }}">{{ contact.email }}</a>&gt;</strong>
+		{% endif %}
+	</dt>
+{% endif %}
+{{ if contact.user.get_profile }}
+{% endfor %}
+</dl>
+{% endblock content %}
