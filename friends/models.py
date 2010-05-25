@@ -59,7 +59,7 @@ class Contact(models.Model):
     name = models.CharField(max_length=100, null=True, blank=True)
     first_name = models.CharField(max_length=50, null=True, blank=True)
     last_name = models.CharField(max_length=50, null=True, blank=True)
-    address = models.TextField(null=True, blank=True)
+    address = models.CharField(max_length=500, null=True, blank=True)
     country = CountryField(null=True, blank=True)
     email = models.EmailField()
     phone = models.CharField(max_length=50, null=True, blank=True)
@@ -86,7 +86,7 @@ class FriendSuggestion(models.Manager):
     email = models.EmailField(null=True, blank=True)
     user = models.ForeignKey(User, null=True, blank=True, related_name="suggested_friends")
     suggested_user = models.ForeignKey(User, related_name="__unused__")
-    why = models.CharField(max_length=20)
+    why = models.CharField(max_length=100)
     active = models.BooleanField(default=True)
 
 class FriendshipManager(models.Manager):
@@ -183,7 +183,7 @@ class JoinInvitation(models.Model):
     
     from_user = models.ForeignKey(User, related_name="join_from")
     contact = models.ForeignKey(Contact)
-    message = models.TextField(null=True, blank=True)
+    message = models.CharField(max_length=2000, null=True, blank=True)
     sent = models.DateField(default=datetime.date.today)
     status = models.CharField(max_length=1, choices=INVITE_STATUS)
     confirmation_key = models.CharField(max_length=40)
@@ -221,7 +221,7 @@ class FriendshipInvitation(models.Model):
     
     from_user = models.ForeignKey(User, related_name="invitations_from")
     to_user = models.ForeignKey(User, related_name="invitations_to")
-    message = models.TextField(null=True, blank=True)
+    message = models.CharField(max_length=2000, null=True, blank=True)
     sent = models.DateField(default=datetime.date.today)
     status = models.CharField(max_length=1, choices=INVITE_STATUS)
     
@@ -253,7 +253,7 @@ class FriendshipInvitationHistory(models.Model):
     
     from_user = models.ForeignKey(User, related_name="invitations_from_history")
     to_user = models.ForeignKey(User, related_name="invitations_to_history")
-    message = models.TextField(null=True, blank=True)
+    message = models.CharField(max_length=2000, null=True, blank=True)
     sent = models.DateField(default=datetime.date.today)
     status = models.CharField(max_length=1, choices=INVITE_STATUS)
 
