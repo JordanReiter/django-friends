@@ -281,28 +281,6 @@ def invite_imported(request):
 
 @csrf_protect
 @login_required
-def edit_friend(request, friend=None, redirect_to='edit_friends', form_class=FriendshipForm, template_name="friends/edit_friend.html"):
-    if '/' not in redirect_to:
-        redirect_to = reverse(redirect_to)
-    friend, friend_profile = get_user_profile(friend)
-    if Friendship.objects.are_friends(friend, request.user):
-        friendship, _ = Friendship.objects.get_or_create(from_user=request.user, to_user=friend)
-    else:
-        messages.add_message(request, messages.ERROR,"You are not friends with %s." % (friend.get_full_name() or friend.username))
-        return HttpResponseRedirect(redirect_to)
-    if request.method == 'POST':
-        friend_form=form_class(request.POST, user=request.user, friend=friend)
-        if friend_form.is_valid():
-            saved_friend = friend_form.save()
-            messages.add_message(request, messages.SUCCESS,"Contact information for %s saved." % (friend.first_name or friend.username))
-            return HttpResponseRedirect(redirect_to)
-    else:
-        friend_form=form_class(instance=friendship, user=request.user, friend=friend)
-    return render_to_response(template_name, locals(), RequestContext(request))
-
-
-@csrf_protect
-@login_required
 def edit_contact(request, contact_id=None, redirect_to='edit_contacts', form_class=ContactForm, template_name="friends/edit_contact.html"):
     contact = get_object_or_404(Contact,pk=contact_id)
     if request.method == 'POST':
@@ -320,6 +298,21 @@ def edit_contact(request, contact_id=None, redirect_to='edit_contacts', form_cla
             pass
     return render_to_response(template_name, locals(), RequestContext(request))
 
+@csrf_protect
+@login_required
+def edit_friend(request, friend=None, redirect_to='edit_friends', form_class=FriendshipForm, template_name="friends/edit_contact.html"):
+    if '/' not in redirect_to:
+        redirect_to = reverse(redirect_to)
+    friend, friend_profile = get_user_profile(friend)
+    if Friendship.objects.are_friends(friend, request.user):
+        friendship, _ = Friendship.objects.get_or_create(from_user=request.user, to_user=friend)
+    else:
+        messages.add_message(request, messages.ERROR,"You are not friends with %s." % (friend.get_full_name() or friend.username))
+        return HttpResponseRedirect(redirect_to)
+    contact, _ = Contact.objects.get_or_create(owner=request.user, email=friend.email)
+    contact.user = friend
+    contact.save()
+    return edit_contact(request, contact_id=contact.id)
 
 @csrf_protect
 @login_required

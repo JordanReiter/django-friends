@@ -59,6 +59,7 @@ CONTACT_TYPE = (
     ("G", "Google Import"),
     ("O", "Outlook Import"),
     ("F", "Friendship"),
+    ("I", "Invited"),
     ("A", "Manually added"),
 )
 class Contact(models.Model):
@@ -183,6 +184,8 @@ class JoinInvitationManager(models.Manager):
     
     def send_invitation(self, from_user, to_email, message):
         contact, _ = Contact.objects.get_or_create(email=to_email, owner=from_user)
+        contact.type = 'I'
+        contact.save()
         salt = sha_constructor(str(random())).hexdigest()[:5]
         confirmation_key = sha_constructor(salt + to_email).hexdigest()
         
