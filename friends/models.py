@@ -77,7 +77,7 @@ class Contact(models.Model):
     def __unicode__(self):
         return "%s (%s's contact)" % (self.email, self.user)
 
-def contact_update_user(self, sender, instance, created=False, *args, **kwargs):
+def contact_update_user(self, sender=None, instance=None, created=False, *args, **kwargs):
     if created:
         Contact.objects.filter(email=instance.email).update(user=instance)
 signals.post_save.connect(contact_update_user, sender=User)
