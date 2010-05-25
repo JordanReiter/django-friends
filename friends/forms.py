@@ -27,7 +27,7 @@ RELATED_CHOICES = (
 )
 
 def format_how_related(form):
-    how_related = "%s %s" % (form.cleaned_data.get('choose_how_related'),form.cleaned_data.get('other_related'))
+    how_related = "%s %s" % (' '.join(form.cleaned_data.get('choose_how_related')),' '.join(form.cleaned_data.get('other_related')))
     if not len(how_related.strip()) and form.cleaned_data.get('other_related_check'):
         how_related = 'other'
     raise Exception("The value of how_related is now %s" % how_related)
