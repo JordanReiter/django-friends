@@ -239,13 +239,12 @@ class ContactForm(forms.ModelForm):
     )
 
     def __init__(self, user=None, *args, **kwargs):
-        self.contact=kwargs.get('contact',None)
+        self.contact=kwargs.get('instance',None)
         self.user=user
         if self.contact.user:
             self.is_friend = Friendship.objects.are_friends(self.contact.user, self.user)
         else:
             self.is_friend = False
-            kwargs.update({'instance':self.contact})
         super(ContactForm, self).__init__(*args, **kwargs)
         if self.contact.user:
             show = self.contact.user.get_profile().get_access(self.user)
