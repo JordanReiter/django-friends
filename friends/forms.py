@@ -261,7 +261,7 @@ class ContactForm(forms.ModelForm):
                     d = getattr(self.contact.user,f, getattr(self.contact.user.get_profile(), f, None))
                 else:
                     d = None
-                if not (v.initial and len(v.initial)):
+                if not v.initial:
                     self.fields[f].initial = getattr(self.contact,f,None) or d
                 
         
