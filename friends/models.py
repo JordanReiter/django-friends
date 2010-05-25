@@ -126,10 +126,15 @@ class FriendshipManager(models.Manager):
     
     def friends_for_user(self, user):
         friends = []
+        already = []
         for friendship in self.filter(from_user=user).select_related(depth=1):
-            friends.append({"friend": friendship.to_user, "friendship": friendship})
+            if friendship.to_user not in already:
+                already.append(friendship.to_user)
+                friends.append({"friend": friendship.to_user, "friendship": friendship})
         for friendship in self.filter(to_user=user).select_related(depth=1):
-            friends.append({"friend": friendship.from_user, "friendship": friendship})
+            if friendship.from_user not in already:
+                already.append(friendship.from_user)
+                friends.append({"friend": friendship.from_user, "friendship": friendship})
         return friends
     
     def are_friends(self, user1, user2):
