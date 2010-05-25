@@ -252,7 +252,7 @@ class ContactForm(forms.ModelForm):
             self.is_friend = Friendship.objects.are_friends(contact.user, self.user)
             for f, v in self.fields.items():
                 if not (v.initial and len(v.initial.strip())) and hasattr(contact.user,f):
-                    self.fields[f].initial=getattr(contact.user,f)
+                    self.fields[f].initial="Valis %s" % getattr(contact.user,f)
                 else:
                     self.fields[f].initial="No idear %s" % f
         else:
