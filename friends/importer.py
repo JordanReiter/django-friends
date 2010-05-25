@@ -129,6 +129,8 @@ def import_outlook(stream, user):
             except Contact.DoesNotExist:
                 Contact(owner=user,**contact_vals).save()
                 imported += 1
+            except KeyError:
+                raise Exception("Email not found; this is the line:\n%s\n" % vals)
     return imported, total
             
 
