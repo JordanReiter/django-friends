@@ -243,6 +243,11 @@ class ContactForm(forms.ModelForm):
         self.user=kwargs.pop('user',None)
         try:
             self.is_friend = Friendship.objects.are_friends(self.contact.user, self.user)
+            if self.is_friend:
+                try:
+                    parse_related(self, Friendship.objects.get(from_user=self.user, to_user=self.contact.user))
+                except Friendship.DoesNotExist:
+                    pass
         except AttributeError:
             self.is_friend = False
         super(ContactForm, self).__init__(*args, **kwargs)
