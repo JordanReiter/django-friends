@@ -293,7 +293,7 @@ def invite_imported(request):
 def edit_contact(request, contact_id=None, redirect_to='edit_contacts', form_class=ContactForm, template_name="friends/edit_contact.html"):
     contact = get_object_or_404(Contact,pk=contact_id)
     if request.method == 'POST':
-        form=form_class(request.POST, user=request.user)
+        form=form_class(request.POST, instance=contact, user=request.user)
         if form.is_valid():
             saved_contact = form.save()
             messages.add_message(request, messages.SUCCESS,"Contact information for %s saved." % (saved_contact.name or saved_contact.email))
