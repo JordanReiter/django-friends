@@ -154,7 +154,7 @@ INVITE_STATUS = (
 class JoinInvitationManager(models.Manager):
     
     def send_invitation(self, from_user, to_email, message):
-        contact, created = Contact.objects.get_or_create(email=to_email, owner=from_user)
+        contact, _ = Contact.objects.get_or_create(email=to_email, owner=from_user)
         salt = sha_constructor(str(random())).hexdigest()[:5]
         confirmation_key = sha_constructor(salt + to_email).hexdigest()
         

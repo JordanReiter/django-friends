@@ -402,15 +402,28 @@ def edit_friend(request, friend=None, redirect_to='edit_friends', form_class=Non
 
 @csrf_protect
 @login_required
-def edit_contact(request, contact_id=None, redirect_to='edit_friends', form_class=None):
+def edit_contact(request, contact_id=None, redirect_to='edit_friends', form_class=ContactForm):
     return HttpResponse("Editing contact")
 
 @csrf_protect
 @login_required
-def invite_contact(request, contact_id=None, redirect_to='edit_friends', form_class=None):
-    return HttpResponse("Inviting contact")
-
-
+def invite_contact(request,contact_id=None, template_name="confirm.html", redirect_to="edit_contacts"):
+    if '/' not in redirect_to:
+        redirect_to=reverse(redirect_to)
+    contact = get_object_or_404(Contact,pk=contact_id)
+    # because of the threat of cross-site scripting, this action has to be the result of a form posting
+    if request.method == 'GET':
+        action_display = "send invitation to %s." % (contact.name or contact.email) 
+        yes_display = "Yes, send invitation"
+        no_display = "No, don't send"
+        return render_to_response(template_name, locals(), RequestContext(request))
+    elif request.POST.get('confirm_action')=='no':
+        messages.add_message(request, messages.INFO,"You canceled the action.")
+        return HttpResponseRedirect(redirect_to)
+    message = request.REQUEST.get('message',None)
+    JoinInvitation.objects.send_invitation(request.user, contact.email, message)
+    messages.add_message(request, messages.ERROR,"I sent an invitation to %s" % contact.email)
+    return HttpResponseRedirect(redirect_to)
 
 @csrf_protect
 @login_required
