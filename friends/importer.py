@@ -180,7 +180,7 @@ def import_vcards(stream, user):
             try:
                 Contact.objects.get(owner=user, email=email)
             except Contact.DoesNotExist:
-                Contact(owner=user, **contact_vals).save()
+                Contact(owner=user, type='V', **contact_vals).save()
                 imported += 1
         except AttributeError:
             pass # missing value so don't add anything

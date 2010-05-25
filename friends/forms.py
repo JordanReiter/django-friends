@@ -18,6 +18,31 @@ else:
     EmailAddress = None
 
 
+RELATED_CHOICES = (
+    ('colleague',_('We are colleagues')),
+    ('co-worker',_('We we work together')),
+    ('friend',_('We are friends')),
+    ('co-author',_('We are co-authors (co-wrote a paper)')),
+)
+
+def format_how_related(form):
+    how_related = "%s %s" % (form.cleaned_data.get('choose_how_related'),form.cleaned_data.get('other_related'))
+    if not len(how_related.strip()) and form.cleaned_data.get('other_related_check'):
+        how_related = 'other'
+    return how_related
+
+def parse_related(form, how_related):
+    hr = how_related.split(' ')
+    form.fields['choose_how_related'].initial = list(hr)
+    for k, _ in RELATED_CHOICES:
+        if k in hr:
+            hr.remove(k)
+    if hr and len(hr):
+        form.fields['other_related'].initial=' '.join(hr)
+        form.fields['other_related_check'].initial = True
+
+
+
 class UserForm(forms.Form):
     
     def __init__(self, user=None, *args, **kwargs):
@@ -57,6 +82,11 @@ class InviteFriendForm(UserForm):
             raise forms.ValidationError(u"Unknown user.")
             
         return self.cleaned_data["to_user"]
+    
+    def __init__(self, friend=None, *args, **kwargs):
+        self.friend = friend
+        super(UserForm, self).__init__(*args, **kwargs)
+        self.fields['to_user'].initial = self.friend.username
     
     def clean(self):
         to_user = User.objects.get(username=self.cleaned_data["to_user"])
@@ -100,8 +130,10 @@ class MultiEmailField(forms.CharField):
 
 class MultipleInviteForm(forms.Form):
     invited_emails = MultiEmailField(max_length=1000)
+    message = models.CharField(max_length=300, required=False)
     
-    def __init__(self, max_invites=20, *args, **kwargs):
+    def __init__(self, user=None, max_invites=20, *args, **kwargs):
+        self.user = user
         super(MultipleInviteForm, self).__init__(*args, **kwargs)
         self.max_invites=max_invites
         
@@ -122,25 +154,37 @@ class MultipleInviteForm(forms.Form):
             raise forms.ValidationError('You can\'t send out more than %s invitations; you tried to send out to %s emails:' % (self.max_invites,len(data)))
         return data
 
-    def save(self):
-        to_user = User.objects.get(username=self.cleaned_data["to_user"])
-        message = self.cleaned_data['message']
-        invitation = FriendshipInvitation(from_user=self.user, to_user=to_user, message=message, status="2")
-        invitation.save()
-        if notification:
-            notification.send([to_user], "friends_invite", {"invitation": invitation})
-            notification.send([self.user], "friends_invite_sent", {"invitation": invitation})
-        self.user.message_set.create(message="Friendship requested with %s" % to_user.username) # @@@ make link like notification
-        return invitation
-
+    def send_invitations(self):
+        message = self.cleaned_data.get('message',None)
+        invited_emails = [email for email in self.cleaned_data.get('invited_emails')]
+        processed_emails = []
+        existing_users = User.objects.filter(email__in=invited_emails)
+        requests = 0
+        invitations = 0
+        existing = 0
+        total = len(invited_emails)
+        friend_users = [f['friend'] for f in Friendship.objects.friends_for_user(self.user)]
+        if existing_users:
+            for user in existing_users:
+                if user in friend_users:
+                    existing += 1
+                else:
+                    requests += 1
+                    invitation = FriendshipInvitation(from_user=self.user, to_user=user, message=message, status="2")
+                    invitation.save()
+                    if notification:
+                        notification.send([user], "friends_invite", {"invitation": invitation})
+                        notification.send([self.user], "friends_invite_sent", {"invitation": invitation})
+            for user in existing_users:
+                invited_emails.remove(user.email)
+        for email in invited_emails:
+            if email not in processed_emails:
+                processed_emails.append(email)
+                invitations += 1
+                JoinInvitation.objects.send_invitation(self.user, email, None)
+        return total, requests, existing, invitations
 
         
-RELATED_CHOICES = (
-    ('colleague',_('We are colleagues')),
-    ('co-worker',_('We we work together')),
-    ('friend',_('We are friends')),
-    ('co-author',_('We are co-authors (co-wrote a paper)')),
-)
 class FriendshipForm(forms.ModelForm):
     choose_how_related = forms.MultipleChoiceField(
        choices=RELATED_CHOICES,
@@ -163,18 +207,9 @@ class FriendshipForm(forms.ModelForm):
         self.friendship = kwargs.get('instance', None)
         self.user = kwargs.pop('user', None)
         self.friend = kwargs.pop('friend', None)
-        form = super(FriendshipForm,self).__init__(*args,**kwargs)
+        super(FriendshipForm,self).__init__(*args,**kwargs)
         if self.friendship and self.friendship.how_related:
-            hr = self.friendship.how_related.split(' ')
-            self.fields['choose_how_related'].initial = list(hr)
-            for k, _ in RELATED_CHOICES:
-                if k in hr:
-                    hr.remove(k)
-            if hr and len(hr):
-                self.fields['other_related'].initial=' '.join(hr)
-                self.fields['other_related_check'].initial = True
-                    
-        return form
+            parse_related(self, self.friendship.how_related)
     
     def clean(self):
         if not self.friendship:
@@ -182,16 +217,51 @@ class FriendshipForm(forms.ModelForm):
         return self.cleaned_data            
 
     def save(self):
-        how_related = "%s %s" % (self.cleaned_data.get('choose_how_related'),self.cleaned_data.get('other_related'))
-        if not len(how_related.strip()) and self.cleaned_data.get('how_related_check'):
-            how_related = 'other'       
         friendship = Friendship.objects.get(to_user=self.friend, from_user=self.user)
-        friendship.how_related=how_related
+        friendship.how_related=format_how_related(self)
         friendship.save()
+        return friendship
     
     class Meta:
         model=Friendship
         
+
 class ContactForm(forms.ModelForm):
+    choose_how_related = forms.MultipleChoiceField(
+       choices=RELATED_CHOICES,
+       widget=forms.CheckboxSelectMultiple(),
+       required=False
+    )
+    other_related = forms.CharField(required=False, max_length=50)
+    other_related_check = forms.BooleanField(
+        label='Other:',
+        widget=forms.CheckboxInput,
+        required=False
+    )
+    dont_know_check = forms.BooleanField(
+        label='Don\'t know this person:',
+        widget=forms.CheckboxInput,
+        required=False
+    )
+
+    def __init__(self, user=None, instance=None, *args, **kwargs):
+        self.user=user
+        if instance.user:
+            self.is_friend = Friendship.objects.are_friends(instance.user, self.user)
+        else:
+            self.is_friend = False
+        return super(ContactForm, self).__init__(*args, **kwargs)
+        
+    def save(self, *args, **kwargs):
+        contact=super(ContactForm, self).save(*args, **kwargs)
+        if self.is_friend:
+            friendship, _ = Friendship.objects.get_or_create(from_user=self.user, to_user=contact.user)
+            friendship.how_related = format_how_related(self) 
+        return contact
+
     class Meta:
         model = Contact
+        
+
+class ImportContactForm(forms.Form):
+      contacts_file = forms.FileField(help_text="Upload a contacts file here. Current supported formats are vCard and Outlook.")

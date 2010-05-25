@@ -51,6 +51,16 @@ class ContactManager(models.Manager):
     def all(self, *args, **kwargs):
         kwargs.update({'deleted__isnull':True})
         return super(ContactManager, self).filter(*args, **kwargs)
+
+
+
+CONTACT_TYPE = (
+    ("V", "VCard Import"),
+    ("G", "Google Import"),
+    ("O", "Outlook Import"),
+    ("F", "Friendship"),
+    ("A", "Manually added"),
+)
 class Contact(models.Model):
     """
     A contact is a person known by a user who may or may not themselves
@@ -58,7 +68,7 @@ class Contact(models.Model):
     """
     
     # the user who created the contact; switched to owner so I can use 'user' for the actual user this corresponds to
-    owner = models.ForeignKey(User, related_name="contacts")
+    owner = models.ForeignKey(User, related_name="contacts", editable=False)
     
     name = models.CharField(max_length=100, null=True, blank=True)
     first_name = models.CharField(max_length=50, null=True, blank=True)
@@ -70,11 +80,15 @@ class Contact(models.Model):
     fax = models.CharField(max_length=50, null=True, blank=True)
     mobile = models.CharField(max_length=50, null=True, blank=True)
     website = models.URLField(max_length=250, verify_exists=False, null=True, blank=True)
-    added = models.DateField(default=datetime.date.today)
-    deleted = models.DateField(null=True, blank=True)
+    birthday = models.DateField(null=True, blank=True)
+
+    added = models.DateField(default=datetime.date.today, editable=False)
+    edited = models.DateField(null=True, blank=True, editable=False)
+    deleted = models.DateField(null=True, blank=True, editable=False)
+    type = models.CharField(max_length=1, choices=CONTACT_TYPE, editable=False)
     
     # the user this contact corresponds to -- I'm not allowing more than one user/email
-    user = models.ForeignKey(User, null=True, blank=True)
+    user = models.ForeignKey(User, null=True, blank=True, editable=False)
     
     objects = ContactManager()
     
@@ -84,7 +98,15 @@ class Contact(models.Model):
 def contact_update_user(sender, instance, created, *args, **kwargs):
     if created:
         Contact.objects.filter(email=instance.email).update(user=instance)
-signals.post_save.connect(contact_update_user, sender=User)
+
+def contact_create_for_friendship(sender, instance, created, *args, **kwargs):
+    if created:
+        contact1, _ = Contact.objects.get_or_create(owner=instance.to_user, email=instance.from_user.email, name=instance.from_user.get_full_name(), first_name=instance.from_user.first_name, last_name=instance.from_user.last_name)
+        contact1.type = 'F'
+        contact1.save()
+        contact2, _ = Contact.objects.get_or_create(owner=instance.from_user, email=instance.to_user.email, name=instance.to_user.get_full_name(), first_name=instance.to_user.first_name, last_name=instance.to_user.last_name)
+        contact2.type = 'F'
+        contact2.save()
 
 class FriendSuggestion(models.Manager):
     email = models.EmailField(null=True, blank=True)
@@ -285,7 +307,6 @@ def delete_friendship(sender, instance, **kwargs):
             friendship_invitation.save()
 
 
-signals.pre_delete.connect(delete_friendship, sender=Friendship)
 
 
 # moves existing friendship invitation from user to user to FriendshipInvitationHistory before saving new invitation
@@ -302,4 +323,10 @@ def friendship_invitation(sender, instance, **kwargs):
         friendship_invitation.delete()
 
 
+
+
+# SIGNALS
 signals.pre_save.connect(friendship_invitation, sender=FriendshipInvitation)
+signals.post_save.connect(contact_update_user, sender=User)
+signals.post_save.connect(contact_create_for_friendship, sender=Friendship)
+signals.pre_delete.connect(delete_friendship, sender=Friendship)
