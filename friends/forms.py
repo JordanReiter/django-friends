@@ -248,6 +248,8 @@ class ContactForm(forms.ModelForm):
                     parse_related(self, Friendship.objects.get(from_user=self.user, to_user=self.contact.user))
                 except Friendship.DoesNotExist:
                     pass
+                except Exception, inst:
+                    raise Exception("Something else happened: %s" % inst)
         except AttributeError:
             self.is_friend = False
         super(ContactForm, self).__init__(*args, **kwargs)
