@@ -402,6 +402,18 @@ def edit_friend(request, friend=None, redirect_to='edit_friends', form_class=Non
 
 @csrf_protect
 @login_required
+def edit_contact(request, contact_id=None, redirect_to='edit_friends', form_class=None):
+    return HttpResponse("Editing contact")
+
+@csrf_protect
+@login_required
+def invite_contact(request, contact_id=None, redirect_to='edit_friends', form_class=None):
+    return HttpResponse("Inviting contact")
+
+
+
+@csrf_protect
+@login_required
 def edit_friends(request, friend=None, redirect_to='edit_friends', form_class=FriendshipForm, template_name="friends/edit.html"):
     if '/' not in redirect_to:
         redirect_to = reverse(redirect_to)

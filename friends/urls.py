@@ -3,6 +3,8 @@ from django.conf import settings
 from views import * 
 
 urlpatterns = patterns('',
+   url(r'^invite/(?P<contact_id>[0-9]+)/$', invite_contact, name="invite_contact"),
+   url(r'^edit/(?P<contact_id>[0-9]+)/$', edit_contact, name="edit_contact"),
    url(r'^edit/(?P<user>[-\w\.]+)/$', edit_friend, name="edit_friend"),
    url(r'^add/(?P<user>[-\w\.]+)/$', add_friend, name="edit_friend"),
    url(r'^remove/(?P<user>[-\w\.]+)/$', remove_friend, name="remove_friend"),
