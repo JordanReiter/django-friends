@@ -40,7 +40,7 @@
 		{% if not contact.user and contact.type != 'I'%}
 			<a id="invite-user-{{ contact.id }}" class="invite-user" href="{% url invite_contact contact.id %}">Invite</a> |
 		{% else %}
-			{% if request.user not in contact.user.get_profile.get_friends_as_users %}<a class="invite-friend" href="{% url invite_friend contact.user.username %}">Invite</a>{% endif %} |
+			{% if request.user not in contact.user.get_profile.get_friends_as_users %}<a class="invite-friend" href="{% url invite_friend contact.user.username %}">Invite</a> | {% endif %}
 		{% endif %}
 		<a href="{% url edit_contact contact.id %}">Edit Details</a>		
 	</dd>
