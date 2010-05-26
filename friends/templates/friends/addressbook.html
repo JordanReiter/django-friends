@@ -27,8 +27,10 @@
 	</dt>
 {% endif %}
 	<dd>
-		{% if contact.user.get_profile.job %}{% if contact.user.get_profile.job.role %}{{ contact.user.get_profile.job.role }} at {% endif %}{{ contact.user.get_profile.job.name }}<br />{% endif %}
-		{% if contact.user.get_profile.country %}{{ contact.user.get_profile.country.name }}<br />{% endif %}
+		{% if contact.user %}
+			{% if contact.user.get_profile.job %}{% if contact.user.get_profile.job.role %}{{ contact.user.get_profile.job.role }} at {% endif %}{{ contact.user.get_profile.job.name }}<br />{% endif %}
+			{% if contact.user.get_profile.country %}{{ contact.user.get_profile.country.name }}<br />{% endif %}
+		{% endif %}
 		{% if contact.info.address %}{{ contact.info.address }}<br />{% endif %}
 		{% if contact.info.phone %}Phone: {{ contact.info.phone }}<br />{% endif %}
 		{% if contact.info.mobile %}Mobile: {{ contact.info.mobile }}<br />{% endif %}
