@@ -46,7 +46,6 @@ def import_outlook(stream, user):
     reader = csv.reader(open(csfile.name,'rU'),delimiter=delim)
     lines = [row for row in reader]
     fields = ('\t'.join(lines[0]).lower()).split('\t')
-    print fields
     field_lookups = {
         'email': ["email","e-mail","e-mail address","email address"],
         'first_name': ["first_name","first name","first"],
@@ -67,7 +66,6 @@ def import_outlook(stream, user):
         current_field = field
         for lookup in lookups:
             for c in ["","work","business","home"]:
-                print "Looking at %s, %s, %s" % (field, lookup, c)
                 if len(c):
                     current_field = "%s_%s" % (c,field)
                 else:
@@ -79,7 +77,6 @@ def import_outlook(stream, user):
                         current_lookup = lookup
                     match = fields.index(current_lookup)
                     if match > -1:
-                        print "Found %s at %d" % (current_lookup, match)
                         field_indices[current_field].append(match)
                 except ValueError:
                     pass
@@ -100,7 +97,6 @@ def import_outlook(stream, user):
     for line in lines:
         if len(line):
             total += 1
-            print "\n\n\n\nLooking at line %s\n\n" % line
             contact_vals = {}
             for col, col_indices in field_indices.items():
                 for col_index in col_indices:
