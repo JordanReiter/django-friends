@@ -150,6 +150,7 @@
 			if (title && title.length) {
 				$('<h2>').html(title).appendTo($msgbox);
 			}
+			alert(messages);
 			for (x=0; x < messages.length; x++) {
 				$("<p>").html(messages[x]).appendTo($msgbox);
 			}
