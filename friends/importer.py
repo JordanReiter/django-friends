@@ -68,8 +68,9 @@ def import_outlook(stream, user):
                 else:
                     current_field = field
                 try:
+                    current_lookup =  "%s %s" % (c,lookup)
                     #print "Trying to find %s in %s" % (lookup, fields)
-                    match = fields.index(lookup)
+                    match = fields.index(current_lookup)
                     if match > -1:
                         field_indices[current_field.replace(' ','_')].append(match)
                 except ValueError:
