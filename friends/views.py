@@ -377,9 +377,10 @@ def edit_friends(request, friend=None, redirect_to='edit_friends', form_class=Fr
 def addressbook(request, template_name="friends/addressbook.html"):
     related_tables = ['user']
     try:
-        profile_table = "user__%s" % settings.AUTH_PROFILE_MODULE.split('.')[1].lower()
-        related_tables.append(profile_table)
+        profile_model = settings.AUTH_PROFILE_MODULE.split('.')[1].lower()
+        related_tables.append("user__%s" % profile_model)
     except:
+        profile_model = None
         pass
     import sys
     sys.stderr.write("The related tables are %s" % related_tables)
@@ -390,9 +391,10 @@ def addressbook(request, template_name="friends/addressbook.html"):
         c = {}
         c['info']=contact
         try:
-            c['profile'] = contact.user.get_profile()
-            c['user'] = contact.user
-            c['is_friend'] = contact.user in friends
+            if profile_model:
+                c['profile'] = getattr(contact.user,profile_model)
+                c['user'] = contact.user
+                c['is_friend'] = contact.user in friends
         except:
             pass
         contacts.append(c)
