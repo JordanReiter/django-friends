@@ -49,8 +49,8 @@
 	$(document).ready(function (){
 		$(".invite-user").click(function (e){
 			$("invitation_form").empty()
-			name = $this.parent().find('.contact-name').html();
-			email = $this.parent().find('.contact-email').html();
+			name = $(this).parent().find('.contact-name').html();
+			email = $(this).parent().find('.contact-email').html();
 			alert("The name is "+name+" and the email is "+email);
 			$confirmbox = $("<div>").addClass('dialog');
 			$confirmmsg = $("<div>");
