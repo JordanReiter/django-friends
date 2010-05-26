@@ -52,7 +52,7 @@
 			id = $(this).attr('id').replace('invite-user-','');
 			name = $('#contact-'+id+'.contact-name').html();
 			email = $('#contact-'+id+'.contact-email').html();
-			alert("The name is "+name+" and the email is "+email);
+			alert("The id is "+id+" and the name is "+name+" and the email is "+email);
 			$confirmbox = $("<div>").addClass('dialog');
 			$confirmmsg = $("<div>");
 			e.stopPropagation();
