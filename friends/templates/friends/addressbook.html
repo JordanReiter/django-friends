@@ -35,7 +35,7 @@
 		{% if contact.fax %}Fax: {{ contact.fax }}<br />{% endif %}
 		{% if contact.website %}Website: <a href="{{ contact.website }}">{{ contact.website }}</a><br />{% endif %}
 		{% if contact.type = 'I' %}
-			Invitation Sent
+			Invitation Sent | 
 		{% endif %}
 		{% if not contact.user and contact.type != 'I'%}
 			<a id="invite-user-{{ contact.id }}" class="invite-user" href="{% url invite_contact contact.id %}">Invite</a> |
