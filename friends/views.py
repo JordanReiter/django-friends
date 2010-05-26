@@ -395,7 +395,7 @@ def addressbook(request, template_name="friends/addressbook.html"):
                 c['profile'] = getattr(contact.user,profile_model)
                 c['user'] = contact.user
                 c['is_friend'] = contact.user in friends
-        except:
-            pass
+        except Exception, inst:
+            raise Exception("The problem was %s" % inst)
         contacts.append(c)
     return render_to_response(template_name, {'contacts':contacts}, RequestContext(request))
