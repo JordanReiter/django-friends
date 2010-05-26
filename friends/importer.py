@@ -134,6 +134,8 @@ def import_outlook(stream, user):
                     if zip and len(address):
                         address += " " + zip
                     contact_vals['address']=address
+            if not contact_vals.get('Name',None):
+                contact_vals['name']=("%s %s" % (contact_vals.get('first_name',''), contact_vals.get('last_name',''))).strip()
             try:
                 Contact.objects.get(owner=user, email=contact_vals['email'])
             except Contact.DoesNotExist:
