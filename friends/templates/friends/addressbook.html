@@ -7,7 +7,7 @@
 <dl>
 {% for contact in contacts %}
 {% if contact.user.get_profile %}
-	<dt>
+	<dt id="contact-{{ contact.id }}">
 	{# This is a user on the site, so display site user information #}
 	{% if contact.user.get_profile.photo %}
 		<a href="{{ contact.user.get_profile.get_absolute_url }}" /><img src="{{ MEDIA_URL }}/{{ contact.user.get_profile.photo.thumbnail.url }}" style="border: 0; float: middle;"  /></a>
@@ -18,7 +18,7 @@
 		{% if request.user in contact.user.get_profile.get_friends_as_users %}{{ contact.user.first_name}} is your contact.{% endif %}
 	</dt>
 {% else %}
-	<dt>
+	<dt id="contact-#contact.id#">
 		{% if contact.name %}
 			<strong class="contact-name">{{ contact.name }}</strong><br /><a class="contact-email" href="mailto:{{ contact.email }}">{{ contact.email }}</a>
 		{% else %}
@@ -35,7 +35,7 @@
 		{% if contact.fax %}Fax: {{ contact.fax }}<br />{% endif %}
 		{% if contact.website %}Website: <a href="{{ contact.website }}">{{ contact.website }}</a><br />{% endif %}
 		{% if not contact.user %}
-			<a class="invite-user" href="{% url invite_contact contact.id %}">Invite</a>
+			<a id="invite-user-{{ contact.id }}" class="invite-user" href="{% url invite_contact contact.id %}">Invite</a>
 		{% else %}
 			{% if request.user not in contact.user.get_profile.get_friends_as_users %}<a class="invite-friend" href="{% url invite_friend contact.user.username %}">Invite</a>{% endif %}
 		{% endif %}
@@ -49,8 +49,9 @@
 	$(document).ready(function (){
 		$(".invite-user").click(function (e){
 			$("invitation_form").empty()
-			name = $(this).parent().find('.contact-name').html();
-			email = $(this).parent().find('.contact-email').html();
+			id = $(this).attr('id').replace('invite-user-','');
+			name = $('#contact-'+id+'.contact-name').html();
+			email = $('#contact-'+id+'.contact-email').html();
 			alert("The name is "+name+" and the email is "+email);
 			$confirmbox = $("<div>").addClass('dialog');
 			$confirmmsg = $("<div>");
