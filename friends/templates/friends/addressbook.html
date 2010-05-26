@@ -44,11 +44,12 @@
 	</dd>
 {% endfor %}
 </dl>
-<form method="post" action="" id="invitation-form" style="display: none">{% csrf_token %}</form>
+<form method="post" action="" id="invitation-form" style="display: none">{% csrf_token %}<fieldset></fieldset></form>
 <script type="text/javascript">
 	$(document).ready(function (){
 		$(".invite-user").click(function (e){
-			$("#invitation-form").empty().show().addClass('dialog');
+			$("#invitation-form").show().addClass('dialog');
+			$("#invitation-form fieldset").empty();
 			id = $(this).attr('id').replace('invite-user-','');
 			name = $('#contact-'+id+' .contact-name').html();
 			email = $('#contact-'+id+' .contact-email').html();
@@ -59,8 +60,8 @@
 				msg = "Send an invitation email to " + email;
 			}
 			$("<div>").html(msg).appendTo("#invitation-form");
-			$("<label>").html("Message").append("<br>").append("<textarea name='message' rows='3' cols='40'>").appendTo("#invitation-form");
-			$("<input type='submit' value='Send Invitation'>").appendTo('#invitation-form');
+			$("<label>").html("Message").append("<br>").append("<textarea name='message' rows='3' cols='40'>").appendTo("#invitation-form fieldset");
+			$("<input type='submit' value='Send Invitation'>").appendTo('#invitation-form fieldset');
 			e.stopPropagation();
 			return false;
 		});
