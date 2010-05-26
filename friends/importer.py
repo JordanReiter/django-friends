@@ -28,10 +28,14 @@ def import_outlook(stream, user):
     
     Returns a tuple of (number imported, total number of records).
     """ 
+    import time
+    start = time.time()
     total = 0
     imported = 0
     # Fix lines that have breaks in them
+    print "%d Fixing breaks" % (time.time()-start)
     stream = re.sub(r'([^"\r\n]*(["][^"\r\n]+["])*[^"\r\n]*"[^"\r\n]+)[\r\n]([^"\r\n]*")',r'\1 \3',stream)
+    print "%d Fixed breaks" % (time.time()-start)
     lines = re.split(r"[\r\n]+", stream)
     # Determine the delimiter
     csv_fields = lines[0].lower().split(",")
@@ -63,6 +67,7 @@ def import_outlook(stream, user):
         current_field = field
         for lookup in lookups:
             for c in ["","work","business","home"]:
+                print "%d: %s, %s, %s" % ( (time.time()-start), field, lookup, c)
                 if len(c):
                     current_field = "%s_%s" % (c,field)
                 else:
