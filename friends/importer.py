@@ -65,7 +65,6 @@ def import_outlook(stream, user):
         current_field = field
         for lookup in lookups:
             for c in ["","work","business","home"]:
-                print "%d: %s, %s, %s" % ( (time.time()-start), field, lookup, c)
                 if len(c):
                     current_field = "%s_%s" % (c,field)
                 else:
