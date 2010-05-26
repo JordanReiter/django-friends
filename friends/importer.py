@@ -85,7 +85,7 @@ def import_outlook(stream, user):
                     pass
                 for i in range(1,5):
                     try:
-                        match = fields.index("%s %d" % (current_loop,i))
+                        match = fields.index("%s %d" % (current_lookup,i))
                         field_indices[current_field.replace(' ','_')].append(match)
                     except ValueError:
                         pass
