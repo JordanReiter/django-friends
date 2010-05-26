@@ -132,7 +132,7 @@ def import_outlook(stream, user):
             try:
                 Contact.objects.get(owner=user, email=contact_vals['email'])
             except Contact.DoesNotExist:
-                Contact(owner=user,**contact_vals).save()
+                Contact(owner=user,type='I',**contact_vals).save()
                 imported += 1
             except KeyError:
                 raise Exception("Email not found; this is the line:\n%s\n" % vals)
