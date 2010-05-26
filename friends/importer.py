@@ -35,8 +35,8 @@ def import_outlook(stream, user):
         import difflib
         differ = difflib.ndiff(stream,g)
         for n in differ:
-            resp += "\n%s" % repr(n)
-        raise Exception(resp)
+            resp += "\n\n%s" % repr(n)
+        raise Exception('<pre><h1>Different</h1>%s' % resp)
     else:
         raise Exception("They're the same")
     import time
