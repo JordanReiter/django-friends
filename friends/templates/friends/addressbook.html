@@ -44,20 +44,39 @@
 	</dd>
 {% endfor %}
 </dl>
-<form id="invitation-form" method="post" action=""><input type="hidden" name="message" />{% csrf_token %}</form>
+<form method="post" action="" id="invitation-form" style="display: none">{% csrf_token %}</form>
 <script type="text/javascript">
 	$(document).ready(function (){
 		$(".invite-user").click(function (e){
-			$("invitation_form").empty()
+			$("#invitation-form").empty().show().addClass('dialog');
 			id = $(this).attr('id').replace('invite-user-','');
 			name = $('#contact-'+id+' .contact-name').html();
 			email = $('#contact-'+id+' .contact-email').html();
-			alert("The id is "+id+" and the name is "+name+" and the email is "+email);
-			$confirmbox = $("<div>").addClass('dialog');
-			$confirmmsg = $("<div>");
+			$("#invitation-form").action = '{% url invite_contact 0 %}'.replace('0', id);
+			if (name.length) {
+				msg = "Send an invitation to " + name + " (" + email + ")";
+			} else {
+				msg = "Send an invitation email to " + email;
+			}
+			$("<div>").html(msg).appendTo("#invitation-form");
+			$("<label>").html("Message").append("<br>").append("<textarea name='message' rows='3' cols='40'>").appendTo("#invitation-form");
+			$("<input type='submit' value='Send Invitation'").appendTo('#invitation-form');
 			e.stopPropagation();
 			return false;
 		});
 	});
 </script>
 {% endblock content %}
+
+{% block extra_css %}
+	.dialog {
+		display: fixed;
+		width: 50%;
+		height: 40%;
+		top: 30%;
+		left: 25%;
+		background: white;
+		border: 3px solid black;
+		padding: 1em;
+	}
+{% endblock extra_css %}
