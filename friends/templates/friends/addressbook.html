@@ -20,9 +20,9 @@
 {% else %}
 	<dt>
 		{% if contact.name %}
-			<strong>{{ contact.name }}</strong><br /><a href="mailto:{{ contact.email }}">{{ contact.email }}</a>
+			<strong class="contact-name">{{ contact.name }}</strong><br /><a class="contact-email" href="mailto:{{ contact.email }}">{{ contact.email }}</a>
 		{% else %}
-			<strong>&lt;<a href="mailto:{{ contact.email }}">{{ contact.email }}</a>&gt;</strong>
+			<strong>&lt;<a class="contact-email" href="mailto:{{ contact.email }}">{{ contact.email }}</a>&gt;</strong>
 		{% endif %}
 	</dt>
 {% endif %}
@@ -37,11 +37,26 @@
 		{% if not contact.user %}
 			<a href="{% url invite_contact contact.id %}">Invite</a>
 		{% else %}
-			{% if request.user not in contact.user.get_profile.get_friends_as_users %}<a href="{% url invite_friend contact.user.username %}">Invite</a>{% endif %}
+			{% if request.user not in contact.user.get_profile.get_friends_as_users %}<a class="invite-user" href="{% url invite_friend contact.user.username %}">Invite</a>{% endif %}
 		{% endif %}
 		|
 		<a href="{% url edit_contact contact.id %}">Edit Details</a>		
 	</dd>
 {% endfor %}
 </dl>
+<form id="invitation-form" method="post" action=""><input type="hidden" name="message" />{% csrf_token %}</form>
+<script type="text/javascript">
+	$(document).ready(function (){
+		$(".invite-user").click(function (e){
+			$("invitation_form").empty()
+			name = $this.parent().find('.contact-name').html();
+			email = $this.parent().find('.contact-email').html();
+			alert("The name is "+name+" and the email is "+email);
+			$confirmbox = $("<div>").addClass('dialog');
+			$confirmmsg = $("<div>");
+			e.stopPropagation();
+			return false;
+		});
+	});
+</script>
 {% endblock content %}
