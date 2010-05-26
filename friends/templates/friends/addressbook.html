@@ -53,7 +53,7 @@
 			id = $(this).attr('id').replace('invite-user-','');
 			name = $('#contact-'+id+' .contact-name').html();
 			email = $('#contact-'+id+' .contact-email').html();
-			$("#invitation-form").action = '{% url invite_contact 0 %}'.replace('0', id);
+			$("#invitation-form").attr('action' , '{% url invite_contact 0 %}'.replace('0', id));
 			if (name.length) {
 				msg = "Send an invitation to " + name + " (" + email + ")";
 			} else {
