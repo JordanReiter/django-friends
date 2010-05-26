@@ -375,5 +375,5 @@ def edit_friends(request, friend=None, redirect_to='edit_friends', form_class=Fr
 
 @login_required
 def addressbook(request, template_name="friends/addressbook.html"):
-    contacts = Contact.objects.filter(owner=request.user)
+    contacts = Contact.objects.select_related('user').filter(owner=request.user)
     return render_to_response(template_name, locals(), RequestContext(request))
