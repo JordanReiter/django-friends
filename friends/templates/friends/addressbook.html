@@ -37,10 +37,10 @@
 		{% if contact.info.type = 'I' %}
 			Invitation Sent | 
 		{% endif %}
-		{% if not contact.user.get_profile and contact.info.type != 'I'%}
+		{% if not contact.user.get_profile and contact.info.type != 'I' %}
 			<a id="invite-user-{{ contact.info.id }}" class="invite-user" href="{% url invite_contact contact.info.id %}">Invite</a> |
 		{% else %}
-			{% if not contact.is_friend %}<a class="invite-friend" href="{% url add_friend contact.user.get_profile.code %}">Invite</a> | {% endif %}
+			{% if contact.user and not contact.is_friend %}<a class="invite-friend" href="{% url add_friend contact.user.get_profile.code %}">Invite</a> | {% endif %}
 		{% endif %}
 		<a href="{% url edit_contact contact.info.id %}">Edit Details</a>
 		{{ expert_profile }}		
