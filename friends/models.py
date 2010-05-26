@@ -53,11 +53,12 @@ class ContactManager(models.Manager):
         return super(ContactManager, self).filter(*args, **kwargs)
 
 
-
-CONTACT_TYPE = (
+IMPORTED_TYPES = (
     ("V", "VCard Import"),
     ("G", "Google Import"),
     ("O", "Outlook Import"),
+)
+CONTACT_TYPES = (
     ("F", "Friendship"),
     ("I", "Invited"),
     ("A", "Manually added"),
@@ -86,7 +87,7 @@ class Contact(models.Model):
     added = models.DateField(default=datetime.date.today, editable=False)
     edited = models.DateField(null=True, blank=True, editable=False)
     deleted = models.DateField(null=True, blank=True, editable=False)
-    type = models.CharField(max_length=1, choices=CONTACT_TYPE, editable=False)
+    type = models.CharField(max_length=1, choices=(CONTACT_TYPES+IMPORT_TYPES), editable=False)
     
     # the user this contact corresponds to -- I'm not allowing more than one user/email
     user = models.ForeignKey(User, null=True, blank=True, editable=False)

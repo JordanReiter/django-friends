@@ -1,4 +1,4 @@
-{% if contact.name %}Dear {{ name }},
+{% if contact.name %}Dear {{ contact.name }},
 
 {% endif %}
 You have been invited to join {{ SITE_NAME }}, the primary website for experts in the field of education.
