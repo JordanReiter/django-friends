@@ -377,7 +377,7 @@ def edit_friends(request, friend=None, redirect_to='edit_friends', form_class=Fr
 def addressbook(request, template_name="friends/addressbook.html"):
     related_tables = ['user']
     try:
-        profile_table = "user_%s" % settings.AUTH_PROFILE_MODULE.split('.')[1].lower()
+        profile_table = "user__%s" % settings.AUTH_PROFILE_MODULE.split('.')[1].lower()
         related_tables.append(profile_table)
     except:
         pass
