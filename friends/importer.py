@@ -28,6 +28,15 @@ def import_outlook(stream, user):
     
     Returns a tuple of (number imported, total number of records).
     """ 
+    f = open('/tmp/contacts.tsv','rU')
+    g = f.read()
+    if g != stream:
+        resp = ""
+        import difflib
+        differ = difflib.ndiff(stream,g)
+        for n in differ:
+            resp += "\n%s" % repr(n)
+        raise Exception(resp)
     import time
     start = time.time()
     total = 0
