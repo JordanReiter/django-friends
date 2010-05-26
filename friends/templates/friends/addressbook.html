@@ -27,7 +27,6 @@
 	</dt>
 {% endif %}
 	<dd>
-		{% comment %}
 		{% if contact.profile.job %}{% if contact.profile.job.role %}{{ contact.profile.job.role }} at {% endif %}{{ contact.profile.job.name }}<br />{% endif %}
 		{% if contact.profile.country %}{{ contact.profile.country.name }}<br />{% endif %}
 		{% if contact.info.address %}{{ contact.info.address }}<br />{% endif %}
@@ -44,7 +43,6 @@
 			{% if contact.is_friend %}<a class="invite-friend" href="{% url invite_friend contact.profile.code %}">Invite</a> | {% endif %}
 		{% endif %}
 		<a href="{% url edit_contact contact.info.id %}">Edit Details</a>
-		{% endcomment %}
 		{{ expert_profile }}		
 	</dd>
 {% endfor %}
