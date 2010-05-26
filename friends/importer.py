@@ -43,7 +43,7 @@ def import_outlook(stream, user):
     csfile = tempfile.NamedTemporaryFile()
     csfile.file.write(stream)
     csfile.file.close()
-    reader = csv.reader(open(csfile.name,'rU'),delim)
+    reader = csv.reader(open(csfile.name,'rU'),delimiter=delim)
     lines = [row for row in reader]
     field_lookups = {
         'email': ["email","e-mail","e-mail address","email address"],
