@@ -60,7 +60,7 @@
 				msg = "Send an invitation email to " + email;
 			}
 			$("<div>").html(msg).appendTo("#invitation-form fieldset");
-			$("<label>").html("Message").append("<br>").append("<textarea name='message' rows='3' cols='40'>").appendTo("#invitation-form fieldset");
+			$("<label>").html("Message:").append("<br>").append("<textarea name='message' rows='3' cols='40'>").append('<br>').appendTo("#invitation-form fieldset");
 			$("<input type='submit' value='Send Invitation'>").appendTo('#invitation-form fieldset');
 			e.stopPropagation();
 			return false;
@@ -73,10 +73,12 @@
 	.dialog {
 		display: block;
 		position: fixed;
-		width: 50%;
-		height: auto;
-		top: 30%;
-		left: 25%;
+		width: 20em;
+		height: 5em;
+		top: 50%;
+		left: 50%;
+		margin-top: -2.5em;
+		margin-left: -10em;
 		background: white;
 		border: 3px solid black;
 		padding: 1em;
