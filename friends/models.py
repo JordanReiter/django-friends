@@ -95,6 +95,9 @@ class Contact(models.Model):
     
     def __unicode__(self):
         return "%s (%s's contact)" % (self.email, self.owner)
+    
+    class Meta:
+        unique_together = (('owner','email'))
 
 def contact_update_user(sender, instance, created, *args, **kwargs):
     if created:
