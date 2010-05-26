@@ -200,10 +200,7 @@ def accept_friendship(request,friend,template_name='confirm.html'):
 @csrf_protect
 @login_required
 def remove_contact(request,contact,template_name='confirm.html',redirect_to='edit_contacts'):
-    try:
-        contact = Contact.objects.get(pk=contact)
-    except:
-        return {}, {'status': 404}
+    contact = get_object_or_404(Contact, pk=contact)
 
     if '/' not in redirect_to:
         redirect_to = reverse(redirect_to)
