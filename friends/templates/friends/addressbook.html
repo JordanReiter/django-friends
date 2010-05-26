@@ -3,7 +3,8 @@
 {% block content %}
 <h1>{% block title %}Address Book{% endblock title %}</h1>
 <p>Below are all of the people in your address book. Not all of them are users on the site.</p>
-
+<a href="#" class="bad">Test Bad</a>
+<a href="#" class="gone">Test Gone</a>
 <dl>
 {% for contact in contacts %}
 {% if contact.user.get_profile %}
@@ -40,12 +41,14 @@
 			Invitation Sent | 
 		{% endif %}
 		{% if not contact.user.get_profile and contact.info.type != 'I' %}
-			<a id="invite-contact-{{ contact.id }}" class="invite-contact" href="{% url invite_contact contact.id %}">Invite</a> |
+			<a id="invite-user-{{ contact.id }}" class="invite-contact" href="{% url invite_contact contact.id %}">Invite</a> |
 		{% else %}
-			{% if contact.user and not contact.is_friend %}<a class="invite-friend" href="{% url add_friend contact.user.get_profile.code %}">Invite</a> | {% endif %}
+			{% if contact.user and not contact.is_friend %}<a class="invite-contact" href="{% url add_friend contact.user.get_profile.code %}">Invite</a> | {% endif %}
 		{% endif %}
 		{% if not contact.is_friend %}
-			<a class="remove-contact" href="{% url remove_contact contact.user.get_profile.code %}">Invite</a> |
+			<a class="remove-user" href="{% url remove_contact contact.id %}">Delete Record</a> |
+		{% else %}
+			<a class="remove-contact" href="{% url remove_friend contact.user.username %}">Remove as Contact</a> |
 		{% endif %}
 		<a href="{% url edit_contact contact.id %}">Edit Details</a>
 		{{ expert_profile }}		
@@ -59,39 +62,38 @@
 		function success_invitation_sent(resp) {
 			show_message(resp.messages, "Invitation Sent")
 		}
+		function success_contact_removal(resp) {
+			show_message(resp.messages, "Record Removed")
+		}
 		$(".invite-contact").click(function (e){
-			$("#contact-form").show().addClass('dialog');
-			$("#contact-form fieldset").empty();
 			id = $(this).attr('id').replace('invite-contact-','');
 			name = $('#contact-'+id+' .contact-name').html();
 			email = $('#contact-'+id+' .contact-email').html();
-			$("#contact-form").attr('action' , '{% url invite_contact 0 %}'.replace('0', id));
+			action='{% url invite_contact 0 %}'.replace('0', id);
 			if (name && name.length) {
-				msg = "Send an invitation to " + name + " (" + email + ")";
+				message = "Send an invitation to " + name + " (" + email + ")";
 			} else {
-				msg = "Send an invitation email to " + email;
+				message = "Send an invitation email to " + email;
 			}
-			$("<div>").html(msg).appendTo("#contact-form fieldset");
-			$("<label>").html("Message:").append("<br>").append("<textarea name='message' rows='3' cols='40'>").append('<br>').appendTo("#contact-form fieldset");
-			$("<input type='submit' value='Send Invitation'>").appendTo('#contact-form fieldset');
+			fields = []
+			fields.push($("<label>").html("Message:").append("<textarea name='message' rows='3' cols='40'>"));
+			success_function = success_invitation_sent;
+			show_form(action, message, "Invite", "Send Invitation", fields); 
 			e.stopPropagation();
 			return false;
 		});
 		$(".remove-contact").click(function (e){
-			$("#contact-form").show().addClass('dialog');
-			$("#contact-form fieldset").empty();
-			id = $(this).attr('id').replace('remove-contact-','');
+			id = $(this).attr('id').replace('invite-contact-','');
 			name = $('#contact-'+id+' .contact-name').html();
 			email = $('#contact-'+id+' .contact-email').html();
-			$("#contact-form").attr('action' , '{% url remove_contact 0 %}'.replace('0', id));
+			action='{% url invite_contact 0 %}'.replace('0', id);
 			if (name && name.length) {
-				msg = "Send an invitation to " + name + " (" + email + ")";
+				message = "Remove " + name + " (" + email + ") from your address book?";
 			} else {
-				msg = "Send an invitation email to " + email;
+				message = "Remove " + email + " from your address book?";
 			}
-			$("<div>").html(msg).appendTo("#contact-form fieldset");
-			$("<label>").html("Message:").append("<br>").append("<textarea name='message' rows='3' cols='40'>").append('<br>').appendTo("#contact-form fieldset");
-			$("<input type='submit' value='Send Invitation'>").appendTo('#contact-form fieldset');
+			success_function = success_contact_removal;
+			show_form(action, message, "", "Remove Record"); 
 			e.stopPropagation();
 			return false;
 		});
@@ -104,25 +106,68 @@
 					data: $(this).serialize(),
 					success: function(resp) {
 						$("#contact-form").hide();
+						if (success_function) {
+							return success_function(resp);							
+						}
+					},
+					error: function(req, status, err) {
+						msgs = [req.responseText, err]
+						show_message(msgs,status);
 					},
 					dataType: 'json'
 				});
 			}
 			return false;
 		});
+		function show_form(action,message,title,button,fields) {
+			if (!fields) {
+				fields = []
+			}
+			if (!button) {
+				button = "Submit"
+			}
+ 			$("#contact-form").attr('action' , action);
+			$("#contact-form").show().addClass('dialog');
+			$("#contact-form fieldset").empty();
+			if (title.length) {
+				$("<h2>").html(title).appendTo("#contact-form fieldset");
+			}
+			$("<p>").html(msg).appendTo("#contact-form fieldset");
+			$fields = $("<ol>").addClass("fields");
+			for (var x=0; x < fields.length; x++) {
+				$("<li>").append(fields[x]).appendTo($fields);
+			}
+			$fields.appendTo("#contact-form fieldset");
+			$("<input type='submit'>").attr('value',button).appendTo('#contact-form fieldset');
+			$("<input type='button' value=' Cancel '>").appendTo('#contact-form fieldset').click(function (e){
+				$("#contact-form").hide()
+				e.stopPropagation();
+				return false;
+			});
+		}
 		function show_message(messages, title) {
 			$msgbox = $("<div>").addClass('dialog')
 			if (title && title.length) {
-				$('<h2>').html(title).appendTo(msgbox);
+				$('<h2>').html(title).appendTo($msgbox);
 			}
 			for (x=0; x < messages.length; x++) {
-				$("<div>").html(messages[x]).appendTo(msgbox);
+				$("<p>").html(messages[x]).appendTo($msgbox);
 			}
 			$closebox=$("<button>").html("Close").click(function (){
 				$msgbox.remove();
-			}).appendTo(msgBox);
+			}).appendTo($msgBox);
 			$msgbox.appendTo(body);
 		}
+		$(".bad").click(function (e){
+			success_function = null;
+			show_form('{%url test_bad %}',"Bad","Bad");
+			return false;
+		});
+		$(".gone").click(function (e){
+			success_function = null;
+			show_form('{%url test_gone %}',"Bad","Bad");
+			return false;
+		});
 	});
 </script>
 {% endblock content %}

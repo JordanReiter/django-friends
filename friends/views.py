@@ -74,7 +74,7 @@ def view_friends(request, user, template_name="friends/friends.html", redirect_t
     try:
         show = profile.get_access(request.user)
         if show.get('friends',True)==False or show.get('contacts',True)==False:
-            messages.add(request, messages.ERROR, "You're not allowed to view contacts for %s." % (user.get_full_name() or user.username))
+            messages.add_message(request, messages.ERROR, "You're not allowed to view contacts for %s." % (user.get_full_name() or user.username))
             return {'success':False}, {'url': redirect_to}
     except AttributeError:
         pass
@@ -413,3 +413,13 @@ def addressbook(request, template_name="friends/addressbook.html"):
 @render_to()
 def test_req(request):
     return {'confirmation':True}, 'friends/invite.html'
+
+@render_to()
+def test_bad(request):
+    messages.add_message(request, messages.DEBUG, "I did a bad bad thing.")
+    return {'confirmation':True}, {'status': 500}
+
+@render_to()
+def test_gone(request):
+    contact = get_object_or_404(Contact,pk=-1)
+    return locals(), 'confirm.html'
