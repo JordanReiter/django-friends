@@ -375,16 +375,7 @@ def edit_friends(request, friend=None, redirect_to='edit_friends', form_class=Fr
 
 @login_required
 def addressbook(request, template_name="friends/addressbook.html"):
-    related_tables = ['user']
-    try:
-        profile_model = settings.AUTH_PROFILE_MODULE.split('.')[1].lower()
-        related_tables.append("user__%s" % profile_model)
-    except:
-        profile_model = None
-        pass
-    import sys
-    sys.stderr.write("The related tables are %s" % related_tables)
-    contact_list = Contact.objects.select_related(*related_tables).filter(owner=request.user)
+    contact_list = Contact.objects.select_related("user").filter(owner=request.user)
     friends = [f['friend'] for f in Friendship.objects.friends_for_user(request.user)]
     contacts = []
     for contact in contact_list:
