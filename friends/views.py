@@ -417,3 +417,7 @@ def addressbook(request, template_name="friends/addressbook.html"):
             pass
         contacts.append(c)
     return {'contacts':contacts}, template_name
+
+@render_to()
+def test(request):
+    return {'confirmation':True}, 'friends/invite.html'
