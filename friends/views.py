@@ -142,27 +142,29 @@ def add_friend(request, friend, template_name='friends/add.html', add_form=Invit
         friendship_allowed = True
 
     if not friendship_allowed:
-        msgs.add((messages.ERROR,"You're not allowed to add %s as a contact." % (friend.get_full_name() or friend.username)))
+        msgs.append((messages.ERROR,"You're not allowed to add %s as a contact." % (friend.get_full_name() or friend.username)))
         return {}, {'url':reverse(redirect_to,args=[friend]), 'messages':msgs }
 
     if request.method == 'POST':
         add_friend_form = add_form(request.POST,user=request.user,friend=friend,prefix="friend")
         if add_friend_form.is_valid():
             add_friend_form.save()
-            msgs.add((messages.SUCCESS,"You have sent a request for %s to be your contact." % (friend.username)))
+            msgs.append((messages.SUCCESS,"You have sent a request for %s to be your contact." % (friend.username)))
             return {}, {'url':reverse(redirect_to,args=[friend]), 'messages':msgs }
     else:
         add_friend_form = add_form(user=request.user, friend=friend, prefix="friend")
     return locals(), template_name
 
 
+@render_to
 def accept_invitation(request, key, template_name="friends/accept_invitation.html", failure_redirect='/', login_redirect=settings.LOGIN_REDIRECT_URL):
+    msgs = []
     try:
         joininvitation = JoinInvitation.objects.get(confirmation_key__iexact=key)
         invite.send(sender=JoinInvitation, request=request, instance=joininvitation)
         return locals(), template_name
     except JoinInvitation.DoesNotExist:
-        msgs.add((messages.ERROR,"Sorry, it looks like this was not a valid invitation code."))
+        msgs.append((messages.ERROR,"Sorry, it looks like this was not a valid invitation code."))
         if '/' not in failure_redirect:
             failure_redirect = reverse(failure_redirect)
         return {}, {'url':failure_redirect, 'messages':msgs }
@@ -170,7 +172,9 @@ def accept_invitation(request, key, template_name="friends/accept_invitation.htm
 
 @csrf_protect
 @login_required
+@render_to
 def accept_friendship(request,friend,template_name='confirm.html'):
+    msgs = []
     friend, friend_profile = get_user_profile(friend)
     
     # because of the threat of cross-site scripting, this action has to be the result of a form posting
@@ -180,7 +184,7 @@ def accept_friendship(request,friend,template_name='confirm.html'):
         no_display = "No, ignore request"
         return locals(), template_name
     elif request.POST.get('confirm_action')=='no':
-        msgs.add((messages.INFO,"You canceled the action."))
+        msgs.append((messages.INFO,"You canceled the action."))
         return HttpResponseRedirect(
                 reverse('profile',args=[friend])
             )
@@ -189,14 +193,16 @@ def accept_friendship(request,friend,template_name='confirm.html'):
         invitation.accept()
         notification.send([friend], "friends_accept", {'friend': request.user,})
         notification.send([request.user], "friends_accept", {'friend': friend_profile,})
-        msgs.add((messages.SUCCESS,"%s is now your friend." % (friend_profile.user.get_full_name() or friend_profile.user.username)))
+        msgs.append((messages.SUCCESS,"%s is now your friend." % (friend_profile.user.get_full_name() or friend_profile.user.username)))
     except FriendshipInvitation.DoesNotExist:
-        msgs.add((messages.INFO,"You canceled the action."))
+        msgs.append((messages.INFO,"You canceled the action."))
     return {}, {'url':reverse('profile',args=[friend.username]), 'messages':msgs }
 
 @csrf_protect
 @login_required
+@render_to
 def remove_contact(request,contact,template_name='confirm.html',redirect_to='edit_contacts'):
+    msgs = []
     contact = get_object_or_404(Contact, pk=contact)
 
     if '/' not in redirect_to:
@@ -209,18 +215,20 @@ def remove_contact(request,contact,template_name='confirm.html',redirect_to='edi
         no_display = "No, keep" % (contact.name or contact.email)
         return locals(), template_name
     elif request.POST.get('confirm_action')=='no':
-        msgs.add((messages.INFO,"You canceled the action."))
+        msgs.append((messages.INFO,"You canceled the action."))
         return {}, {'url':redirect_to, 'messages':msgs }
 
     contact.deleted = datetime.datetime.now()
     contact.save()
-    msgs.add((messages.SUCCESS,"You have removed %s from your contacts." % (contact.get_full_name() or contact.username)))
+    msgs.append((messages.SUCCESS,"You have removed %s from your contacts." % (contact.get_full_name() or contact.username)))
     return {}, {'url':redirect_to, 'messages':msgs }
 
 
 @csrf_protect
 @login_required
+@render_to
 def remove_friend(request,friend,template_name='confirm.html',redirect_to='edit_friends'):
+    msgs = []
     friend, friend_profile = get_user_profile(friend)
 
     if '/' not in redirect_to:
@@ -228,7 +236,7 @@ def remove_friend(request,friend,template_name='confirm.html',redirect_to='edit_
 
     # confirm that the user can remove this person as a friend
     if not friend_profile.is_friend(request.user.get_profile()):
-        msgs.add((messages.ERROR,"%s is not one of your friends" % friend_profile.user.username))
+        msgs.append((messages.ERROR,"%s is not one of your friends" % friend_profile.user.username))
         return {}, {'url':redirect_to, 'messages':msgs }
 
     #if the method is GET, show a form to avoid csrf
@@ -238,11 +246,11 @@ def remove_friend(request,friend,template_name='confirm.html',redirect_to='edit_
         no_display = "No, keep %s as a friend" % friend_profile.user.get_full_name()
         return locals(), template_name
     elif request.POST.get('confirm_action')=='no':
-        msgs.add((messages.INFO,"You canceled the action."))
+        msgs.append((messages.INFO,"You canceled the action."))
         return {}, {'url':redirect_to, 'messages':msgs }
 
     Friendship.objects.remove(request.user, friend)
-    msgs.add((messages.SUCCESS,"You have removed %s from your friends." % (friend_profile.user.get_full_name())))
+    msgs.append((messages.SUCCESS,"You have removed %s from your friends." % (friend_profile.user.get_full_name())))
     return {}, {'url':redirect_to, 'messages':msgs }
 
 
@@ -253,13 +261,15 @@ def export_friends(request):
     return response    
 
     
+@render_to
 def import_file_contacts(request, form_class=ImportContactForm, template_name='friends/upload_contacts.html'):
+    msgs = []
     if request.method == 'POST':
         contacts_file_form=form_class(request.POST,request.FILES)
         if contacts_file_form.is_valid():
             friends_file=request.FILES['contacts_file']
             if friends_file.multiple_chunks():
-                msgs.add((messages.ERROR,"The file you uploaded is too large."))
+                msgs.append((messages.ERROR,"The file you uploaded is too large."))
             else:
                 start = True
                 format = None
@@ -278,16 +288,17 @@ def import_file_contacts(request, form_class=ImportContactForm, template_name='f
                 if format == 'VCARD':
                     imported_type='V'
                     total, imported = import_vcards(contact_file_content, request.user)
-                    msgs.add((messages.SUCCESS,'A total of %d emails imported.' % imported))
+                    msgs.append((messages.SUCCESS,'A total of %d emails imported.' % imported))
                 elif format == 'OUTLOOK':
                     imported_type='O'
                     total, imported = import_outlook(contact_file_content, request.user)
-                    msgs.add((messages.SUCCESS,'A total of %d emails imported.' % imported))
+                    msgs.append((messages.SUCCESS,'A total of %d emails imported.' % imported))
     else:
         contacts_file_form=form_class()
         return locals(), template_name
 
 
+@render_to
 def invite_imported(request, type=None):
     type = request.REQUEST.get('type', type)
     imported_contacts = Contact.objects.filter(owner=request.user)
@@ -300,13 +311,15 @@ def invite_imported(request, type=None):
 
 @csrf_protect
 @login_required
+@render_to
 def edit_contact(request, contact_id=None, redirect_to='edit_contacts', form_class=ContactForm, template_name="friends/edit_contact.html"):
+    msgs = []
     contact = get_object_or_404(Contact,pk=contact_id)
     if request.method == 'POST':
         form=form_class(request.POST, instance=contact, user=request.user)
         if form.is_valid():
             saved_contact = form.save()
-            msgs.add((messages.SUCCESS,"Contact information for %s saved." % (saved_contact.name or saved_contact.email)))
+            msgs.append((messages.SUCCESS,"Contact information for %s saved." % (saved_contact.name or saved_contact.email)))
             return {}, {'url':redirect_to, 'messages':msgs }
     else:
         form=form_class(instance=contact, user=request.user)
@@ -319,12 +332,14 @@ def edit_contact(request, contact_id=None, redirect_to='edit_contacts', form_cla
 
 @csrf_protect
 @login_required
+@render_to
 def edit_friend(request, friend=None, redirect_to='edit_friends', form_class=FriendshipForm, template_name="friends/edit_contact.html"):
+    msgs = []
     if '/' not in redirect_to:
         redirect_to = reverse(redirect_to)
     friend, _ = get_user_profile(friend)
     if not Friendship.objects.are_friends(friend, request.user):
-        msgs.add((messages.ERROR,"You are not friends with %s." % (friend.get_full_name() or friend.username)))
+        msgs.append((messages.ERROR,"You are not friends with %s." % (friend.get_full_name() or friend.username)))
         return {}, {'url':redirect_to, 'messages':msgs }
     contact, _ = Contact.objects.get_or_create(owner=request.user, email=friend.email)
     contact.user = friend
@@ -333,7 +348,9 @@ def edit_friend(request, friend=None, redirect_to='edit_friends', form_class=Fri
 
 @csrf_protect
 @login_required
+@render_to
 def invite_contact(request,contact_id=None, template_name="confirm.html", redirect_to="edit_contacts"):
+    msgs = []
     if '/' not in redirect_to:
         redirect_to=reverse(redirect_to)
     contact = get_object_or_404(Contact,pk=contact_id)
@@ -344,17 +361,18 @@ def invite_contact(request,contact_id=None, template_name="confirm.html", redire
         no_display = "No, don't send"
         return locals(), template_name
     elif request.POST.get('confirm_action')=='no':
-        msgs.add((messages.INFO,"You canceled the action."))
+        msgs.append((messages.INFO,"You canceled the action."))
         return {}, {'url':redirect_to, 'messages':msgs }
     message = request.REQUEST.get('message',None)
     JoinInvitation.objects.send_invitation(request.user, contact.email, message)
-    msgs.add((messages.ERROR,"I sent an invitation to %s" % contact.email))
+    msgs.append((messages.ERROR,"I sent an invitation to %s" % contact.email))
     return {}, {'url':redirect_to, 'messages':msgs }
-
 
 @csrf_protect
 @login_required
+@render_to
 def edit_friends(request, friend=None, redirect_to='edit_friends', form_class=FriendshipForm, template_name="friends/edit_friends.html"):
+    msgs = []
     if '/' not in redirect_to:
         redirect_to = reverse(redirect_to)
     if friend:
@@ -362,13 +380,13 @@ def edit_friends(request, friend=None, redirect_to='edit_friends', form_class=Fr
         if Friendship.objects.are_friends(friend, request.user):
             friendship, _ = Friendship.objects.get_or_create(from_user=request.user, to_user=friend)
         else:
-            msgs.add((messages.ERROR,"You are not friends with %s." % (friend.get_full_name() or friend.username)))
+            msgs.append((messages.ERROR,"You are not friends with %s." % (friend.get_full_name() or friend.username)))
             return {}, {'url':redirect_to, 'messages':msgs }
         if request.method == 'POST':
             friend_form=form_class(request.POST, user=request.user, friend=friend, prefix=request.POST.get('prefix'))
             if friend_form.is_valid():
                 friend_form.save()
-                msgs.add((messages.SUCCESS,"Contact information for %s saved." % (friend.first_name or friend.username)))
+                msgs.append((messages.SUCCESS,"Contact information for %s saved." % (friend.first_name or friend.username)))
                 return {}, {'url':redirect_to, 'messages':msgs }
         else:
             friend_form=form_class(instance=friendship, user=request.user, friend=friend, prefix='friend')
@@ -384,6 +402,7 @@ def edit_friends(request, friend=None, redirect_to='edit_friends', form_class=Fr
 
 
 @login_required
+@render_to
 def addressbook(request, template_name="friends/addressbook.html"):
     contact_list = Contact.objects.select_related("user").filter(owner=request.user)
     friends = [f['friend'] for f in Friendship.objects.friends_for_user(request.user)]
