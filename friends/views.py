@@ -410,6 +410,7 @@ def addressbook(request, template_name="friends/addressbook.html"):
     for contact in contact_list:
         c = {}
         c['info']=contact
+        c['id']=contact.id
         try:
             c['user'] = contact.user
             c['is_friend'] = contact.user in friends

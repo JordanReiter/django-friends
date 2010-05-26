@@ -7,7 +7,7 @@
 <dl>
 {% for contact in contacts %}
 {% if contact.user.get_profile %}
-	<dt id="contact-{{ contact.info.id }}">
+	<dt id="contact-{{ contact.id }}">
 	{# This is a user on the site, so display site user information #}
 	{% if contact.user.get_profile.photo %}
 		<a href="{{ contact.user.get_profile.get_absolute_url }}" /><img src="{{ MEDIA_URL }}/{{ contact.user.get_profile.photo.thumbnail.url }}" style="border: 0; float: middle;"  /></a>
@@ -18,7 +18,7 @@
 		{% if contact.is_friend %}{{ contact.user.first_name}} is your contact.{% endif %}
 	</dt>
 {% else %}
-	<dt id="contact-{{ contact.info.id }}">
+	<dt id="contact-{{ contact.id }}">
 		{% if contact.info.name %}
 			<strong class="contact-name">{{ contact.info.name }}</strong><br /><a class="contact-email" href="mailto:{{ contact.info.email }}">{{ contact.info.email }}</a>
 		{% else %}
@@ -40,11 +40,11 @@
 			Invitation Sent | 
 		{% endif %}
 		{% if not contact.user.get_profile and contact.info.type != 'I' %}
-			<a id="invite-user-{{ contact.info.id }}" class="invite-user" href="{% url invite_contact contact.info.id %}">Invite</a> |
+			<a id="invite-user-{{ contact.id }}" class="invite-user" href="{% url invite_contact contact.id %}">Invite</a> |
 		{% else %}
 			{% if contact.user and not contact.is_friend %}<a class="invite-friend" href="{% url add_friend contact.user.get_profile.code %}">Invite</a> | {% endif %}
 		{% endif %}
-		<a href="{% url edit_contact contact.info.id %}">Edit Details</a>
+		<a href="{% url edit_contact contact.id %}">Edit Details</a>
 		{{ expert_profile }}		
 	</dd>
 {% endfor %}
