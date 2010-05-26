@@ -59,7 +59,7 @@
 			} else {
 				msg = "Send an invitation email to " + email;
 			}
-			$("<div>").html(msg).appendTo("#invitation-form");
+			$("<div>").html(msg).appendTo("#invitation-form fieldset");
 			$("<label>").html("Message").append("<br>").append("<textarea name='message' rows='3' cols='40'>").appendTo("#invitation-form fieldset");
 			$("<input type='submit' value='Send Invitation'>").appendTo('#invitation-form fieldset');
 			e.stopPropagation();
