@@ -37,6 +37,8 @@ def import_outlook(stream, user):
         for n in differ:
             resp += "\n%s" % repr(n)
         raise Exception(resp)
+    else:
+        raise Exception("They're the same")
     import time
     start = time.time()
     total = 0
