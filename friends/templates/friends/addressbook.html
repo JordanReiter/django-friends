@@ -70,6 +70,26 @@
 			e.stopPropagation();
 			return false;
 		});
+		$("#invitation-form").submit(function (e) {
+			if (!(this.action && this.action.length)) {
+				e.stopPropagation();
+				return false;
+			} else {
+				$.ajax({
+					type: "POST",
+					url: this.action,
+					data: $(this).serialize(),
+					success: function(resp) {
+						if (resp.messages) {
+							for (x=0; x < resp.messages.length; x++) {
+								alert(resp.messages[x]);
+							}
+						}
+					},
+					dataType: 'json'
+				});
+			}
+		})
 	});
 </script>
 {% endblock content %}
