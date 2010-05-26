@@ -71,10 +71,8 @@
 			return false;
 		});
 		$("#invitation-form").submit(function (e) {
-			if (!(this.action && this.action.length)) {
-				e.stopPropagation();
-				return false;
-			} else {
+			e.stopPropagation();
+			if (this.action && this.action.length) {
 				$.ajax({
 					type: "POST",
 					url: this.action,
@@ -89,6 +87,7 @@
 					dataType: 'json'
 				});
 			}
+			return false;
 		})
 	});
 </script>
