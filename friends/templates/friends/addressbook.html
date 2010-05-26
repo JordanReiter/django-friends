@@ -18,7 +18,7 @@
 		{% if request.user in contact.user.get_profile.get_friends_as_users %}{{ contact.user.first_name}} is your contact.{% endif %}
 	</dt>
 {% else %}
-	<dt id="contact-#contact.id#">
+	<dt id="contact-{{ contact.id }}">
 		{% if contact.name %}
 			<strong class="contact-name">{{ contact.name }}</strong><br /><a class="contact-email" href="mailto:{{ contact.email }}">{{ contact.email }}</a>
 		{% else %}
