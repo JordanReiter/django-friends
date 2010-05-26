@@ -119,6 +119,10 @@ def import_outlook(stream, user):
                     email=contact_vals.pop("%semail" % c)
                     if not contact_vals.get('email',''):
                         contact_vals['email']=email
+                if contact_vals.has_key("%sphone" % c):
+                    phone=contact_vals.pop("%sphone" % c)
+                    if not contact_vals.get('phone',''):
+                        contact_vals['phone']=phone
                 if contact_vals.has_key("%saddress" % c):
                     addr=contact_vals.pop("%saddress" % c)
                     if not contact_vals.get('address',''):
