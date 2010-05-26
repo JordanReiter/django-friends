@@ -112,7 +112,7 @@ def contact_create_for_friendship(sender, instance, created, *args, **kwargs):
         contact2.type = 'F'
         contact2.save()
 
-class FriendSuggestion(models.Manager):
+class FriendSuggestion(models.Model):
     email = models.EmailField(null=True, blank=True)
     user = models.ForeignKey(User, null=True, blank=True, related_name="suggested_friends")
     suggested_user = models.ForeignKey(User, related_name="__unused__")
