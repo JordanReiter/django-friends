@@ -107,9 +107,9 @@ def import_outlook(stream, user):
                     if len(line[col_index].strip()):
                         if "street" in col:
                             if contact_vals.has_key(col):
-                                contact_vals[col]="%s, %s" (contact_vals[col], vals[col_index])
+                                contact_vals[col]="%s, %s" (contact_vals[col], line[col_index])
                         else:
-                            contact_vals[col]=vals[col_index]
+                            contact_vals[col]=line[col_index]
                             break
             if not contact_vals.has_key('email'):
                 if re.match(EMAIL_REGEX, (' ').join(line), re.IGNORECASE):
@@ -150,7 +150,7 @@ def import_outlook(stream, user):
                 Contact(owner=user,type='I',**contact_vals).save()
                 imported += 1
             except KeyError:
-                raise Exception("Email not found; this is the line:\n%s\n" % vals)
+                raise Exception("Email not found; this is the line:\n%s\n" % line)
     return imported, total
             
 
