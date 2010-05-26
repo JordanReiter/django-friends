@@ -34,7 +34,10 @@
 		{% if contact.mobile %}Mobile: {{ contact.mobile }}<br />{% endif %}
 		{% if contact.fax %}Fax: {{ contact.fax }}<br />{% endif %}
 		{% if contact.website %}Website: <a href="{{ contact.website }}">{{ contact.website }}</a><br />{% endif %}
-		{% if not contact.user %}
+		{% if contact.type = 'I' %}
+			Invitation Sent
+		{% endif %}
+		{% if not contact.user and contact.type != 'I'%}
 			<a id="invite-user-{{ contact.id }}" class="invite-user" href="{% url invite_contact contact.id %}">Invite</a>
 		{% else %}
 			{% if request.user not in contact.user.get_profile.get_friends_as_users %}<a class="invite-friend" href="{% url invite_friend contact.user.username %}">Invite</a>{% endif %}
