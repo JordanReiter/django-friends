@@ -50,8 +50,8 @@
 		$(".invite-user").click(function (e){
 			$("invitation_form").empty()
 			id = $(this).attr('id').replace('invite-user-','');
-			name = $('#contact-'+id+'.contact-name').html();
-			email = $('#contact-'+id+'.contact-email').html();
+			name = $('#contact-'+id+' .contact-name').html();
+			email = $('#contact-'+id+' .contact-email').html();
 			alert("The id is "+id+" and the name is "+name+" and the email is "+email);
 			$confirmbox = $("<div>").addClass('dialog');
 			$confirmmsg = $("<div>");
