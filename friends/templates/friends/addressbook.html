@@ -59,7 +59,7 @@
 			name = $('#contact-'+id+' .contact-name').html();
 			email = $('#contact-'+id+' .contact-email').html();
 			$("#invitation-form").attr('action' , '{% url invite_contact 0 %}'.replace('0', id));
-			if (name.length) {
+			if (name && name.length) {
 				msg = "Send an invitation to " + name + " (" + email + ")";
 			} else {
 				msg = "Send an invitation email to " + email;
