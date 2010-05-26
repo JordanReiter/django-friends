@@ -375,5 +375,13 @@ def edit_friends(request, friend=None, redirect_to='edit_friends', form_class=Fr
 
 @login_required
 def addressbook(request, template_name="friends/addressbook.html"):
-    contacts = Contact.objects.select_related('user').filter(owner=request.user)
+    related_tables = ['user']
+    try:
+        profile_table = settings.AUTH_PROFILE_MODULE.split('.')[1]
+        related_tables.append(profile_table)
+    except:
+        pass
+    import sys
+    sys.stderr.write("The related tables are %s" % related_tables)
+    contacts = Contact.objects.select_related(*related_tables).filter(owner=request.user)
     return render_to_response(template_name, locals(), RequestContext(request))
