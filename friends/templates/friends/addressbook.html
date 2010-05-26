@@ -45,7 +45,7 @@
 			{% if contact.user and not contact.is_friend %}<a class="invite-friend" href="{% url add_friend contact.user.get_profile.code %}">Invite</a> | {% endif %}
 		{% endif %}
 		{% if not contact.is_friend %}
-			<a class="remove-contact" href="{% url remove_contact contact.user.get_profile.code %}">Invite</a> | {% endif %}
+			<a class="remove-contact" href="{% url remove_contact contact.user.get_profile.code %}">Invite</a> |
 		{% endif %}
 		<a href="{% url edit_contact contact.id %}">Edit Details</a>
 		{{ expert_profile }}		
