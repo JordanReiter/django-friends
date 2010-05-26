@@ -6,44 +6,44 @@
 
 <dl>
 {% for contact in contacts %}
-{% if contact.user.get_profile %}
-	<dt id="contact-{{ contact.id }}">
+{% if contact.profile %}
+	<dt id="contact-{{ contact.info.id }}">
 	{# This is a user on the site, so display site user information #}
-	{% if contact.user.get_profile.photo %}
-		<a href="{{ contact.user.get_profile.get_absolute_url }}" /><img src="{{ MEDIA_URL }}/{{ contact.user.get_profile.photo.thumbnail.url }}" style="border: 0; float: middle;"  /></a>
+	{% if contact.profile.photo %}
+		<a href="{{ contact.profile.get_absolute_url }}" /><img src="{{ MEDIA_URL }}/{{ contact.profile.photo.thumbnail.url }}" style="border: 0; float: middle;"  /></a>
 	{% else %}
-		<a href="{{ contact.user.get_profile.get_absolute_url }}" /><img src="{{ MEDIA_URL }}/images/unknown_thumbnail.png" style="border: 0; vertical-align: middle;" /></a>
+		<a href="{{ contact.profile.get_absolute_url }}" /><img src="{{ MEDIA_URL }}/images/unknown_thumbnail.png" style="border: 0; vertical-align: middle;" /></a>
 	{% endif %} 
-	<strong><a href="{{ contact.user.get_profile.get_absolute_url }}" />{% firstof contact.user.get_profile.user.get_full_name contact.user.get_profile.user.username %}</a></strong><br />
-		{% if request.user in contact.user.get_profile.get_friends_as_users %}{{ contact.user.first_name}} is your contact.{% endif %}
+	<strong><a href="{{ contact.profile.get_absolute_url }}" />{% firstof contact.profile.user.get_full_name contact.profile.user.username %}</a></strong><br />
+		{% if contact.is_friend %}{{ contact.user.first_name}} is your contact.{% endif %}
 	</dt>
 {% else %}
-	<dt id="contact-{{ contact.id }}">
-		{% if contact.name %}
-			<strong class="contact-name">{{ contact.name }}</strong><br /><a class="contact-email" href="mailto:{{ contact.email }}">{{ contact.email }}</a>
+	<dt id="contact-{{ contact.info.id }}">
+		{% if contact.info.name %}
+			<strong class="contact-name">{{ contact.info.name }}</strong><br /><a class="contact-email" href="mailto:{{ contact.info.email }}">{{ contact.info.email }}</a>
 		{% else %}
-			<strong>&lt;<a class="contact-email" href="mailto:{{ contact.email }}">{{ contact.email }}</a>&gt;</strong>
+			<strong>&lt;<a class="contact-email" href="mailto:{{ contact.info.email }}">{{ contact.info.email }}</a>&gt;</strong>
 		{% endif %}
 	</dt>
 {% endif %}
 	<dd>
 		{% comment %}
-		{% if contact.user.get_profile.job %}{% if contact.user.get_profile.job.role %}{{ contact.user.get_profile.job.role }} at {% endif %}{{ contact.user.get_profile.job.name }}<br />{% endif %}
-		{% if contact.user.get_profile.country %}{{ contact.user.get_profile.country.name }}<br />{% endif %}
-		{% if contact.address %}{{ contact.address }}<br />{% endif %}
-		{% if contact.phone %}Phone: {{ contact.phone }}<br />{% endif %}
-		{% if contact.mobile %}Mobile: {{ contact.mobile }}<br />{% endif %}
-		{% if contact.fax %}Fax: {{ contact.fax }}<br />{% endif %}
-		{% if contact.website %}Website: <a href="{{ contact.website }}">{{ contact.website }}</a><br />{% endif %}
-		{% if contact.type = 'I' %}
+		{% if contact.profile.job %}{% if contact.profile.job.role %}{{ contact.profile.job.role }} at {% endif %}{{ contact.profile.job.name }}<br />{% endif %}
+		{% if contact.profile.country %}{{ contact.profile.country.name }}<br />{% endif %}
+		{% if contact.info.address %}{{ contact.info.address }}<br />{% endif %}
+		{% if contact.info.phone %}Phone: {{ contact.info.phone }}<br />{% endif %}
+		{% if contact.info.mobile %}Mobile: {{ contact.info.mobile }}<br />{% endif %}
+		{% if contact.info.fax %}Fax: {{ contact.info.fax }}<br />{% endif %}
+		{% if contact.info.website %}Website: <a href="{{ contact.info.website }}">{{ contact.info.website }}</a><br />{% endif %}
+		{% if contact.info.type = 'I' %}
 			Invitation Sent | 
 		{% endif %}
-		{% if not contact.user and contact.type != 'I'%}
-			<a id="invite-user-{{ contact.id }}" class="invite-user" href="{% url invite_contact contact.id %}">Invite</a> |
+		{% if not contact.profile and contact.info.type != 'I'%}
+			<a id="invite-user-{{ contact.info.id }}" class="invite-user" href="{% url invite_contact contact.info.id %}">Invite</a> |
 		{% else %}
-			{% if request.user not in contact.user.get_profile.get_friends_as_users %}<a class="invite-friend" href="{% url invite_friend contact.user.username %}">Invite</a> | {% endif %}
+			{% if contact.is_friend %}<a class="invite-friend" href="{% url invite_friend contact.profile.code %}">Invite</a> | {% endif %}
 		{% endif %}
-		<a href="{% url edit_contact contact.id %}">Edit Details</a>
+		<a href="{% url edit_contact contact.info.id %}">Edit Details</a>
 		{% endcomment %}
 		{{ expert_profile }}		
 	</dd>

@@ -383,5 +383,17 @@ def addressbook(request, template_name="friends/addressbook.html"):
         pass
     import sys
     sys.stderr.write("The related tables are %s" % related_tables)
-    contacts = Contact.objects.select_related(*related_tables).filter(owner=request.user)
-    return render_to_response(template_name, locals(), RequestContext(request))
+    contact_list = Contact.objects.select_related(*related_tables).filter(owner=request.user)
+    friends = [f['friend'] for f in Friendship.objects.friends_for_user(request.user)]
+    contacts = []
+    for contact in contact_list:
+        c = {}
+        c['info']=contact
+        try:
+            c['profile'] = contact.user.get_profile()
+            c['user'] = contact.user
+            c['is_friend'] = contact.user in friends
+        except:
+            pass
+        contacts.append(c)
+    return render_to_response(template_name, {'contacts':contacts}, RequestContext(request))
