@@ -26,7 +26,7 @@
 		{% endif %}
 	</dt>
 {% endif %}
-	<dd>
+	<dd id="contact-details-{{ contact.id }}">
 		{% if contact.user %}
 			{% if contact.user.get_profile.job %}{% if contact.user.get_profile.job.role %}{{ contact.user.get_profile.job.role }} at {% endif %}{{ contact.user.get_profile.job.name }}<br />{% endif %}
 			{% if contact.user.get_profile.country %}{{ contact.user.get_profile.country.name }}<br />{% endif %}
@@ -40,37 +40,62 @@
 			Invitation Sent | 
 		{% endif %}
 		{% if not contact.user.get_profile and contact.info.type != 'I' %}
-			<a id="invite-user-{{ contact.id }}" class="invite-user" href="{% url invite_contact contact.id %}">Invite</a> |
+			<a id="invite-contact-{{ contact.id }}" class="invite-contact" href="{% url invite_contact contact.id %}">Invite</a> |
 		{% else %}
 			{% if contact.user and not contact.is_friend %}<a class="invite-friend" href="{% url add_friend contact.user.get_profile.code %}">Invite</a> | {% endif %}
+		{% endif %}
+		{% if not contact.is_friend %}
+			<a class="remove-contact" href="{% url remove_contact contact.user.get_profile.code %}">Invite</a> | {% endif %}
 		{% endif %}
 		<a href="{% url edit_contact contact.id %}">Edit Details</a>
 		{{ expert_profile }}		
 	</dd>
 {% endfor %}
 </dl>
-<form method="post" action="" id="invitation-form" style="display: none">{% csrf_token %}<fieldset></fieldset></form>
+<form method="post" action="" id="contact-form" style="display: none">{% csrf_token %}<fieldset></fieldset></form>
 <script type="text/javascript">
 	$(document).ready(function (){
-		$(".invite-user").click(function (e){
-			$("#invitation-form").show().addClass('dialog');
-			$("#invitation-form fieldset").empty();
-			id = $(this).attr('id').replace('invite-user-','');
+		success_function = null;
+		function success_invitation_sent(resp) {
+			show_message(resp.messages, "Invitation Sent")
+		}
+		$(".invite-contact").click(function (e){
+			$("#contact-form").show().addClass('dialog');
+			$("#contact-form fieldset").empty();
+			id = $(this).attr('id').replace('invite-contact-','');
 			name = $('#contact-'+id+' .contact-name').html();
 			email = $('#contact-'+id+' .contact-email').html();
-			$("#invitation-form").attr('action' , '{% url invite_contact 0 %}'.replace('0', id));
+			$("#contact-form").attr('action' , '{% url invite_contact 0 %}'.replace('0', id));
 			if (name && name.length) {
 				msg = "Send an invitation to " + name + " (" + email + ")";
 			} else {
 				msg = "Send an invitation email to " + email;
 			}
-			$("<div>").html(msg).appendTo("#invitation-form fieldset");
-			$("<label>").html("Message:").append("<br>").append("<textarea name='message' rows='3' cols='40'>").append('<br>').appendTo("#invitation-form fieldset");
-			$("<input type='submit' value='Send Invitation'>").appendTo('#invitation-form fieldset');
+			$("<div>").html(msg).appendTo("#contact-form fieldset");
+			$("<label>").html("Message:").append("<br>").append("<textarea name='message' rows='3' cols='40'>").append('<br>').appendTo("#contact-form fieldset");
+			$("<input type='submit' value='Send Invitation'>").appendTo('#contact-form fieldset');
 			e.stopPropagation();
 			return false;
 		});
-		$("#invitation-form").submit(function (e) {
+		$(".remove-contact").click(function (e){
+			$("#contact-form").show().addClass('dialog');
+			$("#contact-form fieldset").empty();
+			id = $(this).attr('id').replace('remove-contact-','');
+			name = $('#contact-'+id+' .contact-name').html();
+			email = $('#contact-'+id+' .contact-email').html();
+			$("#contact-form").attr('action' , '{% url remove_contact 0 %}'.replace('0', id));
+			if (name && name.length) {
+				msg = "Send an invitation to " + name + " (" + email + ")";
+			} else {
+				msg = "Send an invitation email to " + email;
+			}
+			$("<div>").html(msg).appendTo("#contact-form fieldset");
+			$("<label>").html("Message:").append("<br>").append("<textarea name='message' rows='3' cols='40'>").append('<br>').appendTo("#contact-form fieldset");
+			$("<input type='submit' value='Send Invitation'>").appendTo('#contact-form fieldset');
+			e.stopPropagation();
+			return false;
+		});
+		$("#contact-form").submit(function (e) {
 			e.stopPropagation();
 			if (this.action && this.action.length) {
 				$.ajax({
@@ -78,17 +103,26 @@
 					url: this.action,
 					data: $(this).serialize(),
 					success: function(resp) {
-						if (resp.messages) {
-							for (x=0; x < resp.messages.length; x++) {
-								alert(resp.messages[x]);
-							}
-						}
+						$("#contact-form").hide();
 					},
 					dataType: 'json'
 				});
 			}
 			return false;
-		})
+		});
+		function show_message(messages, title) {
+			$msgbox = $("<div>").addClass('dialog')
+			if (title && title.length) {
+				$('<h2>').html(title).appendTo(msgbox);
+			}
+			for (x=0; x < messages.length; x++) {
+				$("<div>").html(messages[x]).appendTo(msgbox);
+			}
+			$closebox=$("<button>").html("Close").click(function (){
+				$msgbox.remove();
+			}).appendTo(msgBox);
+			$msgbox.appendTo(body);
+		}
 	});
 </script>
 {% endblock content %}
@@ -106,5 +140,13 @@
 		background: white;
 		border: 3px solid black;
 		padding: 1em;
+	}
+	.dialog h2 {
+		text-align: center
+	}
+	.dialog button {
+		margin: 1em auto;
+		width: auto;
+		display: block;
 	}
 {% endblock extra_css %}
