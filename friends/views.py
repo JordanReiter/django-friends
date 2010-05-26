@@ -419,5 +419,5 @@ def addressbook(request, template_name="friends/addressbook.html"):
     return {'contacts':contacts}, template_name
 
 @render_to()
-def test(request):
+def test_req(request):
     return {'confirmation':True}, 'friends/invite.html'
