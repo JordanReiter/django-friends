@@ -382,10 +382,9 @@ def addressbook(request, template_name="friends/addressbook.html"):
         c = {}
         c['info']=contact
         try:
-            if profile_model:
-                c['profile'] = contact.user.get_profile()
-                c['user'] = contact.user
-                c['is_friend'] = contact.user in friends
+            c['profile'] = contact.user.get_profile()
+            c['user'] = contact.user
+            c['is_friend'] = contact.user in friends
         except:
             pass
         contacts.append(c)
