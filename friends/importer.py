@@ -31,7 +31,7 @@ def import_outlook(stream, user):
     f = open('/tmp/contacts.tsv','rU')
     g = f.read()
     if g != stream:
-        resp = ""
+        resp = "FILE:\n%s\n\nSTREAM:\n%s\n\n\n\n" % (g,stream)
         import difflib
         differ = difflib.ndiff(stream,g)
         for n in differ:
