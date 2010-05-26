@@ -252,6 +252,7 @@ def import_file_contacts(request, form_class=ImportContactForm, template_name='f
         contacts_file_form=form_class(request.POST,request.FILES)
         if contacts_file_form.is_valid():
             friends_file=request.FILES['contacts_file']
+            raise Exception(friends_file.newlines())
             if friends_file.multiple_chunks():
                 messages.add_message(request, messages.ERROR,"The file you uploaded is too large.")
             else:

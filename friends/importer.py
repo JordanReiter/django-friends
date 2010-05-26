@@ -32,10 +32,7 @@ def import_outlook(stream, user):
     g = f.read()
     if g != stream:
         resp = "FILE:\n%s\n\nSTREAM:\n%s\n\n\n\n" % (g,stream)
-        import difflib
-        differ = difflib.ndiff(stream,g)
-        for n in differ:
-            resp += "\n\n%s" % n
+        resp += "File has %d lines, stream has %d lines" % (len(g.split('\n')), len(stream.split('\n')))
         raise Exception('<pre><h1>Different</h1>%s' % resp)
     else:
         raise Exception("They're the same")
