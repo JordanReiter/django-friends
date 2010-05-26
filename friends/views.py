@@ -106,9 +106,9 @@ def friend_lookup(request):
         })
     return results
 
+@render_to()
 @csrf_protect
 @login_required
-@render_to()
 def invite_users(request,output_prefix="invite", redirect_to='edit_friends', form_class=MultipleInviteForm, template_name='friends/invite.html'):
     redirect_to = request.REQUEST.get('next',None) or redirect_to
     if '/' not in redirect_to:
@@ -129,9 +129,9 @@ def invite_users(request,output_prefix="invite", redirect_to='edit_friends', for
     return locals(), template_name
 
 
+@render_to()
 @csrf_protect
 @login_required
-@render_to()
 def add_friend(request, friend, template_name='friends/add.html', add_form=InviteFriendForm, redirect_to="profile"):
     msgs = []
     friend, friend_profile = get_user_profile(friend)
@@ -170,9 +170,9 @@ def accept_invitation(request, key, template_name="friends/accept_invitation.htm
         return {}, {'url':failure_redirect, 'messages':msgs }
 
 
+@render_to()
 @csrf_protect
 @login_required
-@render_to()
 def accept_friendship(request,friend,template_name='confirm.html'):
     msgs = []
     friend, friend_profile = get_user_profile(friend)
@@ -198,9 +198,9 @@ def accept_friendship(request,friend,template_name='confirm.html'):
         msgs.append((messages.INFO,"You canceled the action."))
     return {}, {'url':reverse('profile',args=[friend.username]), 'messages':msgs }
 
+@render_to()
 @csrf_protect
 @login_required
-@render_to()
 def remove_contact(request,contact,template_name='confirm.html',redirect_to='edit_contacts'):
     msgs = []
     contact = get_object_or_404(Contact, pk=contact)
@@ -224,9 +224,9 @@ def remove_contact(request,contact,template_name='confirm.html',redirect_to='edi
     return {}, {'url':redirect_to, 'messages':msgs }
 
 
+@render_to()
 @csrf_protect
 @login_required
-@render_to()
 def remove_friend(request,friend,template_name='confirm.html',redirect_to='edit_friends'):
     msgs = []
     friend, friend_profile = get_user_profile(friend)
@@ -309,9 +309,9 @@ def invite_imported(request, type=None):
     return {'contacts':imported_contacts }, 'friends/invite_imported.html'
 
 
+@render_to()
 @csrf_protect
 @login_required
-@render_to()
 def edit_contact(request, contact_id=None, redirect_to='edit_contacts', form_class=ContactForm, template_name="friends/edit_contact.html"):
     msgs = []
     contact = get_object_or_404(Contact,pk=contact_id)
@@ -330,9 +330,9 @@ def edit_contact(request, contact_id=None, redirect_to='edit_contacts', form_cla
             pass
     return locals(), template_name
 
+@render_to()
 @csrf_protect
 @login_required
-@render_to()
 def edit_friend(request, friend=None, redirect_to='edit_friends', form_class=FriendshipForm, template_name="friends/edit_contact.html"):
     msgs = []
     if '/' not in redirect_to:
@@ -346,9 +346,9 @@ def edit_friend(request, friend=None, redirect_to='edit_friends', form_class=Fri
     contact.save()
     return edit_contact(request, contact_id=contact.id, redirect_to=redirect_to, template_name=template_name)
 
+@render_to()
 @csrf_protect
 @login_required
-@render_to()
 def invite_contact(request,contact_id=None, template_name="confirm.html", redirect_to="edit_contacts"):
     msgs = []
     if '/' not in redirect_to:
@@ -368,9 +368,9 @@ def invite_contact(request,contact_id=None, template_name="confirm.html", redire
     msgs.append((messages.ERROR,"I sent an invitation to %s" % contact.email))
     return {}, {'url':redirect_to, 'messages':msgs }
 
+@render_to()
 @csrf_protect
 @login_required
-@render_to()
 def edit_friends(request, friend=None, redirect_to='edit_friends', form_class=FriendshipForm, template_name="friends/edit_friends.html"):
     msgs = []
     if '/' not in redirect_to:
@@ -401,8 +401,8 @@ def edit_friends(request, friend=None, redirect_to='edit_friends', form_class=Fr
     return locals(), template_name
 
 
-@login_required
 @render_to()
+@login_required
 def addressbook(request, template_name="friends/addressbook.html"):
     contact_list = Contact.objects.select_related("user").filter(owner=request.user)
     friends = [f['friend'] for f in Friendship.objects.friends_for_user(request.user)]
