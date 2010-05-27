@@ -135,7 +135,7 @@ class FriendSuggestion(models.Model):
             if r[0]==self.why:
                 return r[1];
             else:
-                return "%s <> %s (%s)" % (r[0], why, r[1])
+                return "%s <> %s (%s)" % (r[0], self.why, r[1])
         else:
             return None
 
