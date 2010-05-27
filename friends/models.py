@@ -113,18 +113,48 @@ def contact_create_for_friendship(sender, instance, created, *args, **kwargs):
         contact2.type = 'F'
         contact2.save()
 
+SUGGEST_BECAUSE_INVITE=0
+SUGGEST_BECAUSE_COWORKER=1
+SUGGEST_BECAUSE_FRIENDOFFRIEND=2
+SUGGEST_BECAUSE_NEIGHBOR=3
+SUGGEST_WHY_CHOICES = (
+    (SUGGEST_BECAUSE_INVITE, "They sent you an invitation to the site."),
+    (SUGGEST_BECAUSE_COWORKER, "They work at the same organization/company."),
+    (SUGGEST_BECAUSE_FRIENDOFFRIEND, "They're connected to you through another member on the site."),
+    (SUGGEST_BECAUSE_NEIGHBOR,"They live in the same town or city."),
+)
 class FriendSuggestion(models.Model):
     email = models.EmailField(null=True, blank=True)
     user = models.ForeignKey(User, null=True, blank=True, related_name="suggested_friends")
     suggested_user = models.ForeignKey(User, related_name="__unused__")
-    why = models.CharField(max_length=100)
+    why = models.IntegerField(null=True, blank=True, choices=SUGGEST_WHY_CHOICES)
     active = models.BooleanField(default=True)
+    
+    def show_why(self):
+        if self.why == 'COWORKER':
+            return "You work at the same organization/company."
+        elif self.why == 'NEIGHBOR':
+            return "You live in the same town or city."
+        elif self.why == 'FRIENDOFFRIEND':
+            return "You're connected to this person through another member on the site."
+        elif self.why == 'INVITE':
+            return "This person sent you an invitation for the website."
+        else:
+            return self.why
 
 def suggest_friend_from_invite(sender, instance, created, *args, **kwargs):
     if created:
-        FriendSuggestion.objects.get_or_create(suggested_user=instance.from_user, email=instance.contact.email)
+        FriendSuggestion.objects.get_or_create(suggested_user=instance.from_user, email=instance.contact.email, why='INVITE')
 
-
+def friendsuggestion_update_user(sender, instance, created, *args, **kwargs):
+    if created:
+        FriendSuggestion.objects.filter(email__iexact=instance.email,user__isnull=True).update(user=instance)
+        
+def friendship_destroys_suggestions(sender, instance, created, *args, **kwargs):
+    if created:
+        suggestions = FriendSuggestion.objects.filter(user=instance.to_user,suggested_user=instance.from_user)
+        suggestions |=  FriendSuggestion.objects.filter(user=instance.from_user,suggested_user=instance.to_user)
+        suggestions.update(active=False)
 
 class FriendshipManager(models.Manager):
     
@@ -172,6 +202,16 @@ class Friendship(models.Model):
     class Meta:
         unique_together = (('to_user', 'from_user'),)
 
+def friendship_symmetrical(sender, instance, created, *args, **kwargs):
+    if created:
+        try:
+            Friendship.objects.get(to_user=instance.from_user, from_user=instance.to_user)
+        except Friendship.DoesNotExist:
+            symmetrical_friendship = Friendship(to_user=instance.from_user, from_user=instance.to_user)
+            symmetrical_friendship.how_related=instance.how_related
+            symmetrical_friendship.added=instance.added
+            symmetrical_friendship.save()
+signals.post_save.connect(friendship_symmetrical, sender=Friendship)
 
 def friend_set_for(user):
     return set([obj["friend"] for obj in Friendship.objects.friends_for_user(user)])
@@ -344,6 +384,8 @@ def friendship_invitation(sender, instance, **kwargs):
 # SIGNALS
 signals.pre_save.connect(friendship_invitation, sender=FriendshipInvitation)
 signals.post_save.connect(contact_update_user, sender=User)
+signals.post_save.connect(friendsuggestion_update_user, sender=User)
 signals.post_save.connect(contact_create_for_friendship, sender=Friendship)
+signals.post_save.connect(friendship_destroys_suggestions, sender=Friendship)
 signals.pre_delete.connect(delete_friendship, sender=Friendship)
 signals.post_save.connect(suggest_friend_from_invite, sender=JoinInvitation)
