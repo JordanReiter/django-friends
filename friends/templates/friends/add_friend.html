@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-	<h1>{% block title %}Add {% firstof contact.user.get_full_name contact.user.username %} as a contact{% endblock %}</h1>
+	<h1>{% block title %}Add {% firstof friend.get_full_name friend.username %} as a contact{% endblock %}</h1>
 	{{ add_friend_form.errors }}
 	<form method="post" action="">{% csrf_token %}
 		{% if connections.0 %}
@@ -16,12 +16,12 @@
 				    and {% firstof c.user.get_full_name c.user.username %}{% endif %}{% endif %}
 				{% endif %}{% endfor %}
 		→
-		{% firstof contact.user.get_full_name contact.user.username %}
+		{% firstof friend.get_full_name friend.username %}
 		</div>
 		{% endif %}
 		<ol class="fields">
 			<li>
-				<label for="choose_how_related_id">How do you know {% firstof contact.user.first_name contact.user.username %}?</label>
+				<label for="choose_how_related_id">How do you know {% firstof friend.first_name friend.username %}?</label>
 				<div class="field">
 				{{ add_friend_form.choose_how_related }}
 			</li>
@@ -30,7 +30,7 @@
 					{{ add_friend_form.other_related }}
 			</li>
 			<li class="field">
-					<label class="inline">{{ add_friend_form.dont_know_check }} I don't know {{ contact.user.first_name }}</label>
+					<label class="inline">{{ add_friend_form.dont_know_check }} I don't know {{ friend.first_name }}</label>
 			</li>
 			<li>
 				<label for="personal_message_id">Message:</label>
@@ -40,7 +40,7 @@
 				<input type="submit" value=" Send Contact Request " />
 			</li>
 		</ol>
-		{% firstof contact.user.first_name contact.user.username %} will be contacted. If they approve your request, you will be contacts.
+		{% firstof friend.first_name friend.username %} will be contacted. If they approve your request, you will be contacts.
 	</form>
 
 {% endblock content %}
