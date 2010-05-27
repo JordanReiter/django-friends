@@ -131,7 +131,7 @@ def invite_users(request,output_prefix="invite", redirect_to='edit_friends', for
 @render_to()
 @csrf_protect
 @login_required
-def add_friend(request, friend, template_name='friends/add.html', add_form=InviteFriendForm, redirect_to="profile"):
+def add_friend(request, friend, template_name='friends/add_friend.html', add_form=InviteFriendForm, redirect_to="profile"):
     friend, friend_profile = get_user_profile(friend)
 
     try:

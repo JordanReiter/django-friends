@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+	<h1>{% block title %}Add {% firstof contact.user.get_full_name contact.user.username %} as a contact{% endblock %}</h1>
+	{{ add_contact_form.errors }}
+	<form method="post" action="">{% csrf_token %}
+		{% if connections.0 %}
+		<div id="connections">
+		You →
+		{% for c in connections %}{% if forloop.counter < 4 %}{% if forloop.last and not forloop.first %}
+					 and 
+				{% else %}{% if not forloop.first %}, {% endif %}{% endif %}{% firstof c.user.get_full_name c.user.username %}{% else %}{% if forloop.last %}
+				{% if forloop.counter > 4 %}
+					and others ({{forloop.counter}} total)
+				{% else %}
+				    and {% firstof c.user.get_full_name c.user.username %}{% endif %}{% endif %}
+				{% endif %}{% endfor %}
+		→
+		{% firstof contact.user.get_full_name contact.user.username %}
+		</div>
+		{% endif %}
+		<ol class="fields">
+			<li>
+				<label for="choose_how_related_id">How do you know {% firstof contact.user.first_name contact.user.username %}?</label>
+				<div class="field">
+				{{ add_contact_form.choose_how_related }}
+			</li>
+			<li class="field">
+					<label class="inline">{{ add_contact_form.other_related_check }} Other:</label>
+					{{ add_contact_form.other_related }}
+			</li>
+			<li class="field">
+					<label class="inline">{{ add_contact_form.dont_know_check }} I don't know {{ contact.user.first_name }}</label>
+			</li>
+			<li>
+				<label for="personal_message_id">Message:</label>
+				{{ add_contact_form.personal_message }}
+			</li>
+			<li>
+				<input type="submit" value=" Send Contact Request " />
+			</li>
+		</ol>
+		{% firstof contact.user.first_name contact.user.username %} will be contacted. If they approve your request, you will be contacts.
+	</form>
+
+{% endblock content %}
+
+{% block extra_css %}
+{% endblock extra_css %}
