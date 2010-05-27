@@ -66,7 +66,6 @@ if EmailAddress:
 
 
 class InviteFriendForm(forms.Form):
-    
     to_user = forms.CharField(widget=forms.HiddenInput)
     message = forms.CharField(label="Message", required=False, widget=forms.Textarea(attrs = {'cols': '20', 'rows': '5'}))
     choose_how_related = forms.MultipleChoiceField(

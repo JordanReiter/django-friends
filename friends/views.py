@@ -150,7 +150,7 @@ def add_friend(request, friend, template_name='friends/add_friend.html', add_for
             messages.add_message(request, messages.SUCCESS,"You have sent a request for %s to be your contact." % (friend.username))
             return {'success':True}, {'url':reverse(redirect_to,args=[friend]) }
     else:
-        add_friend_form = add_form(user=request.user, friend=friend, prefix="friend")
+        add_friend_form = add_form(user=request.user, friend=friend, prefix="friend", initial={'to_user':friend})
     return locals(), template_name
 
 
