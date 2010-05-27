@@ -133,9 +133,7 @@ class FriendSuggestion(models.Model):
     def show_why(self):
         for r in SUGGEST_WHY_CHOICES:
             if r[0]==self.why:
-                return r[1];
-            else:
-                return "%s <> %s (%s)" % (r[0], self.why, r[1])
+                return r[1]
         else:
             return None
 
