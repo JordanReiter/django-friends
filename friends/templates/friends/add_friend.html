@@ -4,6 +4,7 @@
 	<h1>{% block title %}Add {% firstof friend.get_full_name friend.username %} as a contact{% endblock %}</h1>
 	{{ add_friend_form.errors }}
 	<form method="post" action="">{% csrf_token %}
+		{{ add_friend_form.to_user }}
 		{% if connections.0 %}
 		<div id="connections">
 		You →
