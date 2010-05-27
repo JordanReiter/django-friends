@@ -45,12 +45,6 @@ def parse_related(form, how_related):
 
 
 
-class UserForm(forms.Form):
-    
-    def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop('user',None)
-        super(UserForm, self).__init__(*args, **kwargs)
-
 
 if EmailAddress:
     class JoinRequestForm(forms.Form):
@@ -71,7 +65,7 @@ if EmailAddress:
             return join_request
 
 
-class InviteFriendForm(UserForm):
+class InviteFriendForm(forms.Form):
     
     to_user = forms.CharField(widget=forms.HiddenInput)
     message = forms.CharField(label="Message", required=False, widget=forms.Textarea(attrs = {'cols': '20', 'rows': '5'}))
@@ -87,7 +81,8 @@ class InviteFriendForm(UserForm):
     
     def __init__(self, *args, **kwargs):
         self.friend = kwargs.pop('friend', None)
-        super(UserForm, self).__init__(*args, **kwargs)
+        self.user = kwargs.pop('user', None)
+        super(InviteFriendForm, self).__init__(*args, **kwargs)
         self.fields['to_user'].initial = self.friend.username
     
     def clean(self):
