@@ -69,6 +69,17 @@ class InviteFriendForm(forms.Form):
     
     to_user = forms.CharField(widget=forms.HiddenInput)
     message = forms.CharField(label="Message", required=False, widget=forms.Textarea(attrs = {'cols': '20', 'rows': '5'}))
+    choose_how_related = forms.MultipleChoiceField(
+       choices=RELATED_CHOICES,
+       widget=forms.CheckboxSelectMultiple(),
+       required=False
+    )
+    other_related = forms.CharField(required=False, max_length=50)
+    other_related_check = forms.BooleanField(
+        label='Other:',
+        widget=forms.CheckboxInput,
+        required=False
+    )
     
     def clean_to_user(self):
         to_username = self.cleaned_data["to_user"]
@@ -99,7 +110,8 @@ class InviteFriendForm(forms.Form):
     def save(self):
         to_user = User.objects.get(username=self.cleaned_data["to_user"])
         message = self.cleaned_data["message"]
-        invitation = FriendshipInvitation(from_user=self.user, to_user=to_user, message=message, status="2")
+        how_related=format_how_related(self)
+        invitation = FriendshipInvitation(from_user=self.user, to_user=to_user, message=message, how_related=how_related, status="2")
         invitation.save()
         if notification:
             notification.send([to_user], "friends_invite", {"invitation": invitation})

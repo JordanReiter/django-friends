@@ -300,6 +300,7 @@ class FriendshipInvitation(models.Model):
     
     from_user = models.ForeignKey(User, related_name="invitations_from")
     to_user = models.ForeignKey(User, related_name="invitations_to")
+    how_related = models.CharField(max_length=100, null=True, blank=True)
     message = models.CharField(max_length=2000, null=True, blank=True)
     sent = models.DateField(default=datetime.date.today)
     status = models.CharField(max_length=1, choices=INVITE_STATUS)
@@ -308,7 +309,7 @@ class FriendshipInvitation(models.Model):
     
     def accept(self):
         if not Friendship.objects.are_friends(self.to_user, self.from_user):
-            friendship = Friendship(to_user=self.to_user, from_user=self.from_user)
+            friendship = Friendship(to_user=self.to_user, from_user=self.from_user, how_related=self.how_related)
             friendship.save()
             self.status = "5"
             self.save()
