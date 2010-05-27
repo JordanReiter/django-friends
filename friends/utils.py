@@ -18,7 +18,7 @@ def build_friend_suggestions(user, *args, **kwargs):
             try:
                 FriendSuggestion.objects.get(user=user, suggested_user=fof)
             except FriendSuggestion.DoesNotExist:
-                FriendSuggestion(user=user, suggested_user=fof, why=SUGGEST_BECAUSE_FRIENDOFFRIEND)
+                FriendSuggestion(user=user, suggested_user=fof, why=SUGGEST_BECAUSE_FRIENDOFFRIEND).save()
     try:
         neighbors = profile.get_neighbors().exclude(user__in=friend_suggestions_users)
         MAX_NEIGHBORS = 100 # Don't add them as suggestions if you're in an area with a ton of people.
