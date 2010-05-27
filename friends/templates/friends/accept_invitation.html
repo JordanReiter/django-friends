@@ -3,7 +3,7 @@
 {% block content %}
 <h1>{% block title %}Welcome to AcademicExperts{% endblock %}</h1>
 {% if request.session.invitation.name %}
-<p>Welcome, {{ request.session.invitation.name }}!</p>
+<p>Welcome, {{ request.session.invitation.name }}! You have been invited by {{ request.session.invitation.joininvitation.user.get_full_name }}.</p>
 {% endif %} 
 {% include "accounts/signinform.inc" %}
 {% endblock content %}
