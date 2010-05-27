@@ -13,7 +13,7 @@ Your invitation is from {% firstof user.get_full_name user.username %}, who woul
 To join, please follow this URL:
 {{ accept_url }} 
 
-Thank you for joining us. If you have any questions, please send us an e-mail at {{ CONTACT_EMAIL }}.
+Thank you for joining us. If you have any questions, please send us an e-mail at {{ CONTACT_EMAIL|safe }}.
 
 Gary Marks
 AcademicExperts.org
