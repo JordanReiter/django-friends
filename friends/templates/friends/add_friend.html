@@ -40,6 +40,8 @@
 		</ol>
 		{% firstof friend.first_name friend.username %} will be contacted. If they approve your request, you will be contacts.
 	</form>
+	
+	<h1>{% url accept_friend request.user.username %}</h1>
 
 {% endblock content %}
 
