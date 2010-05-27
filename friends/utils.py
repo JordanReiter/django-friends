@@ -16,7 +16,7 @@ def build_friend_suggestions(user, *args, **kwargs):
         pass
     for fof in friends_of_friends(user).exclude(id__in=[u.id for u in friend_suggestions_users]):
             try:
-                FriendSuggestion.objects.get(user=user, suggested_user=coworker.user)
+                FriendSuggestion.objects.get(user=user, suggested_user=fof)
             except FriendSuggestion.DoesNotExist:
                 FriendSuggestion(user=user, suggested_user=fof, why=SUGGEST_BECAUSE_FRIENDOFFRIEND)
     try:
