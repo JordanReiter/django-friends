@@ -14,7 +14,7 @@ def build_friend_suggestions(user, *args, **kwargs):
     except AttributeError, inst:
         print inst
         pass
-    for fof in friends_of_friends(user).exclude(id__in=friend_suggestions_users):
+    for fof in friends_of_friends(user).exclude(id__in=[u.id for u in friend_suggestions_users]):
             try:
                 FriendSuggestion.objects.get(user=user, suggested_user=coworker.user)
             except FriendSuggestion.DoesNotExist:
