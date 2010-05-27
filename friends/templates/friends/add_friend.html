@@ -2,7 +2,7 @@
 
 {% block content %}
 	<h1>{% block title %}Add {% firstof contact.user.get_full_name contact.user.username %} as a contact{% endblock %}</h1>
-	{{ add_contact_form.errors }}
+	{{ add_friend_form.errors }}
 	<form method="post" action="">{% csrf_token %}
 		{% if connections.0 %}
 		<div id="connections">
@@ -23,18 +23,18 @@
 			<li>
 				<label for="choose_how_related_id">How do you know {% firstof contact.user.first_name contact.user.username %}?</label>
 				<div class="field">
-				{{ add_contact_form.choose_how_related }}
+				{{ add_friend_form.choose_how_related }}
 			</li>
 			<li class="field">
-					<label class="inline">{{ add_contact_form.other_related_check }} Other:</label>
-					{{ add_contact_form.other_related }}
+					<label class="inline">{{ add_friend_form.other_related_check }} Other:</label>
+					{{ add_friend_form.other_related }}
 			</li>
 			<li class="field">
-					<label class="inline">{{ add_contact_form.dont_know_check }} I don't know {{ contact.user.first_name }}</label>
+					<label class="inline">{{ add_friend_form.dont_know_check }} I don't know {{ contact.user.first_name }}</label>
 			</li>
 			<li>
 				<label for="personal_message_id">Message:</label>
-				{{ add_contact_form.personal_message }}
+				{{ add_friend_form.personal_message }}
 			</li>
 			<li>
 				<input type="submit" value=" Send Contact Request " />
