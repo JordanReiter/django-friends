@@ -11,7 +11,8 @@ def build_friend_suggestions(user, *args, **kwargs):
                 FriendSuggestion.objects.get(user=user, suggested_user=coworker.user)
             except FriendSuggestion.DoesNotExist:
                 FriendSuggestion(user=user, suggested_user=coworker.user, why=SUGGEST_BECAUSE_COWORKER).save()
-    except AttributeError:
+    except AttributeError, inst:
+        print inst
         pass
     for fof in friends_of_friends(user).exclude(id__in=friend_suggestions_users):
             try:
@@ -27,7 +28,8 @@ def build_friend_suggestions(user, *args, **kwargs):
                     FriendSuggestion.objects.get(user=user, suggested_user=neighbor.user)
                 except FriendSuggestion.DoesNotExist:
                     FriendSuggestion(user=user, suggested_user=neighbor.user, why=SUGGEST_BECAUSE_NEIGHBOR).save()
-    except AttributeError:
+    except AttributeError, inst:
+        print inst
         pass        
 
 def shared_friends(me, them):
