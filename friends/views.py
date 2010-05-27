@@ -181,9 +181,7 @@ def accept_friendship(request,friend,template_name='confirm.html'):
         return locals(), template_name
     elif request.POST.get('confirm_action')=='no':
         messages.add_message(request, messages.INFO,"You canceled the action.")
-        return HttpResponseRedirect(
-                reverse('profile',args=[friend])
-            )
+        return {}, 'base.html'
     try:
         invitation = FriendshipInvitation.objects.get(from_user=friend, to_user=request.user)
         invitation.accept()
