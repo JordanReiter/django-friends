@@ -135,7 +135,7 @@ class FriendSuggestion(models.Model):
             if r[0]==self.why:
                 return r[1]
         else:
-            return None
+            return "%d not in %s" % (self.why, [r[0] for r in SUGGEST_WHY_CHOICES])
 
 def suggest_friend_from_invite(sender, instance, created, *args, **kwargs):
     if created:
