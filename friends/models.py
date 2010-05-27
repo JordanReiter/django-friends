@@ -131,16 +131,11 @@ class FriendSuggestion(models.Model):
     active = models.BooleanField(default=True)
     
     def show_why(self):
-        if self.why == 'COWORKER':
-            return "You work at the same organization/company."
-        elif self.why == 'NEIGHBOR':
-            return "You live in the same town or city."
-        elif self.why == 'FRIENDOFFRIEND':
-            return "You're connected to this person through another member on the site."
-        elif self.why == 'INVITE':
-            return "This person sent you an invitation for the website."
+        for r in SUGGEST_WHY_CHOICES:
+            if r[0]==self.why:
+                return "The answer is %s" % r[1];
         else:
-            return self.why
+            return None
 
 def suggest_friend_from_invite(sender, instance, created, *args, **kwargs):
     if created:
