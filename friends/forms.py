@@ -191,7 +191,6 @@ class MultipleInviteForm(forms.Form):
                     pass #guess it was already gone?
         for email in invited_emails:
             if email not in processed_emails:
-                raise Exception("Don't worry; just debugging: %s not in %s" %(email, processed_emails) )
                 processed_emails.append(email)
                 invitations += 1
                 JoinInvitation.objects.send_invitation(self.user, email, None)
