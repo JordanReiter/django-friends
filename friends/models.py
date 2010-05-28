@@ -115,11 +115,13 @@ def contact_create_for_friendship(sender, instance, created, *args, **kwargs):
 
 SUGGEST_BECAUSE_INVITE=0
 SUGGEST_BECAUSE_COWORKER=1
-SUGGEST_BECAUSE_FRIENDOFFRIEND=2
-SUGGEST_BECAUSE_NEIGHBOR=3
+SUGGEST_BECAUSE_COAUTHOR=2
+SUGGEST_BECAUSE_FRIENDOFFRIEND=3
+SUGGEST_BECAUSE_NEIGHBOR=4
 SUGGEST_WHY_CHOICES = (
     (SUGGEST_BECAUSE_INVITE, "They sent you an invitation to the site."),
     (SUGGEST_BECAUSE_COWORKER, "They work at the same organization/company."),
+    (SUGGEST_BECAUSE_COAUTHOR, "They co-authored one or more papers with you."),
     (SUGGEST_BECAUSE_FRIENDOFFRIEND, "They're connected to you through another member on the site."),
     (SUGGEST_BECAUSE_NEIGHBOR,"They live in the same town or city."),
 )
