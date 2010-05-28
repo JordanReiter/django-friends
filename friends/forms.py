@@ -187,6 +187,7 @@ class MultipleInviteForm(forms.Form):
                 try:
                     invited_emails.remove(user.email)
                 except:
+                    raise Exception("Ignore this error--DEBUGGING. Tried to remove %s from %s" % (user.email, invited_emails))
                     pass #guess it was already gone?
         for email in invited_emails:
             if email not in processed_emails:
