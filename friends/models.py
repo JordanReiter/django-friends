@@ -139,7 +139,7 @@ class FriendSuggestion(models.Model):
 
 def suggest_friend_from_invite(sender, instance, created, *args, **kwargs):
     if created:
-        FriendSuggestion.objects.get_or_create(suggested_user=instance.from_user, email=instance.contact.email, why='INVITE')
+        FriendSuggestion.objects.get_or_create(suggested_user=instance.from_user, email=instance.contact.email, why=SUGGEST_BECAUSE_INVITE)
 
 def friendsuggestion_update_user(sender, instance, created, *args, **kwargs):
     if created:
