@@ -185,6 +185,7 @@ class MultipleInviteForm(forms.Form):
                         notification.send([self.user], "friends_invite_sent", {"invitation": invitation})
             for user in existing_users:
                 try:
+                    processed_emails.append(user.email)
                     invited_emails.remove(user.email)
                 except:
                     raise Exception("Ignore this error--DEBUGGING. Tried to remove %s from %s" % (user.email, invited_emails))
