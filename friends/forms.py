@@ -184,7 +184,10 @@ class MultipleInviteForm(forms.Form):
                         notification.send([user], "friends_invite", {"invitation": invitation})
                         notification.send([self.user], "friends_invite_sent", {"invitation": invitation})
             for user in existing_users:
-                invited_emails.remove(user.email)
+                try:
+                    invited_emails.remove(user.email)
+                except:
+                    pass #guess it was already gone?
         for email in invited_emails:
             if email not in processed_emails:
                 processed_emails.append(email)
