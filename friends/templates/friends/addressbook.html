@@ -3,8 +3,6 @@
 {% block content %}
 <h1>{% block title %}Address Book{% endblock title %}</h1>
 <p>Below are all of the people in your address book. Not all of them are users on the site.</p>
-<a href="#" class="bad">Test Bad</a>
-<a href="#" class="gone">Test Gone</a>
 <dl>
 {% for contact in contacts %}
 {% if contact.user.get_profile %}
