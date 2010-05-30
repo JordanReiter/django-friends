@@ -395,11 +395,6 @@ def edit_friends(request, friend=None, redirect_to='edit_friends', form_class=Fr
 def addressbook(request, template_name="friends/addressbook.html"):
     friends = [f['friend'] for f in Friendship.objects.friends_for_user(request.user)]
     contact_list = Contact.objects.select_related("user").filter(owner=request.user)
-    non_contacts = [f for f in friends if f not in [c.user for c in contact_list]]
-    if non_contacts:
-        for non_contact in non_contacts:
-            contact, _ = Contact.objects.create_from_user(request.user, non_contact)
-        contact_list = Contact.objects.select_related("user").filter(owner=request.user)
     contacts = []
     for contact in contact_list:
         c = {}
