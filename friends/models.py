@@ -51,6 +51,15 @@ class ContactManager(models.Manager):
     def all(self, *args, **kwargs):
         kwargs.update({'deleted__isnull':True})
         return super(ContactManager, self).filter(*args, **kwargs)
+    
+    def create_from_user(self, owner, user, *args, **kwargs):
+        contact, created = self.get_or_create(owner=owner, email=user.email)
+        contact.user = user
+        contact.first_name = user.first_name
+        contact.last_name = user.last_name
+        contact.name = user.get_full_name()
+        contact.save()
+        return contact, created
 
 
 IMPORTED_TYPES = (
@@ -106,10 +115,10 @@ def contact_update_user(sender, instance, created, *args, **kwargs):
 
 def contact_create_for_friendship(sender, instance, created, *args, **kwargs):
     if created:
-        contact1, _ = Contact.objects.get_or_create(owner=instance.to_user, email=instance.from_user.email, name=instance.from_user.get_full_name(), first_name=instance.from_user.first_name, last_name=instance.from_user.last_name)
+        contact1, _ = Contact.objects.create_from_user(instance.to_user, user=instance.from_user)
         contact1.type = 'F'
         contact1.save()
-        contact2, _ = Contact.objects.get_or_create(owner=instance.from_user, email=instance.to_user.email, name=instance.to_user.get_full_name(), first_name=instance.to_user.first_name, last_name=instance.to_user.last_name)
+        contact2, _ = Contact.objects.create_from_user(owner=instance.from_user, user=instance.to_user)
         contact2.type = 'F'
         contact2.save()
 
@@ -198,6 +207,12 @@ class Friendship(models.Model):
     
     class Meta:
         unique_together = (('to_user', 'from_user'),)
+        
+    def __unicode__(self):
+        result = "%s is friend of %s" % (self.from_user, self.to_user)
+        if self.how_related:
+            result+= " (%s)" % self.how_related
+        return result
 
 def friendship_symmetrical(sender, instance, created, *args, **kwargs):
     if created:
