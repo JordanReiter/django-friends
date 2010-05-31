@@ -147,6 +147,12 @@ class FriendSuggestion(models.Model):
                 return r[1]
         else:
             return "%d not in %s" % (self.why, [r[0] for r in SUGGEST_WHY_CHOICES])
+    
+    def __unicode__(self):
+        if self.user:
+            "%s should become friends with %s" % ((self.user.get_full_name() or self.user.self.username), (self.suggested_user.get_full_name() or self.suggested_user.username))
+        else:
+            "%s should become friends with %s" % ((self.email), (self.suggested_user.get_full_name() or self.suggested_user.username))
 
 def suggest_friend_from_invite(sender, instance, created, *args, **kwargs):
     if created:
