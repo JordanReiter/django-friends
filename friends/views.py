@@ -68,8 +68,9 @@ def my_friends(request):
 
 @render_to()
 def view_friends(request, user, template_name="friends/friends.html", redirect_to='/'):
-    if '/' not in redirect_to:
-        redirect_to = reverse(redirect_to)
+    redirect_to=request.REQUEST.get(REDIRECT_FIELD_NAME, redirect_to)
+    if redirect_to and '/' not in redirect_to:
+        redirect_to=reverse(redirect_to)
     user, profile = get_user_profile(user)
     try:
         show = profile.get_access(request.user)
@@ -110,9 +111,9 @@ def friend_lookup(request):
 @csrf_protect
 @login_required
 def invite_users(request,output_prefix="invite", redirect_to='edit_friends', form_class=MultipleInviteForm, template_name='friends/invite.html'):
-    redirect_to = request.REQUEST.get('next',None) or redirect_to
-    if '/' not in redirect_to:
-        redirect_to = reverse(redirect_to)
+    redirect_to=request.REQUEST.get(REDIRECT_FIELD_NAME, redirect_to)
+    if redirect_to and '/' not in redirect_to:
+        redirect_to=reverse(redirect_to)
     if request.method == 'POST':
         invite_users_form = form_class(data=request.POST, user=request.user)
         if invite_users_form.is_valid():
@@ -133,6 +134,9 @@ def invite_users(request,output_prefix="invite", redirect_to='edit_friends', for
 @login_required
 def add_friend(request, friend, template_name='friends/add_friend.html', add_form=InviteFriendForm, redirect_to="profile"):
     friend, friend_profile = get_user_profile(friend)
+    redirect_to=request.REQUEST.get(REDIRECT_FIELD_NAME, redirect_to)
+    if redirect_to and '/' not in redirect_to:
+        redirect_to=reverse(redirect_to)
 
     try:
         friendship_allowed = friend_profile.friendship_allowed(request.user)
@@ -141,14 +145,18 @@ def add_friend(request, friend, template_name='friends/add_friend.html', add_for
 
     if not friendship_allowed:
         messages.add_message(request, messages.ERROR,"You're not allowed to add %s as a contact." % (friend.get_full_name() or friend.username))
-        return {'success':False}, {'url':reverse(redirect_to,args=[friend]) }
+        if not redirect_to:
+            redirect_to = reverse('profile',args=[friend.username])
+        return {'success':False}, {'url': redirect}
 
     if request.method == 'POST':
         add_friend_form = add_form(request.POST,user=request.user,friend=friend,prefix="friend")
         if add_friend_form.is_valid():
             add_friend_form.save()
             messages.add_message(request, messages.SUCCESS,"You have sent a request for %s to be your contact." % (friend.username))
-            return {'success':True}, {'url':reverse(redirect_to,args=[friend]) }
+            if not redirect_to:
+                redirect_to = reverse('profile',args=[friend.username])
+            return {'success':True}, {'url':redirect_to }
     else:
         add_friend_form = add_form(user=request.user, friend=friend, prefix="friend", initial={'to_user':friend})
     return locals(), template_name
@@ -170,14 +178,18 @@ def accept_invitation(request, key, template_name="friends/accept_invitation.htm
 @render_to()
 @csrf_protect
 @login_required
-def accept_friendship(request,friend,template_name='confirm.html'):
+def accept_friendship(request, friend, template_name='confirm.html', redirect_to=None):
     friend, friend_profile = get_user_profile(friend)
+    
+    redirect_to=request.REQUEST.get(REDIRECT_FIELD_NAME, redirect_to)
+    if redirect_to and '/' not in redirect_to:
+        redirect_to=reverse(redirect_to)
     
     # because of the threat of cross-site scripting, this action has to be the result of a form posting
     if request.method == 'GET':
         action_display = "approve %s as a friend." % (friend_profile.user.get_full_name() or friend_profile.user.username) 
-        yes_display = "Yes, add as friend"
-        no_display = "No, ignore request"
+        yes_display = "Yes, accept request"
+        no_display = "No, cancel"
         return locals(), template_name
     elif request.POST.get('confirm_action')=='no':
         messages.add_message(request, messages.INFO,"You canceled the action.")
@@ -185,14 +197,41 @@ def accept_friendship(request,friend,template_name='confirm.html'):
     try:
         invitation = FriendshipInvitation.objects.get(from_user=friend, to_user=request.user)
         invitation.accept()
-        notification.send([friend], "friends_accept", {'friend': request.user,})
-        notification.send([request.user], "friends_accept", {'friend': friend_profile,})
         messages.add_message(request, messages.SUCCESS,"%s is now your friend." % (friend_profile.user.get_full_name() or friend_profile.user.username))
         success=True
     except FriendshipInvitation.DoesNotExist:
         messages.add_message(request, messages.ERROR,"It appears you did not receive an invitation from %s" % (friend.first_name or friend.username))
         success=False
-    return {'success': success}, {'url':reverse('profile',args=[friend.username]) }
+    if not redirect_to:
+        redirect_to=reverse('profile',args=[friend.username])
+    return {'success': success}, {'url':redirect_to }
+
+@render_to()
+@csrf_protect
+@login_required
+def reject_friendship(request, friend, template_name='confirm.html', redirect_to='edit_friends'):
+    friend, friend_profile = get_user_profile(friend)
+    
+    redirect_to=request.REQUEST.get(REDIRECT_FIELD_NAME, redirect_to)
+    if redirect_to and '/' not in redirect_to:
+        redirect_to=reverse(redirect_to)
+    # because of the threat of cross-site scripting, this action has to be the result of a form posting
+    if request.method == 'GET':
+        action_display = "decline invitation from %s." % (friend_profile.user.get_full_name() or friend_profile.user.username) 
+        yes_display = "Yes, decline request"
+        no_display = "No, keep request"
+        return locals(), template_name
+    elif request.POST.get('confirm_action')=='no':
+        messages.add_message(request, messages.INFO,"You canceled the action.")
+        return {}, 'base.html'
+    try:
+        invitation = FriendshipInvitation.objects.get(from_user=friend, to_user=request.user)
+        invitation.decline()
+        success=True
+    except FriendshipInvitation.DoesNotExist:
+        messages.add_message(request, messages.ERROR,"It appears you did not receive an invitation from %s" % (friend.first_name or friend.username))
+        success=False
+    return {'success': success}, {'url':redirect_to }
 
 @render_to()
 @csrf_protect
@@ -200,8 +239,9 @@ def accept_friendship(request,friend,template_name='confirm.html'):
 def remove_contact(request,contact,template_name='confirm.html',redirect_to='edit_contacts'):
     contact = get_object_or_404(Contact, pk=contact)
 
-    if '/' not in redirect_to:
-        redirect_to = reverse(redirect_to)
+    redirect_to=request.REQUEST.get(REDIRECT_FIELD_NAME, redirect_to)
+    if redirect_to and '/' not in redirect_to:
+        redirect_to=reverse(redirect_to)
 
     #if the method is GET, show a form to avoid csrf
     if request.method == 'GET':
@@ -225,8 +265,9 @@ def remove_contact(request,contact,template_name='confirm.html',redirect_to='edi
 def remove_friend(request,friend,template_name='confirm.html',redirect_to='edit_friends'):
     friend, friend_profile = get_user_profile(friend)
 
-    if '/' not in redirect_to:
-        redirect_to = reverse(redirect_to)
+    redirect_to=request.REQUEST.get(REDIRECT_FIELD_NAME, redirect_to)
+    if redirect_to and '/' not in redirect_to:
+        redirect_to=reverse(redirect_to)
 
     # confirm that the user can remove this person as a friend
     if not friend_profile.is_friend(request.user.get_profile()):
@@ -307,6 +348,10 @@ def invite_imported(request, type=None):
 @login_required
 def edit_contact(request, contact_id=None, redirect_to='edit_contacts', form_class=ContactForm, template_name="friends/edit_contact.html"):
     contact = get_object_or_404(Contact,pk=contact_id)
+    redirect_to=request.REQUEST.get(REDIRECT_FIELD_NAME, redirect_to)
+    if redirect_to and '/' not in redirect_to:
+        redirect_to=reverse(redirect_to)
+
     if request.method == 'POST':
         form=form_class(request.POST, instance=contact, user=request.user)
         if form.is_valid():
@@ -326,8 +371,6 @@ def edit_contact(request, contact_id=None, redirect_to='edit_contacts', form_cla
 @csrf_protect
 @login_required
 def edit_friend(request, friend=None, redirect_to='edit_friends', form_class=FriendshipForm, template_name="friends/edit_contact.html"):
-    if '/' not in redirect_to:
-        redirect_to = reverse(redirect_to)
     friend, _ = get_user_profile(friend)
     if not Friendship.objects.are_friends(friend, request.user):
         messages.add_message(request, messages.ERROR,"You are not friends with %s." % (friend.get_full_name() or friend.username))
@@ -341,7 +384,8 @@ def edit_friend(request, friend=None, redirect_to='edit_friends', form_class=Fri
 @csrf_protect
 @login_required
 def invite_contact(request,contact_id=None, template_name="confirm.html", redirect_to="edit_contacts"):
-    if '/' not in redirect_to:
+    redirect_to=request.REQUEST.get(REDIRECT_FIELD_NAME, redirect_to)
+    if redirect_to and '/' not in redirect_to:
         redirect_to=reverse(redirect_to)
     contact = get_object_or_404(Contact,pk=contact_id)
     # because of the threat of cross-site scripting, this action has to be the result of a form posting
@@ -362,8 +406,9 @@ def invite_contact(request,contact_id=None, template_name="confirm.html", redire
 @csrf_protect
 @login_required
 def edit_friends(request, friend=None, redirect_to='edit_friends', form_class=FriendshipForm, template_name="friends/edit_friends.html"):
-    if '/' not in redirect_to:
-        redirect_to = reverse(redirect_to)
+    redirect_to=request.REQUEST.get(REDIRECT_FIELD_NAME, redirect_to)
+    if redirect_to and '/' not in redirect_to:
+        redirect_to=reverse(redirect_to)
     if friend:
         friend, friend_profile = get_user_profile(friend)
         if Friendship.objects.are_friends(friend, request.user):
