@@ -150,7 +150,7 @@ class FriendSuggestion(models.Model):
     
     def __unicode__(self):
         if self.user:
-            "%s should become friends with %s" % ((self.user.get_full_name() or self.user.self.username), (self.suggested_user.get_full_name() or self.suggested_user.username))
+            "%s should become friends with %s" % ((self.user.get_full_name() or self.user.username), (self.suggested_user.get_full_name() or self.suggested_user.username))
         else:
             "%s should become friends with %s" % ((self.email), (self.suggested_user.get_full_name() or self.suggested_user.username))
 
