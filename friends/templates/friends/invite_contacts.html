@@ -4,7 +4,7 @@
 <h1>{% block title %}Invite Imported Contacts{% endblock title %}</h1>
 <form method="post" action="{% url email_imported_contacts %}">{% csrf_token %}
 <fieldset>
-<ul>
+<ul id="contacts-to-add">
 	{% ifchanged %}
 	<li id="address-{% firstof c.name|slice:":1" c.email|slice:":1" %}"><big><strong>{% firstof c.name|slice:":1" c.email|slice:":1" %}</strong></big></li>
 	{% endifchanged %}
@@ -199,5 +199,8 @@
 		margin: 1em 0;
 		padding: 0;
 		list-style: none;
+	}
+	#contacts-to-add {
+		width: 55%; overflow-y: scroll; overflow-x: hidden; height: 360px; float: left
 	}
 {% endblock extra_css %}
