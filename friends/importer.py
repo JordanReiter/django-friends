@@ -284,7 +284,9 @@ def import_google(authsub_token, user):
             for i, entry in enumerate(feed.entry):
                 try:
                     result+= '\n%s' % (dir(entry))
-                result+= '\n%s %s' % (i+1, entry.title.text)
+                except:
+                    pass
+                result += '\n%s %s' % (i+1, entry.title.text)
                 if entry.content:
                     result+= '        %s' % (entry.content.text)
                 # Display the primary email address for the contact.
