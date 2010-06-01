@@ -46,6 +46,7 @@ from friends.forms import MultipleInviteForm, InviteFriendForm, ImportContactFor
 from friends.exporter import export_vcards
 from friends.importer import import_vcards, import_outlook, import_google
 from friends.signals import invite
+from friends.utils import shared_friends, friends_of_friends
 
 
 def get_user_profile(user):
