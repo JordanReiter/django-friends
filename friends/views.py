@@ -487,7 +487,8 @@ def edit_friends(request, friend=None, redirect_to='edit_friends', form_class=Fr
             friend_forms.append(form_class(instance=friendship, user=request.user, friend=f['friend'], prefix='friend_%s' % counter))
     return locals(), template_name
 
-
+@render_to()
+@login_required
 def recommended_friends(request, template_name="friends/recommended_friends.html"):
     recommended_friends = FriendSuggestion.objects.filter(user=request.user)
     return locals(), template_name
