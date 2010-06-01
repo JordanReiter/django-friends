@@ -270,7 +270,7 @@ def import_google(authsub_token, user):
     result = ""
     for entry in feed:
         result += "%s" % entry
-    raise Exception(result) 
+    raise Exception("The result is <pre>%s</pre>" % result) 
     feed = contacts_service.GetContactsFeed()
     entries.extend(feed.entry)
     next_link = feed.GetNextLink()
