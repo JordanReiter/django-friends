@@ -319,7 +319,7 @@ def export_friends(request):
 
     
 @render_to()
-def import_file_contacts(request, form_class=ImportContactForm, template_name='friends/upload_contacts.html', redirect_to="edit_contacts"):
+def import_file_contacts(request, form_class=ImportContactForm, template_name='friends/upload_contacts.html', redirect_to="invite_contacts"):
     redirect_to=request.REQUEST.get(REDIRECT_FIELD_NAME, redirect_to)
     if redirect_to and '/' not in redirect_to:
         redirect_to=reverse(redirect_to)
@@ -361,7 +361,7 @@ def import_file_contacts(request, form_class=ImportContactForm, template_name='f
         return locals(), template_name
 
 @render_to()
-def import_google_contacts(request, redirect_to="edit_contacts"):
+def import_google_contacts(request, redirect_to="invite_contacts"):
     redirect_to=request.REQUEST.get(REDIRECT_FIELD_NAME, redirect_to)
     if redirect_to and '/' not in redirect_to:
         redirect_to=reverse(redirect_to)

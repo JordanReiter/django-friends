@@ -1,0 +1,203 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1>{% block title %}Invite Imported Contacts{% endblock title %}</h1>
+<form method="post" action="{% url email_imported_contacts %}">{% csrf_token %}
+<fieldset>
+<ul>
+	{% ifchanged %}
+	<li id="address-{% firstof c.name|slice:":1" c.email|slice:":1" %}"><big><strong>{% firstof c.name|slice:":1" c.email|slice:":1" %}</strong></big></li>
+	{% for c in contacts %}
+		{% if c.user %}
+		<li style="height: 60px; padding: 0 70px 0 0; background: url({{ MEDIA_URL }}/{% if c.user.get_profile.photo %}{{ c.user.get_profile.photo.thumbnail.url}}{% else %}images/unknown_thumbnail.png{% endif %}) no-repeat top right">
+			<label style="font-weight: bold"><input type="checkbox" name="add_as_contact" title="{{ c.user.get_full_name }}" value="{{ c.user.email }}" /> {{ c.user.get_full_name }} &lt;{{ c.email }}&gt;</label>
+			<br /><small>{% if c.user.get_profile.city_label %}{{ c.user.get_profile.city_label }} {% endif %}{% if c.user.get_profile.country %}{{ c.user.get_profile.country.name }}{% endif %}</small>
+			| <small><a href="{{ c.user.get_profile.get_absolute_url }}" title="View {{ c.user.first_name }}'s Profile">View Profile</a></small>
+		</li>
+		{% else %}
+		<li style="height: 60px; "><label style="font-weight: bold"><input type="checkbox" name="add_as_contact" title="{% firstof c.name c.email %}" value="{{ c.email }}" /> {% firstof c.name c.email %}</label>   &lt;{{ c.email }}&gt;</li>
+		{% endif %}
+	{% endfor %}
+</ul>
+	<div style="float: left; width: 35%" id="added-contacts"></div>
+</fieldset>
+<input type="submit" value="invite" />
+</form>
+<form method="post" action="" id="contact-form" style="display: none">{% csrf_token %}<fieldset></fieldset></form>
+<script type="text/javascript">
+	$(document).ready(function (){
+		var added_contacts = {};
+		var contact_list = [];		
+		function OutputList() {
+			$r = $("<ul>")
+			for (var x=0; x<contact_list.length; x++) {
+				$("<li>").html("<strong>" + added_contacts[contact_list[x]].name + "</strong> &lt;"+added_contacts[contact_list[x]].email+"&gt;").appendTo($r);
+			}
+			$("#added-contacts").empty().append($r);
+		}
+		function add_it(el){
+			added_contacts[el.value] = {email: el.value, name: el.title};
+			contact_list.push(el.value);
+		}
+		function remove_it(el){
+			delete added_contacts[el.value];
+			for (var x = 0; x < contact_list.length; x++) {
+				if (contact_list[x]===el.value) {
+					contact_list.splice(x,1);
+				}
+			}
+		}
+		$("input[name='add_as_contact']").click(function (){
+			if (this.checked) {
+				add_it(this);
+			} else {
+				remove_it(this);
+			}
+			OutputList();
+		}).each(function (){
+			if (this.checked) {
+				add_it(this);
+			} else {
+				remove_it(this);
+			}
+		});
+		OutputList();
+
+		success_function = null;
+		function success_invitation_sent(resp) {
+			show_message(resp.messages, "Invitation Sent")
+		}
+		function success_contact_removal(resp) {
+			show_message(resp.messages, "Record Removed")
+		}
+		$(".invite-contact").click(function (e){
+			id = $(this).attr('id').replace('invite-contact-','');
+			name = $('#contact-'+id+' .contact-name').html();
+			email = $('#contact-'+id+' .contact-email').html();
+			action='{% url invite_contact 0 %}'.replace('0', id);
+			if (name && name.length) {
+				message = "Send an invitation to " + name + " (" + email + ")";
+			} else {
+				message = "Send an invitation email to " + email;
+			}
+			fields = []
+			fields.push($("<label>").html("Message:").append("<textarea name='message' rows='3' cols='40'>"));
+			success_function = success_invitation_sent;
+			show_form(action, message, "Invite", "Send Invitation", fields); 
+			e.stopPropagation();
+			return false;
+		});
+		$(".remove-contact").click(function (e){
+			id = $(this).attr('id').replace('invite-contact-','');
+			name = $('#contact-'+id+' .contact-name').html();
+			email = $('#contact-'+id+' .contact-email').html();
+			action='{% url invite_contact 0 %}'.replace('0', id);
+			if (name && name.length) {
+				message = "Remove " + name + " (" + email + ") from your address book?";
+			} else {
+				message = "Remove " + email + " from your address book?";
+			}
+			success_function = success_contact_removal;
+			show_form(action, message, "", "Remove Record"); 
+			e.stopPropagation();
+			return false;
+		});
+		$("#contact-form").submit(function (e) {
+			e.stopPropagation();
+			if (this.action && this.action.length) {
+				$.ajax({
+					type: "POST",
+					url: this.action,
+					data: $(this).serialize(),
+					success: function(resp) {
+						$("#contact-form").hide();
+						if (success_function) {
+							return success_function(resp);							
+						}
+					},
+					error: function(req, status, err) {
+						msgs = [req.responseText, err]
+						show_message(msgs,status);
+					},
+					dataType: 'json'
+				});
+			}
+			return false;
+		});
+		function show_form(action,message,title,button,fields) {
+			if (!fields) {
+				fields = []
+			}
+			if (!button) {
+				button = "Submit"
+			}
+ 			$("#contact-form").attr('action' , action);
+			$("#contact-form").show().addClass('dialog');
+			$("#contact-form fieldset").empty();
+			if (title.length) {
+				$("<h2>").html(title).appendTo("#contact-form fieldset");
+			}
+			$("<p>").html(message).appendTo("#contact-form fieldset");
+			$fields = $("<ol>").addClass("fields");
+			for (var x=0; x < fields.length; x++) {
+				$("<li>").append(fields[x]).appendTo($fields);
+			}
+			$fields.appendTo("#contact-form fieldset");
+			$("<input type='submit'>").attr('value',button).appendTo('#contact-form fieldset');
+			$("<input type='button' value=' Cancel '>").appendTo('#contact-form fieldset').click(function (e){
+				$("#contact-form").hide()
+				e.stopPropagation();
+				return false;
+			});
+		}
+		function show_message(messages, title) {
+			$msgbox = $("<div>").addClass('dialog')
+			if (title && title.length) {
+				$('<h2>').html(title).appendTo($msgbox);
+			}
+			alert(messages);
+			for (x=0; x < messages.length; x++) {
+				$("<p>").html(messages[x]).appendTo($msgbox);
+			}
+			$closebox=$("<button>").html("Close").click(function (){
+				$msgbox.remove();
+			}).appendTo($msgBox);
+			$msgbox.appendTo(body);
+		}
+		$(".bad").click(function (e){
+			success_function = null;
+			show_form('{%url test_bad %}',"Bad","Bad");
+			return false;
+		});
+		$(".gone").click(function (e){
+			success_function = null;
+			show_form('{%url test_gone %}',"Bad","Bad");
+			return false;
+		});
+	});
+</script>
+{% endblock content %}
+
+{% block extra_css %}
+	.dialog {
+		display: block;
+		position: fixed;
+		width: 30em;
+		height: 15em;
+		top: 50%;
+		left: 50%;
+		margin-top: -7.5em;
+		margin-left: -15em;
+		background: white;
+		border: 3px solid black;
+		padding: 1em;
+	}
+	.dialog h2 {
+		text-align: center
+	}
+	.dialog button {
+		margin: 1em auto;
+		width: auto;
+		display: block;
+	}
+{% endblock extra_css %}
