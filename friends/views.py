@@ -298,7 +298,11 @@ def export_friends(request):
 
     
 @render_to()
-def import_file_contacts(request, form_class=ImportContactForm, template_name='friends/upload_contacts.html'):
+def import_file_contacts(request, form_class=ImportContactForm, template_name='friends/upload_contacts.html', redirect_to="edit_contacts"):
+    redirect_to=request.REQUEST.get(REDIRECT_FIELD_NAME, redirect_to)
+    if redirect_to and '/' not in redirect_to:
+        redirect_to=reverse(redirect_to)
+
     if request.method == 'POST':
         contacts_file_form=form_class(request.POST,request.FILES)
         if contacts_file_form.is_valid():
@@ -324,32 +328,40 @@ def import_file_contacts(request, form_class=ImportContactForm, template_name='f
                     imported_type='V'
                     imported, total = import_vcards(contact_file_content, request.user)
                     messages.add_message(request, messages.SUCCESS,'A total of %d emails imported.' % imported)
+                    return {'imported':imported, 'total':total}, {'url': redirect_to} 
                 elif format == 'OUTLOOK':
                     imported_type='O'
                     imported, total = import_outlook(contact_file_content, request.user)
                     messages.add_message(request, messages.SUCCESS,'A total of %d emails imported.' % imported)
-    else:
+                    return {'imported':imported, 'total':total}, {'url': redirect_to}
+                else:
+                    messages.add_message(request, messages.ERROR,'The file format you uploaded wasn\'t valid.')
         contacts_file_form=form_class()
         return locals(), template_name
 
 @render_to()
-def import_google_contacts(request):
-        import gdata.contacts.service
-        import gdata.auth
-        AUTH_SCOPE = "http://www.google.com/m8/feeds"
-        contacts_service = gdata.contacts.service.ContactsService()
-        if request.GET.has_key('token'):
-            rsa_key = open(settings.PRIVATE_KEY,'r').read()
-            token = gdata.auth.extract_auth_sub_token_from_url(request.get_full_path(),rsa_key=rsa_key)
-            imported, _ = import_google(token, request.user)
-            messages.add_message(request, messages.SUCCESS,'A total of %d emails imported.' % imported)
-        else:
-            next = "http://%s%s" % (
-                    Site.objects.get_current(),
-                    reverse('import_google_contacts') 
-            )
-            url = contacts_service.GenerateAuthSubURL(next, AUTH_SCOPE, False, 1)
-            return HttpResponseRedirect(url)
+def import_google_contacts(request, redirect_to="edit_contacts"):
+    redirect_to=request.REQUEST.get(REDIRECT_FIELD_NAME, redirect_to)
+    if redirect_to and '/' not in redirect_to:
+        redirect_to=reverse(redirect_to)
+
+    import gdata.contacts.service
+    import gdata.auth
+    AUTH_SCOPE = "http://www.google.com/m8/feeds"
+    contacts_service = gdata.contacts.service.ContactsService()
+    if request.GET.has_key('token'):
+        rsa_key = open(settings.PRIVATE_KEY,'r').read()
+        token = gdata.auth.extract_auth_sub_token_from_url(request.get_full_path(),rsa_key=rsa_key)
+        imported, total = import_google(token, request.user)
+        messages.add_message(request, messages.SUCCESS,'A total of %d emails imported.' % imported)
+        return {'imported':imported, 'total':total}, {'url': redirect_to} 
+    else:
+        next = "http://%s%s" % (
+                Site.objects.get_current(),
+                reverse('import_google_contacts') 
+        )
+        url = contacts_service.GenerateAuthSubURL(next, AUTH_SCOPE, False, 1)
+        return HttpResponseRedirect(url)
 
 
 @render_to()
