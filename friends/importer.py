@@ -262,27 +262,26 @@ def import_google(authsub_token, user):
     
     Returns a tuple of (number imported, total number of entries).
     """
-    contacts_service = gdata.contacts.service.ContactsService()
+    contacts_service = gdata.contacts.service.ContactsService(additional_headers={"GData-Version":"2"})
     contacts_service.SetAuthSubToken(authsub_token)
     contacts_service.UpgradeToSessionToken()
     entries = []
-#    query = gdata.service.Query(feed='/m8/feeds/groups/default/full')
-#    feed = contacts_service.GetGroupsFeed(query.ToUri())
-#    result = ""
-#    for i, entry in enumerate(feed.entry):
-#        result+= '\n%s %s' % (i+1, entry.title.text)
-#        # Display the group id which can be used to query the contacts feed.
-#        result+= '        Group ID: %s' % entry.id.text
-#        # Display extended properties.
-#        for extended_property in entry.extended_property:
-#            if extended_property.value:
-#                value = extended_property.value
-#            else:
-#                value = extended_property.GetXmlBlobString()
-#            result+= '        Extended Property %s: %s' % (extended_property.name, value)
-#    raise Exception("The result is <pre>%s</pre>" % result) 
+    query = gdata.service.Query(feed='/m8/feeds/groups/default/full')
+    feed = contacts_service.GetGroupsFeed(query.ToUri())
+    result = ""
+    for i, entry in enumerate(feed.entry):
+        result+= '\n%s %s' % (i+1, entry.title.text)
+        # Display the group id which can be used to query the contacts feed.
+        result+= '        Group ID: %s' % entry.id.text
+        # Display extended properties.
+        for extended_property in entry.extended_property:
+            if extended_property.value:
+                value = extended_property.value
+            else:
+                value = extended_property.GetXmlBlobString()
+            result+= '        Extended Property %s: %s' % (extended_property.name, value)
+    raise Exception("The result is <pre>%s</pre>" % result) 
     query = gdata.contacts.service.ContactsQuery()
-    query.group="Contacts"
     feed = contacts_service.GetContactsFeed(query.ToUri())
     entries.extend(feed.entry)
     next_link = feed.GetNextLink()
