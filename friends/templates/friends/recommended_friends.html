@@ -4,14 +4,14 @@
 <h1>{% block title %}Recommended Contacts{% endblock title %}</h2>
 <p>These are people we think you may already know and collaborate with.</p>
 <ul id="suggested-contacts" style="margin: 0; padding: 0">
-	{% for suggestion in suggested_contacts %}
-		<li style="margin: 1em 0; list-style: none; min-height: 60px !important; padding: 0 0 0 60px; background: url({{ MEDIA_URL }}/{% if suggestion.suggested_user.get_profile.photo %}{{ suggestion.suggested_user.get_profile.photo.thumbnail.url}}{% else %}/images/unknown_thumbnail.png{% endif %}) no-repeat 0 2px; " >
-			<strong>{% firstof suggestion.suggested_user.get_full_name suggestion.suggested_user.username %}</strong><br />
-			{% if suggestion.suggested_user.get_profile.job %}{% if suggestion.suggested_user.get_profile.job.role %}{{ suggestion.suggested_user.get_profile.job.role }} at {% endif %}{{ suggestion.suggested_user.get_profile.job.name }}<br />{% endif %}
-			{% if suggestion.suggested_user.get_profile.country %}{{ suggestion.suggested_user.get_profile.country.name }}<br />{% endif %}
-			<a href="{% url profile suggestion.suggested_user.username %}">View Profile</a> |
-			<a href="{% url add_friend suggestion.suggested_user.username %}">Add Contact</a>
-			<div class="why">{{ suggestion.show_why }}</div>
+	{% for recommendation in recommended_friends %}
+		<li style="margin: 1em 0; list-style: none; min-height: 60px !important; padding: 0 0 0 60px; background: url({{ MEDIA_URL }}/{% if recommendation.suggested_user.get_profile.photo %}{{ recommendation.suggested_user.get_profile.photo.thumbnail.url}}{% else %}/images/unknown_thumbnail.png{% endif %}) no-repeat 0 2px; " >
+			<strong>{% firstof recommendation.suggested_user.get_full_name recommendation.suggested_user.username %}</strong><br />
+			{% if recommendation.suggested_user.get_profile.job %}{% if recommendation.suggested_user.get_profile.job.role %}{{ recommendation.suggested_user.get_profile.job.role }} at {% endif %}{{ recommendation.suggested_user.get_profile.job.name }}<br />{% endif %}
+			{% if recommendation.suggested_user.get_profile.country %}{{ recommendation.suggested_user.get_profile.country.name }}<br />{% endif %}
+			<a href="{% url profile recommendation.suggested_user.username %}">View Profile</a> |
+			<a href="{% url add_friend recommendation.suggested_user.username %}">Add Contact</a>
+			<div class="why">{{ recommendation.show_why }}</div>
 		</li>
 	{% endfor %}
 </ul>
