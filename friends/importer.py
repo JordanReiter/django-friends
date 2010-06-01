@@ -267,7 +267,7 @@ def import_google(authsub_token, user):
     contacts_service.UpgradeToSessionToken()
     entries = []
     groups = {}
-#    result = ""
+    result = ""
     query = gdata.service.Query(feed='/m8/feeds/groups/default/full')
     feed = contacts_service.GetGroupsFeed(query.ToUri())
     SYS_GROUP_REGEX=r"\s*system group:\s*"
