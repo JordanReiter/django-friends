@@ -303,4 +303,5 @@ def import_google(authsub_token, user):
                 except Contact.DoesNotExist:
                     Contact(owner=user, name=name, email=email).save()
                     imported += 1
+    raise Exception("Nooooo")
     return imported, total
