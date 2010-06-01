@@ -267,17 +267,17 @@ def import_google(authsub_token, user):
     contacts_service.UpgradeToSessionToken()
     entries = []
     groups = {}
-    result = ""
+#    result = ""
     query = gdata.service.Query(feed='/m8/feeds/groups/default/full')
     feed = contacts_service.GetGroupsFeed(query.ToUri())
     SYS_GROUP_REGEX=r"\s*system group:\s*"
     for entry in feed.entry:
         groups[re.sub(SYS_GROUP_REGEX,"",entry.title.text.lower())]=entry.id.text
-    result+=("Groups: %s" % groups.items())
+#    result+=("Groups: %s" % groups.items())
     for g in ["My Contacts","Friends","Coworkers"]:
-        result += "\n Looking at %s" % g
+#        result += "\n Looking at %s" % g
         if groups.has_key(g.lower()):
-            result += "\n Found %s" % g
+#            result += "\n Found %s" % g
             query = gdata.contacts.service.ContactsQuery()
             query.group=groups[g.lower()]
             feed = contacts_service.GetContactsFeed(query.ToUri())
@@ -290,7 +290,7 @@ def import_google(authsub_token, user):
     total = 0
     imported = 0
     imported_emails=[]
-    raise Exception(result)
+#    raise Exception(result)
     for entry in entries:
         name = entry.title.text
         for e in entry.email:
