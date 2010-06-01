@@ -271,13 +271,12 @@ def import_google(authsub_token, user):
     feed = contacts_service.GetGroupsFeed(query.ToUri())
     result = ""
     for entry in feed.entry:
-        groups[entry.title.text]=entry.id.text.lower()
+        groups[entry.title.text.lower()]=entry.id.text
     for g in ["My Contacts","Friends","Coworkers"]:
         if groups.has_key(g.lower()):
             query = gdata.contacts.service.ContactsQuery()
             query.group=groups[g.lower()]
             feed = contacts_service.GetContactsFeed(query.ToUri())
-            raise Exception("%s" % feed)
             entries.extend(feed.entry)
             next_link = feed.GetNextLink()
             while next_link:
