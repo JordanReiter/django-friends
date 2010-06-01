@@ -281,7 +281,9 @@ def import_google(authsub_token, user):
             query = gdata.contacts.service.ContactsQuery()
             query.group=groups[g.lower()]
             feed = contacts_service.GetContactsFeed(query.ToUri())
-            for i, entry in enumerate(feed.entry)[:3]:
+            for i, entry in enumerate(feed.entry):
+                if i > 3:
+                    break
                 try:
                     for k in (dir(entry)):
                         try:
