@@ -10,11 +10,11 @@
 		You →
 		{% for c in connections %}{% if forloop.counter < 4 %}{% if forloop.last and not forloop.first %}
 					 and 
-				{% else %}{% if not forloop.first %}, {% endif %}{% endif %}{% firstof c.user.get_full_name c.user.username %}{% else %}{% if forloop.last %}
+				{% else %}{% if not forloop.first %}, {% endif %}{% endif %}{% firstof c.get_full_name c.username %}{% else %}{% if forloop.last %}
 				{% if forloop.counter > 4 %}
 					and others ({{forloop.counter}} total)
 				{% else %}
-				    and {% firstof c.user.get_full_name c.user.username %}{% endif %}{% endif %}
+				    and {% firstof c.get_full_name c.username %}{% endif %}{% endif %}
 				{% endif %}{% endfor %}
 		→
 		{% firstof friend.get_full_name friend.username %}
