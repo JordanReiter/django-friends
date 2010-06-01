@@ -269,9 +269,9 @@ def import_google(authsub_token, user):
     groups = {}
     query = gdata.service.Query(feed='/m8/feeds/groups/default/full')
     feed = contacts_service.GetGroupsFeed(query.ToUri())
+    SYS_GROUP_REGEX=r"system group:"
     for entry in feed.entry:
-        groups[entry.title.text.lower()]=entry.id.text
-    raise Exception("Groups: %s" % groups.items())
+        groups[re.sub(SYS_GROUP_REGEX,"",entry.title.text.lower())]=entry.id.text
     for g in ["My Contacts","Friends","Coworkers"]:
         if groups.has_key(g.lower()):
             query = gdata.contacts.service.ContactsQuery()
