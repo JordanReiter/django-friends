@@ -5,10 +5,10 @@
 <form method="post" action="{% url email_imported_contacts %}">{% csrf_token %}
 <fieldset>
 <ul id="contacts-to-add">
-	{% ifchanged %}
-	<li id="address-{% firstof c.name|slice:":1" c.email|slice:":1" %}"><big><strong>{% firstof c.name|slice:":1" c.email|slice:":1" %}</strong></big></li>
-	{% endifchanged %}
 	{% for c in contacts %}
+		{% ifchanged %}
+		<li id="address-{% firstof c.name|slice:":1" c.email|slice:":1" %}"><big><strong>{% firstof c.name|slice:":1" c.email|slice:":1" %}</strong></big></li>
+		{% endifchanged %}
 		{% if c.user %}
 		<li style="height: 60px; padding: 0 70px 0 0; background: url({{ MEDIA_URL }}/{% if c.user.get_profile.photo %}{{ c.user.get_profile.photo.thumbnail.url}}{% else %}images/unknown_thumbnail.png{% endif %}) no-repeat top right">
 			<label style="font-weight: bold"><input type="checkbox" name="add_as_contact" title="{{ c.user.get_full_name }}" value="{{ c.user.email }}" /> {{ c.user.get_full_name }} &lt;{{ c.email }}&gt;</label>
