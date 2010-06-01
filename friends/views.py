@@ -341,6 +341,7 @@ def import_google_contacts(request):
         if request.GET.has_key('token'):
             rsa_key = open(settings.PRIVATE_KEY,'r').read()
             token = gdata.auth.extract_auth_sub_token_from_url(request.get_full_path(),rsa_key=rsa_key)
+            raise Exception("The token is %s" % token)
             imported, _ = import_google(token, request.user)
             messages.add_message(request, messages.SUCCESS,'A total of %d emails imported.' % imported)
         else:
