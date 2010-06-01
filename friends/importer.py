@@ -266,7 +266,8 @@ def import_google(authsub_token, user):
     contacts_service.SetAuthSubToken(authsub_token)
     contacts_service.UpgradeToSessionToken()
     entries = []
-    feed = contacts_service.GetGroupsFeed()
+    query = gdata.service.Query(feed='/m8/feeds/groups/default/full')
+    feed = contacts_service.GetGroupsFeed(query.ToUri())
     result = ""
     for i, entry in enumerate(feed.entry):
         result+= '\n%s %s' % (i+1, entry.title.text)
