@@ -325,5 +325,5 @@ def import_google(authsub_token, user):
                     imported += 1
     return imported, total
 
-def create_contact_from_values(owner=None, **values):
-    if values.has_key
+#def create_contact_from_values(owner=None, **values):
+#    if values.has_key
