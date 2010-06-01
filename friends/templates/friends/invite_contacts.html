@@ -164,16 +164,6 @@
 			}).appendTo($msgBox);
 			$msgbox.appendTo(body);
 		}
-		$(".bad").click(function (e){
-			success_function = null;
-			show_form('{%url test_bad %}',"Bad","Bad");
-			return false;
-		});
-		$(".gone").click(function (e){
-			success_function = null;
-			show_form('{%url test_gone %}',"Bad","Bad");
-			return false;
-		});
 	});
 </script>
 {% endblock content %}
