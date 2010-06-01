@@ -265,11 +265,6 @@ def import_google(authsub_token, user):
     contacts_service = gdata.contacts.service.ContactsService()
     contacts_service.SetAuthSubToken(authsub_token)
     contacts_service.UpgradeToSessionToken()
-    feed = contacts_service.GetContactsFeed()
-    raise Exception("%s" % feed)
-    
-    contacts_service.SetAuthSubToken(authsub_token)
-    contacts_service.UpgradeToSessionToken()
     entries = []
     feed = contacts_service.GetContactsFeed()
     entries.extend(feed.entry)
