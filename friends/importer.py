@@ -270,7 +270,7 @@ def import_google(authsub_token, user):
     result = ""
     query = gdata.service.Query(feed='/m8/feeds/groups/default/full')
     feed = contacts_service.GetGroupsFeed(query.ToUri())
-    SYS_GROUP_REGEX=r"system group:"
+    SYS_GROUP_REGEX=r"\s*system group:\s*"
     for entry in feed.entry:
         groups[re.sub(SYS_GROUP_REGEX,"",entry.title.text.lower())]=entry.id.text
     result+=("Groups: %s" % groups.items())
