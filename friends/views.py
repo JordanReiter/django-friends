@@ -506,8 +506,9 @@ def addressbook(request, template_name="friends/addressbook.html"):
         contacts.append(c)
     return {'contacts':contacts}, template_name
 
-def invitations_sent(request):
-    pass
+def invitations_sent(request, template_name="friends/invitations_sent.html"):
+    invitations = FriendshipInvitation.objects.invitations(from_user=request.user)
+    return locals(), template_name
 
 def requests_received(request):
     pass
