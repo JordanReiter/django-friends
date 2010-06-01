@@ -4,7 +4,7 @@
 	<h1>{% block title %}Add {% firstof friend.get_full_name friend.username %} as a contact{% endblock %}</h1>
 	{{ add_friend_form.errors }}
 	<form method="post" action="">{% csrf_token %}
-		<p style="margin: 1em 0; min-height: 60px !important; padding: 0 0 0 60px; background: url({{ MEDIA_URL }}/{% if friend.get_profile.photo %}{{ friend.get_profile.photo.thumbnail.url}}{% else %}/images/unknown_thumbnail.png{% endif %}) no-repeat 0 2px; " >
+		<p style="margin: 1em 0; list-style: none; min-height: 60px !important; padding: 0 0 0 60px; background: url({{ MEDIA_URL }}/{% if friend.get_profile.photo %}{{ friend.get_profile.photo.thumbnail.url}}{% else %}/images/unknown_thumbnail.png{% endif %}) no-repeat 0 2px; " >
 			<strong>{% firstof friend.get_full_name friend.username %}</strong><br />
 			{% if friend.get_profile.job %}{% if friend.get_profile.job.role %}{{ friend.get_profile.job.role }} at {% endif %}{{ friend.get_profile.job.name }}<br />{% endif %}
 			{% if friend.get_profile.country %}{{ friend.get_profile.country.name }}<br />{% endif %}
@@ -14,17 +14,11 @@
 		You →
 		{% for c in connections %}{% if forloop.counter < 4 %}{% if forloop.last and not forloop.first %}
 					 and 
-				{% else %}{% if not forloop.first %}, {% endif %}{% endif %}
-					<span style="float: left; margin: 1em 0; list-style: none; min-height: 60px !important; padding: 0 0 0 60px; background: url({{ MEDIA_URL }}/{% if c.get_profile.photo %}{{ c.get_profile.photo.thumbnail.url}}{% else %}/images/unknown_thumbnail.png{% endif %}) no-repeat 0 2px; " >
-					{% firstof c.get_full_name c.username %}{% else %}{% if forloop.last %}
-					</span>
+				{% else %}{% if not forloop.first %}, {% endif %}{% endif %}{% firstof c.get_full_name c.username %}{% else %}{% if forloop.last %}
 				{% if forloop.counter > 4 %}
 					and others ({{forloop.counter}} total)
 				{% else %}
-				    and 
-					<span style="float: left; margin: 1em 0; list-style: none; min-height: 60px !important; padding: 0 0 0 60px; background: url({{ MEDIA_URL }}/{% if c.get_profile.photo %}{{ c.get_profile.photo.thumbnail.url}}{% else %}/images/unknown_thumbnail.png{% endif %}) no-repeat 0 2px; " >
-					{% firstof c.get_full_name c.username %}{% else %}{% if forloop.last %}
-					</span>
+				    and {% firstof c.get_full_name c.username %}{% endif %}{% endif %}
 				{% endif %}{% endfor %}
 		→
 		{% firstof friend.get_full_name friend.username %}
