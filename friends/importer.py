@@ -285,14 +285,17 @@ def import_google(authsub_token, user):
                 next_link = feed.GetNextLink()
     total = 0
     imported = 0
+    imported_emails=[]
     for entry in entries:
         name = entry.title.text
         for e in entry.email:
             email = e.address
-            total += 1
-            try:
-                Contact.objects.get(owner=user, email=email)
-            except Contact.DoesNotExist:
-                Contact(owner=user, name=name, email=email).save()
-                imported += 1
+            if email not in imported_emails:
+                imported_emails.append(email)
+                total += 1
+                try:
+                    Contact.objects.get(owner=user, email=email)
+                except Contact.DoesNotExist:
+                    Contact(owner=user, name=name, email=email).save()
+                    imported += 1
     return imported, total
