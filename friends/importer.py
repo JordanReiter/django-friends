@@ -282,7 +282,6 @@ def import_google(authsub_token, user):
                 feed = contacts_service.GetContactsFeed(uri=next_link.href)
                 entries.extend(feed.entry)
                 next_link = feed.GetNextLink()
-    raise Exception("<pre>%s</pre>" % result)
     total = 0
     imported = 0
     imported_emails=[]
