@@ -508,11 +508,7 @@ def addressbook(request, template_name="friends/addressbook.html"):
 
 def invite_contacts(request, template_name="friends/invite_contacts.html"):
     friends = [f['friend'] for f in Friendship.objects.friends_for_user(request.user)]
-    contact_list = Contact.objects.select_related("user").filter(owner=request.user)
-    contacts = []
-    for contact in contact_list:
-        if contact not in friends:
-            contacts.append(contact)
+    contacts = Contact.objects.select_related("user").filter(owner=request.user).exclude(user__in=friends)
     return {'contacts':contacts}, template_name
 
 def invitations_sent(request):
