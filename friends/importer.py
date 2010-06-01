@@ -19,6 +19,7 @@ try:
 except ImportError:
     pass
 
+from django.contrib.auth.models import User
 from friends.models import Contact
 
 EMAIL_REGEX = r"^.*?\b([A-Z0-9._%%+-]+@[A-Z0-9.-]+\.([A-Z]{2,4}|museum))\b.*$"
@@ -281,35 +282,6 @@ def import_google(authsub_token, user):
             query = gdata.contacts.service.ContactsQuery()
             query.group=groups[g.lower()]
             feed = contacts_service.GetContactsFeed(query.ToUri())
-            for i, entry in enumerate(feed.entry):
-                result += '\n%s %s' % (i+1, entry.title.text)
-                if entry.content:
-                    result+= '        %s' % (entry.content.text)
-                # Display the primary email address for the contact.
-                for email in entry.email:
-                    if re.search(r"aace",email.address):
-                        try:
-                            for k in (dir(entry)):
-                                try:
-                                    result += '\n%s= %s' % (k,getattr(entry,k))
-                                except:
-                                    result += '\n%s= n/a' % (k)
-                        except:
-                            pass
-
-                    if email.primary and email.primary == 'true':
-                        result+= '        %s' % (email.address)
-                # Show the contact groups that this contact is a member of.
-                for group in entry.group_membership_info:
-                    result+= '        Member of group: %s' % (group.href)
-                # Display extended properties.
-                for extended_property in entry.extended_property:
-                    if extended_property.value:
-                        value = extended_property.value
-                    else:
-                        value = extended_property.GetXmlBlobString()
-                    result+= '        Extended Property - %s: %s' % (extended_property.name, value)
-
             entries.extend(feed.entry)
             next_link = feed.GetNextLink()
             while next_link:
@@ -322,18 +294,32 @@ def import_google(authsub_token, user):
     imported_emails=[]
 #    raise Exception(result)
     for entry in entries:
-        name = entry.title.text
+        contact_vals={}
+        contact_vals['name'] = entry.title.text
         for e in entry.email:
-            email = e.address
-            if email not in imported_emails:
-                imported_emails.append(email)
+            if e.primary:
+                contact_vals['email'] = e.address
+                break
+        if contact_vals['email'] not in imported_emails:
+            imported_emails.append(contact_vals['email'])
+            contact, created = create_contact_from_values(owner=user, **contact_vals)
+            if created:
                 total += 1
-                try:
-                    Contact.objects.get(owner=user, email=email)
-                except Contact.DoesNotExist:
-                    Contact(owner=user, name=name, email=email).save()
-                    imported += 1
     return imported, total
 
-#def create_contact_from_values(owner=None, **values):
-#    if values.has_key
+def create_contact_from_values(owner=None, **values):
+    created = False
+    email = values.get('email')
+    if not email:
+        return None, False
+    try:
+        contact = Contact.objects.get(owner=owner, email=email)
+    except Contact.DoesNotExist:
+        created = True
+        contact = Contact(owner=owner, **values)
+        try:
+            contact.user = User.objects.get(email__iexact=email) 
+        except:
+            pass
+        contact.save()
+    return contact, created
