@@ -281,9 +281,13 @@ def import_google(authsub_token, user):
             query = gdata.contacts.service.ContactsQuery()
             query.group=groups[g.lower()]
             feed = contacts_service.GetContactsFeed(query.ToUri())
-            for i, entry in enumerate(feed.entry):
+            for i, entry in enumerate(feed.entry)[:3]:
                 try:
-                    result+= '\n%s' % (dir(entry))
+                    for k in (dir(entry)):
+                        try:
+                            result += '\n%s= %s' % (k,getattr(entry,k))
+                        except:
+                            result += '\n%s= n/a' % (k)
                 except:
                     pass
                 result += '\n%s %s' % (i+1, entry.title.text)
