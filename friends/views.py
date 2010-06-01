@@ -132,7 +132,7 @@ def invite_users(request,output_prefix="invite", redirect_to='edit_friends', for
 @render_to()
 @csrf_protect
 @login_required
-def add_friend(request, friend, template_name='friends/add_friend.html', add_form=InviteFriendForm, redirect_to="profile"):
+def add_friend(request, friend, template_name='friends/add_friend.html', add_form=InviteFriendForm, redirect_to=None):
     friend, friend_profile = get_user_profile(friend)
     redirect_to=request.REQUEST.get(REDIRECT_FIELD_NAME, redirect_to)
     if redirect_to and '/' not in redirect_to:
@@ -466,3 +466,9 @@ def test_bad(request):
 def test_gone(request):
     contact = get_object_or_404(Contact,pk=-1)
     return locals(), 'confirm.html'
+
+def invitations_sent(request):
+    pass
+
+def requests_received(request):
+    pass
