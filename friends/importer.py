@@ -145,13 +145,9 @@ def import_outlook(stream, user):
                     contact_vals['address']=address
             if not contact_vals.get('Name',None):
                 contact_vals['name']=("%s %s" % (contact_vals.get('first_name',''), contact_vals.get('last_name',''))).strip()
-            try:
-                Contact.objects.get(owner=user, email=contact_vals['email'])
-            except Contact.DoesNotExist:
-                Contact(owner=user,type='O',**contact_vals).save()
-                imported += 1
-            except KeyError:
-                raise Exception("Email not found; this is the line:\n%s\n" % line)
+            contact, created = create_contact_from_values(owner=user, **contact_vals)
+            if created:
+                total += 1
     return imported, total
             
 
@@ -200,11 +196,9 @@ def import_vcards(stream, user):
             except:
                 pass
 
-            try:
-                Contact.objects.get(owner=user, email=email)
-            except Contact.DoesNotExist:
-                Contact(owner=user, type='V', **contact_vals).save()
-                imported += 1
+            contact, created = create_contact_from_values(owner=user, **contact_vals)
+            if created:
+                total += 1
         except AttributeError:
             pass # missing value so don't add anything
     return imported, total
