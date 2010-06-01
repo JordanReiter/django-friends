@@ -314,5 +314,7 @@ def create_contact_from_values(owner=None, type=None, **values):
             contact.user = User.objects.get(email__iexact=email) 
         except User.DoesNotExist:
             pass
+        if type:
+            contact.type = type 
         contact.save()
     return contact, created
