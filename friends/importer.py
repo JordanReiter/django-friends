@@ -313,7 +313,7 @@ def create_contact_from_values(owner=None, **values):
         contact = Contact(owner=owner, **values)
         try:
             contact.user = User.objects.get(email__iexact=email) 
-        except:
+        except User.DoesNotExist:
             pass
         contact.save()
     return contact, created
