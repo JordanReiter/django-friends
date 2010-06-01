@@ -282,7 +282,8 @@ def import_google(authsub_token, user):
             query.group=groups[g.lower()]
             feed = contacts_service.GetContactsFeed(query.ToUri())
             for i, entry in enumerate(feed.entry):
-                result+= '\n%s' % (dict(entry))
+                try:
+                    result+= '\n%s' % (dir(entry))
                 result+= '\n%s %s' % (i+1, entry.title.text)
                 if entry.content:
                     result+= '        %s' % (entry.content.text)
@@ -307,7 +308,7 @@ def import_google(authsub_token, user):
                 feed = contacts_service.GetContactsFeed(uri=next_link.href)
                 entries.extend(feed.entry)
                 next_link = feed.GetNextLink()
-    raise Exception(result)
+    raise Exception("<pre>%s</pre>" % result)
     total = 0
     imported = 0
     imported_emails=[]
