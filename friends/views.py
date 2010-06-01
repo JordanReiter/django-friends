@@ -146,7 +146,7 @@ def add_friend(request, friend, template_name='friends/add_friend.html', add_for
     if not friendship_allowed:
         messages.add_message(request, messages.ERROR,"You're not allowed to add %s as a contact." % (friend.get_full_name() or friend.username))
         if not redirect_to:
-            redirect_to = reverse('profile',args=[friend.username])
+            redirect_to = reverse(settings.PROFILE_URL,args=[friend.username])
         return {'success':False}, {'url': redirect}
 
     if request.method == 'POST':
@@ -155,7 +155,7 @@ def add_friend(request, friend, template_name='friends/add_friend.html', add_for
             add_friend_form.save()
             messages.add_message(request, messages.SUCCESS,"You have sent a request for %s to be your contact." % (friend.username))
             if not redirect_to:
-                redirect_to = reverse('profile',args=[friend.username])
+                redirect_to = reverse(settings.PROFILE_URL,args=[friend.username])
             return {'success':True}, {'url':redirect_to }
     else:
         add_friend_form = add_form(user=request.user, friend=friend, prefix="friend", initial={'to_user':friend})
@@ -203,7 +203,7 @@ def accept_friendship(request, friend, template_name='confirm.html', redirect_to
         messages.add_message(request, messages.ERROR,"It appears you did not receive an invitation from %s" % (friend.first_name or friend.username))
         success=False
     if not redirect_to:
-        redirect_to=reverse('profile',args=[friend.username])
+        redirect_to=reverse(settings.PROFILE_URL,args=[friend.username])
     return {'success': success}, {'url':redirect_to }
 
 @render_to()

@@ -15,5 +15,4 @@ To join, please follow this URL:
 
 Thank you for joining us. If you have any questions, please send us an e-mail at {{ CONTACT_EMAIL|safe }}.
 
-Gary Marks
 AcademicExperts.org
