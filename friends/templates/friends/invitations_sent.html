@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block content %}
+<h1>{% block title %}Invitations Sent{% endblock title %}</h1>
+<ul>
+{% for invitation in invitations %}
+	<li id="invitation-{{ invitation.id }}">
+	{% if invitation.to_user.get_profile.photo %}
+		<a href="{{ invitation.to_user.get_profile.get_absolute_url }}" /><img src="{{ MEDIA_URL }}/{{ invitation.to_user.get_profile.photo.thumbnail.url }}" style="border: 0; float: middle;"  /></a>
+	{% else %}
+		<a href="{{ invitation.to_user.get_profile.get_absolute_url }}" /><img src="{{ MEDIA_URL }}/images/unknown_thumbnail.png" style="border: 0; vertical-align: middle;" /></a>
+	{% endif %} 
+	<strong><a href="{{ invitation.to_user.get_profile.get_absolute_url }}" />{% firstof invitation.to_user.get_profile.user.get_full_name invitation.to_user.get_profile.user.username %}</a></strong><br />
+	Sent {{ invitation.sent|naturalday }}.
+	</li>
+{% endfor %}
+</ul>
+{% endblock content %}
