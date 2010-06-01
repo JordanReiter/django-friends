@@ -509,8 +509,12 @@ def addressbook(request, template_name="friends/addressbook.html"):
 @render_to()
 @login_required
 def invitations_sent(request, template_name="friends/invitations_sent.html"):
-    invitations = FriendshipInvitation.objects.invitations(from_user=request.user)
+    friend_invitations = FriendshipInvitation.objects.invitations(from_user=request.user)
+    join_invitations = JoinInvitation.objects.filter(from_user=request.user,status='2')
     return locals(), template_name
 
-def requests_received(request):
-    pass
+@render_to()
+@login_required
+def requests_received(request, template_name="friends/requests_received.html"):
+    requests_received = FriendshipInvitation.objects.invitations(to_user=request.user)
+    return locals(), template_name

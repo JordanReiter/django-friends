@@ -3,6 +3,7 @@
 
 
 <h1>{% block title %}Upload contacts{% endblock title %}</h1>
+{% include "options.inc" %}
 
 <form action="" method="post" enctype="multipart/form-data">{% csrf_token %}
 <ol class="fields">

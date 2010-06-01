@@ -3,6 +3,8 @@
 {% block content %}
 <h1>{% block title %}Edit Contacts {% endblock title %}</h1>
 
+{% include "options.inc" %}
+
 {% for friendship in friendship_list %}
 <dl class="friends">
 	<dt>

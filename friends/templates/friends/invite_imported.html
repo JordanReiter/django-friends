@@ -2,6 +2,7 @@
 
 {% block content %}
 <h1>{% block title %}Invite Imported Contacts{% endblock title %}</h1>
+{% include "options.inc" %}
 <form method="post" action="{% url email_imported_contacts %}">{% csrf_token %}
 <fieldset>
 <ul id="contacts-to-add">
