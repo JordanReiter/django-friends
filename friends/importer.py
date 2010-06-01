@@ -281,7 +281,9 @@ def import_google(authsub_token, user):
 #                value = extended_property.GetXmlBlobString()
 #            result+= '        Extended Property %s: %s' % (extended_property.name, value)
 #    raise Exception("The result is <pre>%s</pre>" % result) 
-    feed = contacts_service.GetContactsFeed(group="Contacts")
+    query = gdata.contacts.service.ContactsQuery()
+    query.group="Contacts"
+    feed = contacts_service.GetContactsFeed(query.ToUri())
     entries.extend(feed.entry)
     next_link = feed.GetNextLink()
     while next_link:
