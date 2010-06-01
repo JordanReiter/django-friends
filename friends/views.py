@@ -506,19 +506,14 @@ def addressbook(request, template_name="friends/addressbook.html"):
         contacts.append(c)
     return {'contacts':contacts}, template_name
 
-@render_to()
-def test_req(request):
-    return {'confirmation':True}, 'friends/invite.html'
-
-@render_to()
-def test_bad(request):
-    messages.add_message(request, messages.DEBUG, "I did a bad bad thing.")
-    return {'confirmation':True}, {'status': 500}
-
-@render_to()
-def test_gone(request):
-    contact = get_object_or_404(Contact,pk=-1)
-    return locals(), 'confirm.html'
+def invite_contacts(request, template_name="friends/invite_contacts.html"):
+    friends = [f['friend'] for f in Friendship.objects.friends_for_user(request.user)]
+    contact_list = Contact.objects.select_related("user").filter(owner=request.user)
+    contacts = []
+    for contact in contact_list:
+        if contact not in friends:
+            contacts.append(contact)
+    return {'contacts':contacts}, template_name
 
 def invitations_sent(request):
     pass
