@@ -319,7 +319,7 @@ def export_friends(request):
 
     
 @render_to()
-def import_file_contacts(request, form_class=ImportContactForm, template_name='friends/upload_contacts.html', redirect_to="invite_contacts"):
+def import_file_contacts(request, form_class=ImportContactForm, template_name='friends/upload_contacts.html', redirect_to="invite_imported"):
     redirect_to=request.REQUEST.get(REDIRECT_FIELD_NAME, redirect_to)
     if redirect_to and '/' not in redirect_to:
         redirect_to=reverse(redirect_to)
@@ -361,7 +361,7 @@ def import_file_contacts(request, form_class=ImportContactForm, template_name='f
         return locals(), template_name
 
 @render_to()
-def import_google_contacts(request, redirect_to="invite_contacts"):
+def import_google_contacts(request, redirect_to="invite_imported"):
     redirect_to=request.REQUEST.get(REDIRECT_FIELD_NAME, redirect_to)
     if redirect_to and '/' not in redirect_to:
         redirect_to=reverse(redirect_to)
@@ -504,13 +504,6 @@ def addressbook(request, template_name="friends/addressbook.html"):
         except:
             pass
         contacts.append(c)
-    return {'contacts':contacts}, template_name
-
-@render_to()
-def invite_contacts(request, template_name="friends/invite_contacts.html"):
-    friends = [f['friend'] for f in Friendship.objects.friends_for_user(request.user)]
-    contacts = Contact.objects.select_related("user").filter(owner=request.user).exclude(user__in=friends)
-    contacts = contacts.order_by("last_name","first_name","name","email")
     return {'contacts':contacts}, template_name
 
 def invitations_sent(request):
