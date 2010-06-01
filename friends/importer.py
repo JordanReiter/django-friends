@@ -268,7 +268,7 @@ def import_google(authsub_token, user):
     entries = []
     feed = contacts_service.GetGroupsFeed()
     result = ""
-    for entry in feed:
+    for entry in feed.entry:
         result += "%s" % entry
     raise Exception("The result is <pre>%s</pre>" % result) 
     feed = contacts_service.GetContactsFeed()
