@@ -436,7 +436,7 @@ def edit_friend(request, friend=None, redirect_to='edit_friends', form_class=Fri
 @render_to()
 @csrf_protect
 @login_required
-def invite_contact(request,contact_id=None, template_name="confirm.html", redirect_to="edit_contacts"):
+def invite_contact(request,contact_id=None, template_name="confirm.html", redirect_to="edit_friends"):
     redirect_to=request.REQUEST.get(REDIRECT_FIELD_NAME, redirect_to)
     if redirect_to and '/' not in redirect_to:
         redirect_to=reverse(redirect_to)
