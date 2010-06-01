@@ -281,8 +281,8 @@ def import_google(authsub_token, user):
             email = e.address
             total += 1
             try:
-                Contact.objects.get(user=user, email=email)
+                Contact.objects.get(owner=user, email=email)
             except Contact.DoesNotExist:
-                Contact(user=user, name=name, email=email).save()
+                Contact(owner=user, name=name, email=email).save()
                 imported += 1
     return imported, total
