@@ -129,6 +129,27 @@ def invite_users(request,output_prefix="invite", redirect_to='edit_friends', for
         invite_users_form = form_class()
     return locals(), template_name
 
+@render_to()
+@csrf_protect
+@login_required
+def invite_imports(request,output_prefix="invite", redirect_to='edit_friends', form_class=MultipleInviteForm, template_name='friends/invite.html'):
+    redirect_to=request.REQUEST.get(REDIRECT_FIELD_NAME, redirect_to)
+    if redirect_to and '/' not in redirect_to:
+        redirect_to=reverse(redirect_to)
+    if request.method == 'POST':
+        invite_users_form = form_class(data=request.POST, user=request.user)
+        if invite_users_form.is_valid():
+            total, requests, existing, invitations = invite_users_form.send_invitations()
+            messages.add_message(request, messages.SUCCESS,"You have sent invitations to %(invite_count)d email addresses." % {'invite_count':requests+invitations})
+            if requests:
+                messages.add_message(request, messages.INFO,"%(requests)d email(s) belonged to someone who is already a member of the site, so they received a request to add you as a contact." % {'requests':requests})
+            if existing:
+                messages.add_message(request, messages.WARNING,"%(existing)d email(s) belonged to someone who is already one of your contacts." % {'existing':existing})
+            return {'success':True}, {'url':redirect_to }
+    if request.method == 'GET':
+        invite_users_form = form_class()
+    return locals(), template_name
+
 
 @render_to()
 @csrf_protect
