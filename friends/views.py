@@ -25,6 +25,7 @@ from django.forms.models import modelformset_factory
 
 # Settings
 from django.conf import settings
+from django.contrib.sites.models import Site
 
 # Utils
 import re, datetime
@@ -321,15 +322,34 @@ def import_file_contacts(request, form_class=ImportContactForm, template_name='f
                     start = False
                 if format == 'VCARD':
                     imported_type='V'
-                    total, imported = import_vcards(contact_file_content, request.user)
+                    imported, total = import_vcards(contact_file_content, request.user)
                     messages.add_message(request, messages.SUCCESS,'A total of %d emails imported.' % imported)
                 elif format == 'OUTLOOK':
                     imported_type='O'
-                    total, imported = import_outlook(contact_file_content, request.user)
+                    imported, total = import_outlook(contact_file_content, request.user)
                     messages.add_message(request, messages.SUCCESS,'A total of %d emails imported.' % imported)
     else:
         contacts_file_form=form_class()
         return locals(), template_name
+
+@render_to()
+def import_google_contacts(request):
+        import gdata.contacts.service
+        import gdata.auth
+        AUTH_SCOPE = "http://www.google.com/m8/feeds"
+        contacts_service = gdata.contacts.service.ContactsService()
+        if request.GET.has_key('token'):
+            rsa_key = open(settings.PRIVATE_KEY,'r').read()
+            token = gdata.auth.extract_auth_sub_token_from_url(request.get_full_path(),rsa_key=rsa_key)
+            imported, _ = import_google(token, request.user)
+            messages.add_message(request, messages.SUCCESS,'A total of %d emails imported.' % imported)
+        else:
+            next = "http://%s%s" % (
+                    Site.objects.get_current(),
+                    reverse('import_google_contacts') 
+            )
+            url = contacts_service.GenerateAuthSubURL(next, AUTH_SCOPE, False, 1)
+            return HttpResponseRedirect(url)
 
 
 @render_to()
