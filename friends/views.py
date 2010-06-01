@@ -156,6 +156,7 @@ def invite_imports(request,output_prefix="invite", redirect_to='edit_friends', f
 @login_required
 def add_friend(request, friend, template_name='friends/add_friend.html', add_form=InviteFriendForm, redirect_to=None):
     friend, friend_profile = get_user_profile(friend)
+    connections = shared_friends(request.user, friend)
     redirect_to=request.REQUEST.get(REDIRECT_FIELD_NAME, redirect_to)
     if redirect_to and '/' not in redirect_to:
         redirect_to=reverse(redirect_to)
