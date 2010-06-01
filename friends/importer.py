@@ -268,8 +268,17 @@ def import_google(authsub_token, user):
     entries = []
     feed = contacts_service.GetGroupsFeed()
     result = ""
-    for entry in feed.entry:
-        result += "%s" % entry
+      for i, entry in enumerate(feed.entry):
+        result+= '\n%s %s' % (i+1, entry.title.text)
+        # Display the group id which can be used to query the contacts feed.
+        result+= '    Group ID: %s' % entry.id.text
+        # Display extended properties.
+        for extended_property in entry.extended_property:
+          if extended_property.value:
+            value = extended_property.value
+          else:
+            value = extended_property.GetXmlBlobString()
+          result+= '    Extended Property %s: %s' % (extended_property.name, value)
     raise Exception("The result is <pre>%s</pre>" % result) 
     feed = contacts_service.GetContactsFeed()
     entries.extend(feed.entry)
