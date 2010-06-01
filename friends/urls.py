@@ -19,8 +19,6 @@ urlpatterns = patterns('',
    url(r'^addressbook/$', addressbook, name="edit_contacts"),
    url(r'^import/file/$', import_file_contacts, name="import_file_contacts"),
    url(r'^import/google/$', import_google_contacts, name="import_google_contacts"),
-   url(r'^testbad/$', test_bad, name="test_bad"),
-   url(r'^testgone/$', test_gone, name="test_gone"),   
    url(r'^(?P<user>[-\w\.]+)/$', view_friends, name="view_friends"),
    url(r'^$', edit_friends, name="edit_friends"),
 )
