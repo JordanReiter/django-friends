@@ -10,7 +10,6 @@
 		<li style="height: 60px; padding: 0 70px 0 0; background: url({{ MEDIA_URL }}/{% if c.user.get_profile.photo %}{{ c.user.get_profile.photo.thumbnail.url}}{% else %}images/unknown_thumbnail.png{% endif %}) no-repeat top right">
 			<label style="font-weight: bold"><input type="checkbox" name="add_as_contact" title="{{ c.user.get_full_name }}" value="{{ c.user.email }}" /> {{ c.user.get_full_name }} &lt;{{ c.email }}&gt;</label>
 			<br /><small>{% if c.user.get_profile.city_label %}{{ c.user.get_profile.city_label }} {% endif %}{% if c.user.get_profile.country %}{{ c.user.get_profile.country.name }}{% endif %}</small>
-			| <small><a href="{{ c.user.get_profile.get_absolute_url }}" title="View {{ c.user.first_name }}'s Profile">View Profile</a></small>
 		</li>
 		{% else %}
 		<li style="height: 60px; "><label style="font-weight: bold"><input type="checkbox" name="add_as_contact" title="{% firstof c.name c.email %}" value="{{ c.email }}" /> {% firstof c.name c.email %}</label>   &lt;{{ c.email }}&gt;</li>
