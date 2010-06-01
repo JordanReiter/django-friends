@@ -44,7 +44,7 @@ else:
 from friends.models import Contact, Friendship, FriendshipInvitation, JoinInvitation, FriendSuggestion, IMPORTED_TYPES                                            
 from friends.forms import MultipleInviteForm, InviteFriendForm, ImportContactForm, ContactForm, FriendshipForm
 from friends.exporter import export_vcards
-from friends.importer import import_vcards, import_outlook
+from friends.importer import import_vcards, import_outlook, import_google
 from friends.signals import invite
 
 
