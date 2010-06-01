@@ -510,7 +510,7 @@ def addressbook(request, template_name="friends/addressbook.html"):
 def invite_contacts(request, template_name="friends/invite_contacts.html"):
     friends = [f['friend'] for f in Friendship.objects.friends_for_user(request.user)]
     contacts = Contact.objects.select_related("user").filter(owner=request.user).exclude(user__in=friends)
-    contacts.order_by("last_name","first_name","email")
+    contacts.order_by("last_name","first_name","name","email")
     return {'contacts':contacts}, template_name
 
 def invitations_sent(request):
