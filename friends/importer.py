@@ -269,7 +269,6 @@ def import_google(authsub_token, user):
     groups = {}
     query = gdata.service.Query(feed='/m8/feeds/groups/default/full')
     feed = contacts_service.GetGroupsFeed(query.ToUri())
-    result = ""
     for entry in feed.entry:
         groups[entry.title.text.lower()]=entry.id.text
     for g in ["My Contacts","Friends","Coworkers"]:
