@@ -287,7 +287,7 @@ def import_google(authsub_token, user):
                     result+= '        %s' % (entry.content.text)
                 # Display the primary email address for the contact.
                 for email in entry.email:
-                    if re.search(r"aace",email):
+                    if re.search(r"aace",email.address):
                         try:
                             for k in (dir(entry)):
                                 try:
