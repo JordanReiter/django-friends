@@ -7,6 +7,7 @@
 <ul>
 	{% ifchanged %}
 	<li id="address-{% firstof c.name|slice:":1" c.email|slice:":1" %}"><big><strong>{% firstof c.name|slice:":1" c.email|slice:":1" %}</strong></big></li>
+	{% endifchanged %}
 	{% for c in contacts %}
 		{% if c.user %}
 		<li style="height: 60px; padding: 0 70px 0 0; background: url({{ MEDIA_URL }}/{% if c.user.get_profile.photo %}{{ c.user.get_profile.photo.thumbnail.url}}{% else %}images/unknown_thumbnail.png{% endif %}) no-repeat top right">
