@@ -282,21 +282,21 @@ def import_google(authsub_token, user):
             query.group=groups[g.lower()]
             feed = contacts_service.GetContactsFeed(query.ToUri())
             for i, entry in enumerate(feed.entry):
-                if i > 3:
-                    break
-                try:
-                    for k in (dir(entry)):
-                        try:
-                            result += '\n%s= %s' % (k,getattr(entry,k))
-                        except:
-                            result += '\n%s= n/a' % (k)
-                except:
-                    pass
                 result += '\n%s %s' % (i+1, entry.title.text)
                 if entry.content:
                     result+= '        %s' % (entry.content.text)
                 # Display the primary email address for the contact.
                 for email in entry.email:
+                    if re.search(r"aace",email):
+                        try:
+                            for k in (dir(entry)):
+                                try:
+                                    result += '\n%s= %s' % (k,getattr(entry,k))
+                                except:
+                                    result += '\n%s= n/a' % (k)
+                        except:
+                            pass
+
                     if email.primary and email.primary == 'true':
                         result+= '        %s' % (email.address)
                 # Show the contact groups that this contact is a member of.
