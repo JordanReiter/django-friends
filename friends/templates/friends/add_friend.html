@@ -4,6 +4,11 @@
 	<h1>{% block title %}Add {% firstof friend.get_full_name friend.username %} as a contact{% endblock %}</h1>
 	{{ add_friend_form.errors }}
 	<form method="post" action="">{% csrf_token %}
+		<p style="margin: 1em 0; list-style: none; min-height: 60px !important; padding: 0 0 0 60px; background: url({{ MEDIA_URL }}/{% if add_friend_form.to_user.get_profile.photo %}{{ add_friend_form.to_user.get_profile.photo.thumbnail.url}}{% else %}/images/unknown_thumbnail.png{% endif %}) no-repeat 0 2px; " >
+			<strong>{% firstof add_friend_form.to_user.get_full_name add_friend_form.to_user.username %}</strong><br />
+			{% if add_friend_form.to_user.get_profile.job %}{% if add_friend_form.to_user.get_profile.job.role %}{{ add_friend_form.to_user.get_profile.job.role }} at {% endif %}{{ add_friend_form.to_user.get_profile.job.name }}<br />{% endif %}
+			{% if add_friend_form.to_user.get_profile.country %}{{ add_friend_form.to_user.get_profile.country.name }}<br />{% endif %}
+		</p>
 		{{ add_friend_form.to_user }}
 		{% if connections.0 %}
 		<div id="connections">
