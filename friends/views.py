@@ -265,6 +265,7 @@ def remove_contact(request,contact_id,template_name='confirm.html',redirect_to='
         contact = Contact.objects.get(pk=contact_id)
     except:
         messages.add_message(request, messages.ERROR,"No contact record found.")
+        return {'success':False}, {'status':404 }
         
 
     redirect_to=request.REQUEST.get(REDIRECT_FIELD_NAME, redirect_to)
