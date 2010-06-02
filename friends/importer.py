@@ -297,6 +297,8 @@ def import_google(authsub_token, user):
             if e.primary:
                 contact_vals['email'] = e.address
                 break
+            elif not contact_vals.has_key('email'):
+                contact_vals['email'] = e.address
         if contact_vals['email'] not in imported_emails:
             imported_emails.append(contact_vals['email'])
             contact, created = create_contact_from_values(owner=user, type='G', **contact_vals)
