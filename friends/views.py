@@ -390,7 +390,7 @@ def import_google_contacts(request, redirect_to="invite_imported"):
 @render_to()
 def invite_imported(request, type=None):
     type = request.REQUEST.get('type', type)
-    imported_contacts = Contact.objects.filter(owner=request.user)
+    imported_contacts = Contact.objects.select_related("expert_profile__code").filter(owner=request.user)
     if type:
         imported_contacts = Contact.objects.filter(owner=request.user,type__iexact=type)
     else:
