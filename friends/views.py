@@ -271,7 +271,7 @@ def remove_contact(request,contact_id,template_name='confirm.html',redirect_to='
     if request.method == 'GET':
         action_display = "remove %s from contacts." % (contact.name or contact.email) 
         yes_display = "Yes, remove"
-        no_display = "No, keep" % (contact.name or contact.email)
+        no_display = "No, keep %s" % (contact.name or contact.email)
         return locals(), template_name
     elif request.POST.get('confirm_action')=='no':
         messages.add_message(request, messages.INFO,"You canceled the action.")
