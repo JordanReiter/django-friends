@@ -290,6 +290,7 @@ def import_google(authsub_token, user):
     imported_emails=[]
 #    raise Exception(result)
     for entry in entries:
+        total += 1
         contact_vals={}
         contact_vals['name'] = entry.title.text
         for e in entry.email:
@@ -300,7 +301,7 @@ def import_google(authsub_token, user):
             imported_emails.append(contact_vals['email'])
             contact, created = create_contact_from_values(owner=user, type='G', **contact_vals)
             if created:
-                total += 1
+                imported += 1
     return imported, total
 
 def create_contact_from_values(owner=None, type=None, **values):
