@@ -280,7 +280,7 @@ def remove_contact(request,contact_id,template_name='confirm.html',redirect_to='
     contact.deleted = datetime.datetime.now()
     contact.save()
     messages.add_message(request, messages.SUCCESS,"You have removed %s from your contacts." % (contact.get_full_name() or contact.username))
-    return {'success':True}, {'url':redirect_to }
+    return {'success':True, 'contact_id':contact_id }, {'url':redirect_to }
 
 
 @render_to()
