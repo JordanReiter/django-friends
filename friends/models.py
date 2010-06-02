@@ -103,6 +103,16 @@ class Contact(models.Model):
     
     objects = ContactManager()
     
+    def get_label(self):
+        if self.user and self.user.get_full_name():
+            return self.user.get_full_name()
+        elif self.name:
+            return self.name
+        elif self.first_name or self.last_name:
+            return ("%s %s" % (self.first_name, self.last_name)).strip()
+        else:
+            return self.email
+    
     def __unicode__(self):
         return "%s (%s's contact)" % (self.email, self.owner)
     
