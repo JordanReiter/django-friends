@@ -325,7 +325,6 @@ def export_friends(request):
     return response    
 
     
-@render_to()
 def import_file_contacts(request, form_class=ImportContactForm, template_name='friends/upload_contacts.html', redirect_to="invite_imported"):
     redirect_to=request.REQUEST.get(REDIRECT_FIELD_NAME, redirect_to)
     if redirect_to and '/' not in redirect_to:
