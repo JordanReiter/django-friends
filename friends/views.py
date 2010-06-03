@@ -364,8 +364,9 @@ def import_file_contacts(request, form_class=ImportContactForm, template_name='f
                     return {'imported':imported, 'total':total}, {'url': redirect_to}
                 else:
                     messages.add_message(request, messages.ERROR,'The file format you uploaded wasn\'t valid.')
+    else:
         contacts_file_form=form_class()
-        return locals(), template_name
+    return locals(), template_name
 
 @render_to()
 def import_google_contacts(request, redirect_to="invite_imported"):
