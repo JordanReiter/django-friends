@@ -498,7 +498,7 @@ def edit_friends(request, friend=None, redirect_to='edit_friends', form_class=Fr
 @login_required
 def recommended_friends(request, template_name="friends/recommended_friends.html"):
     recommended_friends = FriendSuggestion.objects.filter(user=request.user)
-    recommended_friends = recommended_friends.exclude(suggested_user__friends__from_user=profile.user) 
+    recommended_friends = recommended_friends.exclude(suggested_user__friends__from_user=request.user) 
     return locals(), template_name
 
 @render_to()
