@@ -259,7 +259,7 @@ INVITE_STATUS = (
 
 class JoinInvitationManager(models.Manager):
     
-    def send_invitation(self, from_user, to_email, message):
+    def send_invitation(self, from_user, to_email, message=None):
         contact, _ = Contact.objects.get_or_create(email=to_email, owner=from_user)
         contact.type = 'I'
         contact.save()
