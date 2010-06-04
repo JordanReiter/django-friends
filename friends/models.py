@@ -302,7 +302,7 @@ class JoinInvitation(models.Model):
     
     objects = JoinInvitationManager()
     
-    def accept(self, new_user):
+    def accept(self, new_user, notify_friends=False):
         # mark invitation accepted
         self.status = "5"
         self.save()
@@ -316,7 +316,8 @@ class JoinInvitation(models.Model):
             for user in friend_set_for(new_user) | friend_set_for(self.from_user):
                 if user != new_user and user != self.from_user:
                     friends.append(user)
-#            notification.send(friends, "friends_otherconnect", {"invitation": self, "to_user": new_user})
+            if notify_friends:
+                notification.send(friends, "friends_otherconnect", {"invitation": self, "to_user": new_user})
 
 
 class FriendshipInvitationManager(models.Manager):
@@ -340,7 +341,7 @@ class FriendshipInvitation(models.Model):
     
     objects = FriendshipInvitationManager()
     
-    def accept(self):
+    def accept(self, notify_friends=False):
         if not Friendship.objects.are_friends(self.to_user, self.from_user):
             friendship = Friendship(to_user=self.to_user, from_user=self.from_user, how_related=self.how_related)
             friendship.save()
@@ -349,9 +350,10 @@ class FriendshipInvitation(models.Model):
             if notification:
                 notification.send([self.from_user], "friends_accept", {"invitation": self})
                 notification.send([self.to_user], "friends_accept_sent", {"invitation": self})
-                for user in friend_set_for(self.to_user) | friend_set_for(self.from_user):
-                    if user != self.to_user and user != self.from_user:
-                        notification.send([user], "friends_otherconnect", {"invitation": self, "to_user": self.to_user})
+                if notify_friends:
+                    for user in friend_set_for(self.to_user) | friend_set_for(self.from_user):
+                        if user != self.to_user and user != self.from_user:
+                            notification.send([user], "friends_otherconnect", {"invitation": self, "to_user": self.to_user})
     
     def decline(self):
         if not Friendship.objects.are_friends(self.to_user, self.from_user):
