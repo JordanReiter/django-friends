@@ -316,7 +316,7 @@ class JoinInvitation(models.Model):
             for user in friend_set_for(new_user) | friend_set_for(self.from_user):
                 if user != new_user and user != self.from_user:
                     friends.append(user)
-            notification.send(friends, "friends_otherconnect", {"invitation": self, "to_user": new_user})
+#            notification.send(friends, "friends_otherconnect", {"invitation": self, "to_user": new_user})
 
 
 class FriendshipInvitationManager(models.Manager):
