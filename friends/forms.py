@@ -81,7 +81,6 @@ class InviteFriendForm(forms.Form):
     )
     
     def clean_to_user(self):
-        raise Exception("%s" % self.cleaned_data.items())
         to_username = self.cleaned_data["to_user"]
         try:
             User.objects.get(username=to_username)
@@ -97,6 +96,7 @@ class InviteFriendForm(forms.Form):
         self.fields['to_user'].initial = self.friend.username
     
     def clean(self):
+        raise Exception("%s" % self.cleaned_data.items())
         to_user = User.objects.get(username=self.cleaned_data["to_user"])
         previous_invitations_to = FriendshipInvitation.objects.invitations(to_user=to_user, from_user=self.user)
         if previous_invitations_to.count() > 0:
