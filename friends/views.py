@@ -192,7 +192,7 @@ def accept_invitation(request, key, template_name="friends/accept_invitation.htm
         joininvitation = JoinInvitation.objects.get(confirmation_key__iexact=key)
         invite.send(sender=JoinInvitation, request=request, instance=joininvitation)
         return locals(), template_name
-    except JoinInvitation.DoesNotExist:
+    except:
         messages.add_message(request, messages.ERROR,"Sorry, it looks like this was not a valid invitation code.")
         if '/' not in failure_redirect:
             failure_redirect = reverse(failure_redirect)
