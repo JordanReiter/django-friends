@@ -81,6 +81,7 @@ class InviteFriendForm(forms.Form):
     )
     
     def clean_to_user(self):
+        raise Exception("%s" % self.cleaned_data.items())
         to_username = self.cleaned_data["to_user"]
         try:
             User.objects.get(username=to_username)
