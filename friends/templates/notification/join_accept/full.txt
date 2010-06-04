@@ -1,1 +1,1 @@
-{% load i18n %}{% blocktrans with new_user.get_full_name as new_user %}{ new_user }} has joined and is now a friend.{% endblocktrans %}
+{% firstof new_user.get_full_name new_user.username %} has joined and is now a contact.
