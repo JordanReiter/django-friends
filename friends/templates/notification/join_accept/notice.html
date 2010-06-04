@@ -1,1 +1,1 @@
-<a href="{% url profile_detail username=new_user.username  %}">{% firstof new_user.get_full_name new_user.username %}</a> has joined and is now a contact.
+<a href="{% url profile username=new_user.username  %}">{% firstof new_user.get_full_name new_user.username %}</a> has joined and is now a contact.
