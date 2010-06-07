@@ -215,7 +215,7 @@ def accept_friendship(request, friend, template_name='confirm.html', redirect_to
     
     # because of the threat of cross-site scripting, this action has to be the result of a form posting
     if request.method == 'GET':
-        action_display = "approve %s as a friend." % (friend_profile.user.get_full_name() or friend_profile.user.username) 
+        action_display = "approve %s as a contact." % (friend_profile.user.get_full_name() or friend_profile.user.username) 
         yes_display = "Yes, accept request"
         no_display = "No, cancel"
         return locals(), template_name
@@ -225,7 +225,7 @@ def accept_friendship(request, friend, template_name='confirm.html', redirect_to
     try:
         invitation = FriendshipInvitation.objects.get(from_user=friend, to_user=request.user)
         invitation.accept()
-        messages.add_message(request, messages.SUCCESS,"%s is now your friend." % (friend_profile.user.get_full_name() or friend_profile.user.username))
+        messages.add_message(request, messages.SUCCESS,"%s is now your contact." % (friend_profile.user.get_full_name() or friend_profile.user.username))
         success=True
     except FriendshipInvitation.DoesNotExist:
         messages.add_message(request, messages.ERROR,"It appears you did not receive an invitation from %s" % (friend.first_name or friend.username))
