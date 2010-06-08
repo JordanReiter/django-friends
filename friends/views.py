@@ -190,7 +190,7 @@ def add_friend(request, friend, template_name='friends/add_friend.html', add_for
 def accept_invitation(request, key, template_name="friends/accept_invitation.html", failure_redirect='/', login_redirect=settings.LOGIN_REDIRECT_URL):
     try:
         joininvitation = JoinInvitation.objects.get(confirmation_key__iexact=key)
-        if request.user.is_authenticated:
+        if request.user.is_authenticated():
             messages.add_message(request, messages.WARNING, "It appears that you're already logged in. You have been redirected the profile page for %s." % (joininvitation.from_user.get_full_name() or joininvitation.from_user.username))
             redirect_to=reverse(settings.PROFILE_URL,args=[joininvitation.from_user.username])
             return {}, {'url': redirect_to }
