@@ -304,21 +304,21 @@ def remove_friend(request,friend,template_name='confirm.html',redirect_to='edit_
 
     # confirm that the user can remove this person as a friend
     if not friend_profile.is_friend(request.user.get_profile()):
-        messages.add_message(request, messages.ERROR,"%s is not one of your friends" % friend_profile.user.username)
+        messages.add_message(request, messages.ERROR,"%s is not one of your contacts" % friend_profile.user.username)
         return {'success':False}, {'url':redirect_to }
 
     #if the method is GET, show a form to avoid csrf
     if request.method == 'GET':
-        action_display = "remove %s as a friend." % friend_profile.user.get_full_name() 
-        yes_display = "Yes, remove as friend"
-        no_display = "No, keep %s as a friend" % friend_profile.user.get_full_name()
+        action_display = "remove %s as a contact." % friend_profile.user.get_full_name() 
+        yes_display = "Yes, remove as contact"
+        no_display = "No, keep %s as a contact" % friend_profile.user.get_full_name()
         return locals(), template_name
     elif request.POST.get('confirm_action')=='no':
         messages.add_message(request, messages.INFO,"You canceled the action.")
         return {'success':True}, {'url':redirect_to }
 
     Friendship.objects.remove(request.user, friend)
-    messages.add_message(request, messages.SUCCESS,"You have removed %s from your friends." % (friend_profile.user.get_full_name()))
+    messages.add_message(request, messages.SUCCESS,"You have removed %s from your contacts." % (friend_profile.user.get_full_name()))
     return {}, {'url':redirect_to }
 
 
@@ -438,7 +438,7 @@ def edit_contact(request, contact_id=None, redirect_to='edit_contacts', form_cla
 def edit_friend(request, friend=None, redirect_to='edit_friends', form_class=FriendshipForm, template_name="friends/edit_contact.html"):
     friend, _ = get_user_profile(friend)
     if not Friendship.objects.are_friends(friend, request.user):
-        messages.add_message(request, messages.ERROR,"You are not friends with %s." % (friend.get_full_name() or friend.username))
+        messages.add_message(request, messages.ERROR,"%s is not one of your contacts." % (friend.get_full_name() or friend.username))
         return {}, {'url':redirect_to }
     contact, _ = Contact.objects.get_or_create(owner=request.user, email=friend.email)
     contact.user = friend
@@ -479,7 +479,7 @@ def edit_friends(request, friend=None, redirect_to='edit_friends', form_class=Fr
         if Friendship.objects.are_friends(friend, request.user):
             friendship, _ = Friendship.objects.get_or_create(from_user=request.user, to_user=friend)
         else:
-            messages.add_message(request, messages.ERROR,"You are not friends with %s." % (friend.get_full_name() or friend.username))
+            messages.add_message(request, messages.ERROR,"%s is not one of your contacts." % (friend.get_full_name() or friend.username))
             return {}, {'url':redirect_to }
         if request.method == 'POST':
             friend_form=form_class(request.POST, user=request.user, friend=friend, prefix=request.POST.get('prefix'))
