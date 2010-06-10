@@ -386,12 +386,14 @@ def import_google_contacts(request, redirect_to="invite_imported"):
         import gdata.service
         import gdata.gauth
         import gdata.contacts.client
+        import pickle
         cp_scope = gdata.service.lookup_scopes('cp')
         gd_client = gdata.contacts.client.ContactsClient(source='AACE-AcademicExperts-v1')
         if request.GET.has_key('oauth_token'):
             request_token = gdata.gauth.AuthorizeRequestToken(request.session['request_token'], request.build_absolute_uri())
             access_token = gd_client.GetAccessToken(request_token)
-            token_for_user = GoogleToken(user=request.user, token=access_token, token_secret=request.session['request_token'].token_secret).save()
+            access_token_string = pickle.dumps(access_token)
+            token_for_user = GoogleToken(user=request.user, token=access_token_string, token_secret=request.session['request_token'].token_secret).save()
         else:
             next = "http://%s%s" % (
                     Site.objects.get_current(),

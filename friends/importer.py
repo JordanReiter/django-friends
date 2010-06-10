@@ -266,17 +266,19 @@ def import_google(user):
     
     Returns a tuple of (number imported, total number of entries).
     """
-    token_info = user.googletokens.all()[0]
-    print "Token is %s:%s" % (token_info.token, token_info.token_secret)
     from gdata.contacts.service import ContactsService, ContactsQuery
     from gdata.auth import OAuthSignatureMethod
+    import pickle
+    token_info = user.googletokens.all()[0]
+    token = pickle.loads(token_info.token)
+    token_secret = token_info.token
     Contact.objects.filter(owner=user, type='G', user__isnull=True).delete()
     contacts_service = ContactsService(source='AACE-AcademicExperts-v1')
     contacts_service.deug=True
     contacts_service.SetOAuthInputParameters(OAuthSignatureMethod.HMAC_SHA1, 
             get_oauth_var('GOOGLE','OAUTH_CONSUMER_KEY'), 
             consumer_secret=get_oauth_var('GOOGLE','OAUTH_CONSUMER_SECRET'))
-    contacts_service.SetOAuthToken(gdata.auth.OAuthToken(key=token_info.token, secret=token_info.token_secret))
+    contacts_service.SetOAuthToken(gdata.auth.OAuthToken(key=token, secret=token_secret))
     print "Set the token"
     entries = []
     groups = {}
