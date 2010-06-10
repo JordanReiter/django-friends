@@ -267,6 +267,7 @@ def import_google(user):
     Returns a tuple of (number imported, total number of entries).
     """
     token_info = user.googletokens.all()[0]
+    print "Token is %s:%s" % (token_info.token, token_info.token_secret)
     from gdata.contacts.service import ContactsService, ContactsQuery
     from gdata.auth import OAuthSignatureMethod
     Contact.objects.filter(owner=user, type='G', user__isnull=True).delete()
@@ -275,10 +276,12 @@ def import_google(user):
             get_oauth_var('GOOGLE','OAUTH_CONSUMER_KEY'), 
             consumer_secret=get_oauth_var('GOOGLE','OAUTH_CONSUMER_SECRET'))
     contacts_service.SetOAuthToken(gdata.auth.OAuthToken(key=token_info.token, secret=token_info.token_secret))
+    print "Set the token"
     entries = []
     groups = {}
     result = ""
     query = ContactsQuery(feed='/m8/feeds/groups/default/full')
+    print "query is " % query
     feed = contacts_service.GetGroupsFeed(query.ToUri())
     SYS_GROUP_REGEX=r"\s*system group:\s*"
     for entry in feed.entry:
