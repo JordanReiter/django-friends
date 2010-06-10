@@ -40,6 +40,10 @@ class GoogleToken(models.Model):
     user = models.ForeignKey(User, related_name='googletokens')
     token = models.TextField()
     token_secret = models.CharField(max_length=100)
+    
+    def get_token(self):
+        import pickle
+        return pickle.loads(str(self.token))
 
 class ContactManager(models.Manager):
     """
