@@ -272,6 +272,7 @@ def import_google(user):
     from gdata.auth import OAuthSignatureMethod
     Contact.objects.filter(owner=user, type='G', user__isnull=True).delete()
     contacts_service = ContactsService(source='AACE-AcademicExperts-v1')
+    contacts_service.deug=True
     contacts_service.SetOAuthInputParameters(OAuthSignatureMethod.HMAC_SHA1, 
             get_oauth_var('GOOGLE','OAUTH_CONSUMER_KEY'), 
             consumer_secret=get_oauth_var('GOOGLE','OAUTH_CONSUMER_SECRET'))
