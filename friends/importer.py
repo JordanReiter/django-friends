@@ -268,10 +268,10 @@ def import_google(user):
     """
     token_info = user.googletokens.all()[0]
     from gdata.contacts.service import ContactsService, ContactsQuery
-    from gdata.auth.OAuthSignatureMethod import HMAC_SHA1
+    from gdata.auth import OAuthSignatureMethod
     Contact.objects.filter(owner=user, type='G', user__isnull=True).delete()
     contacts_service = ContactsService(source='AACE-AcademicExperts-v1')
-    contacts_service.SetOAuthInputParameters(HMAC_SHA1, 
+    contacts_service.SetOAuthInputParameters(OAuthSignatureMethod.HMAC_SHA1, 
             get_oauth_var('GOOGLE','OAUTH_CONSUMER_KEY'), 
             consumer_secret=get_oauth_var('GOOGLE','OAUTH_CONSUMER_SECRET'))
     contacts_service.SetOAuthToken(gdata.auth.OAuthToken(key=token_info.token, secret=token_info.token_secret))
