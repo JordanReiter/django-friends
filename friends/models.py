@@ -38,7 +38,7 @@ except ImportError:
 
 class GoogleToken(models.Model):
     user = models.ForeignKey(User, related_name='googletokens')
-    token = models.CharField(max_length=100)
+    token = models.TextField()
     token_secret = models.CharField(max_length=100)
 
 class ContactManager(models.Manager):
