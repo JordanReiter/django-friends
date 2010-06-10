@@ -402,7 +402,7 @@ def import_google_contacts(request, redirect_to="invite_imported"):
                     reverse('import_google_contacts') 
             )
             request_token = gd_client.GetOAuthToken(
-                cp_scope, 
+                list(cp_scope), 
                 next,
                 get_oauth_var('GOOGLE','OAUTH_CONSUMER_KEY'),
                 consumer_secret=get_oauth_var('GOOGLE','OAUTH_CONSUMER_SECRET')
