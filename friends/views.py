@@ -402,8 +402,7 @@ def import_google_contacts(request, redirect_to="invite_imported"):
                 cp_scope, 
                 next,
                 get_oauth_var('GOOGLE','OAUTH_CONSUMER_KEY'),
-                consumer_secret=get_oauth_var('GOOGLE','OAUTH_CONSUMER_SECRET'),
-                rsa_key=open(settings.PRIVATE_KEY,'r').read()
+                consumer_secret=get_oauth_var('GOOGLE','OAUTH_CONSUMER_SECRET')
             )
             #store the token's secret in a session variable
             request.session['request_token'] = request_token
