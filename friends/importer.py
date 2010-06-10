@@ -268,9 +268,8 @@ def import_google(user):
     """
     from gdata.contacts.service import ContactsService, ContactsQuery
     from gdata.auth import OAuthSignatureMethod
-    import pickle
     token_info = user.googletokens.all()[0]
-    token = pickle.loads(token_info.token)
+    token = token_info.get_token()
     token_secret = token_info.token
     Contact.objects.filter(owner=user, type='G', user__isnull=True).delete()
     contacts_service = ContactsService(source='AACE-AcademicExperts-v1')
