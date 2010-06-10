@@ -258,7 +258,7 @@ def import_yahoo(bbauth_token, user):
     return imported, total
 
 
-def import_google(oauth_token, user):
+def import_google(user):
     """
     Uses the given AuthSub token to retrieve Google Contacts and
     import the entries with an email address into the contacts of the
@@ -266,20 +266,19 @@ def import_google(oauth_token, user):
     
     Returns a tuple of (number imported, total number of entries).
     """
+    token_info = user.googletokens.all()[0]
+    from gdata.contacts.service import ContactsService, ContactsQuery
+    from gdata.auth.OAuthSignatureMethod import HMAC_SHA1
     Contact.objects.filter(owner=user, type='G', user__isnull=True).delete()
-    contacts_service = gdata.contacts.service.ContactsService(additional_headers={"GData-Version":"2"})
-    contacts_service.SetOAuthInputParameters(
-        gdata.auth.OAuthSignatureMethod.RSA_SHA1,
-        get_oauth_var('GOOGLE','OAUTH_CONSUMER_KEY'),
-        consumer_secret=get_oauth_var('GOOGLE','OAUTH_CONSUMER_SECRET'),
-        rsa_key=open(settings.PRIVATE_KEY,'r').read()
-    )
-    oauth_token.oauth_input_params = contacts_service._oauth_input_params
-    contacts_service.SetOAuthToken(oauth_token)
+    contacts_service = ContactsService(source='AACE-AcademicExperts-v1')
+    contacts_service.SetOAuthInputParameters(HMAC_SHA1, 
+            get_oauth_var('GOOGLE','OAUTH_CONSUMER_KEY'), 
+            consumer_secret=get_oauth_var('GOOGLE','OAUTH_CONSUMER_SECRET'))
+    contacts_service.SetOAuthToken(gdata.auth.OAuthToken(key=token_info.token, secret=token_info.token_secret))
     entries = []
     groups = {}
     result = ""
-    query = gdata.service.Query(feed='/m8/feeds/groups/default/full')
+    query = ContactsQuery(feed='/m8/feeds/groups/default/full')
     feed = contacts_service.GetGroupsFeed(query.ToUri())
     SYS_GROUP_REGEX=r"\s*system group:\s*"
     for entry in feed.entry:
@@ -289,7 +288,7 @@ def import_google(oauth_token, user):
 #        result += "\n Looking at %s" % g
         if groups.has_key(g.lower()):
 #            result += "\n Found %s" % g
-            query = gdata.contacts.service.ContactsQuery()
+            query = ContactsQuery()
             query.group=groups[g.lower()]
             feed = contacts_service.GetContactsFeed(query.ToUri())
             entries.extend(feed.entry)

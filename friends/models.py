@@ -36,6 +36,11 @@ except ImportError:
             kwargs.setdefault('max_length', 50) 
             super(models.CharField, self).__init__(*args, **kwargs) 
 
+class GoogleToken(models.Model):
+    user = models.ForeignKey(User, related_name='googletokens')
+    token = models.CharField(max_length=100)
+    token_secret = models.CharField(max_length=100)
+
 class ContactManager(models.Manager):
     """
     Deleted records are now hidden most of the time

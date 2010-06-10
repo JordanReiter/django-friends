@@ -41,7 +41,7 @@ else:
     notification = None
 
 # Locals (used only in Friends)
-from friends.models import Contact, Friendship, FriendshipInvitation, JoinInvitation, FriendSuggestion, IMPORTED_TYPES                                            
+from friends.models import GoogleToken, Contact, Friendship, FriendshipInvitation, JoinInvitation, FriendSuggestion, IMPORTED_TYPES                                            
 from friends.forms import MultipleInviteForm, InviteFriendForm, ImportContactForm, ContactForm, FriendshipForm
 from friends.exporter import export_vcards
 from friends.importer import import_vcards, import_outlook, import_google
@@ -373,52 +373,47 @@ def import_file_contacts(request, form_class=ImportContactForm, template_name='f
     return locals(), template_name
 
 @render_to()
+@login_required
 def import_google_contacts(request, redirect_to="invite_imported"):
     redirect_to=request.REQUEST.get(REDIRECT_FIELD_NAME, redirect_to)
     if redirect_to and '/' not in redirect_to:
         redirect_to=reverse(redirect_to)
 
-    from importer import get_oauth_var
-    import gdata.service
-    import gdata.auth
-    import gdata.base.service
-    gd_client = gdata.base.service.GBaseService()
-    gd_client.SetOAuthInputParameters(
-        gdata.auth.OAuthSignatureMethod.RSA_SHA1,
-        get_oauth_var('GOOGLE','OAUTH_CONSUMER_KEY'),
-        consumer_secret=get_oauth_var('GOOGLE','OAUTH_CONSUMER_SECRET'),
-        rsa_key=open(settings.PRIVATE_KEY,'r').read()
-    )
-    cp_scope = gdata.service.lookup_scopes('cp')
-    if request.GET.has_key('oauth_token'):
-        # swiped from http://github.com/mihasya/gdata_sample
-        #create a request token object from the URL (converts the query param into a token object)
-        request_token = gdata.auth.OAuthTokenFromUrl(url=request.build_absolute_uri())
-        #set the secret to what we saved above, before we went to Google
-        request_token.secret = request.session['token_secret']
-        #set the scope again
-        request_token.scopes = cp_scope;
-        #upgrade our request token to an access token (where the money at)
-        authorized_token=gd_client.UpgradeToOAuthAccessToken(authorized_request_token=request_token)
-        imported, total = import_google(authorized_token, request.user)
+    
+    try:
+        token_for_user = GoogleToken.objects.get(user=request.user)
+    except:
+        from importer import get_oauth_var
+        import gdata.service
+        import gdata.gauth
+        import gdata.contacts.client
+        cp_scope = gdata.service.lookup_scopes('cp')
+        gd_client = gdata.contacts.client.ContactsClient(source='AACE-AcademicExperts-v1')
+        if request.GET.has_key('oauth_token'):
+            request_token = gdata.gauth.AuthorizeRequestToken(request.session['request_token'], request.build_absolute_uri())
+            access_token = gd_client.GetAccessToken(request_token)
+            token_for_user = GoogleToken(user=request.user, token=access_token, token_secret=request.session['request_token'].token_secret).save()
+        else:
+            next = "http://%s%s" % (
+                    Site.objects.get_current(),
+                    reverse('import_google_contacts') 
+            )
+            request_token = gd_client.GetOAuthToken(
+                cp_scope, 
+                next,
+                get_oauth_var('GOOGLE','OAUTH_CONSUMER_KEY'),
+                consumer_secret=get_oauth_var('GOOGLE','OAUTH_CONSUMER_SECRET'),
+                rsa_key=open(settings.PRIVATE_KEY,'r').read()
+            )
+            #store the token's secret in a session variable
+            request.session['request_token'] = request_token
+            url = request_token.generate_authorization_url()
+            return HttpResponseRedirect(url)
+
+    if token_for_user:
+        imported, total = import_google(request.user)
         messages.add_message(request, messages.SUCCESS,'A total of %d emails imported.' % imported)
         return {'imported':imported, 'total':total}, {'url': redirect_to} 
-    else:
-        #create a request token with the contacts api scope
-        request_token = gd_client.FetchOAuthRequestToken(
-            scopes=cp_scope
-        )
-        #store the token's secret in a session variable
-        request.session['token_secret'] = request_token.secret
-        
-        #get an authorization URL for our token from gdata
-        gd_client.SetOAuthToken(request_token)
-        next = "http://%s%s" % (
-                Site.objects.get_current(),
-                reverse('import_google_contacts') 
-        )
-        url = '%s&oauth_callback=%s' % (gd_client.GenerateOAuthAuthorizationURL(), next)
-        return HttpResponseRedirect(url)
 
 
 @render_to()
