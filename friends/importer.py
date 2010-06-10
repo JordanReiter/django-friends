@@ -24,6 +24,13 @@ from friends.models import Contact
 
 EMAIL_REGEX = r"^.*?\b([A-Z0-9._%%+-]+@[A-Z0-9.-]+\.([A-Z]{2,4}|museum))\b.*$"
 
+def get_oauth_var(service, variable_key, settings=settings.OAUTH_SETTINGS):
+    """ Helper to return OAuth variables from settings file """
+    try:
+        return settings[service.upper()][variable_key.upper()]
+    except KeyError:
+        return None
+
 def import_outlook(stream, user):
     import csv, tempfile
     """
@@ -251,7 +258,7 @@ def import_yahoo(bbauth_token, user):
     return imported, total
 
 
-def import_google(authsub_token, user):
+def import_google(oauth_token, user):
     """
     Uses the given AuthSub token to retrieve Google Contacts and
     import the entries with an email address into the contacts of the
@@ -261,8 +268,14 @@ def import_google(authsub_token, user):
     """
     Contact.objects.filter(owner=user, type='G', user__isnull=True).delete()
     contacts_service = gdata.contacts.service.ContactsService(additional_headers={"GData-Version":"2"})
-    contacts_service.SetAuthSubToken(authsub_token)
-    contacts_service.UpgradeToSessionToken()
+    contacts_service.SetOAuthInputParameters(
+        gdata.auth.OAuthSignatureMethod.RSA_SHA1,
+        get_oauth_var('GOOGLE','OAUTH_CONSUMER_KEY'),
+        consumer_secret=get_oauth_var('GOOGLE','OAUTH_CONSUMER_SECRET'),
+        rsa_key=open(settings.PRIVATE_KEY,'r').read()
+    )
+    oauth_token.oauth_input_params = contacts_service._oauth_input_params
+    contacts_service.SetOAuthToken(oauth_token)
     entries = []
     groups = {}
     result = ""
