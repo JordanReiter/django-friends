@@ -372,7 +372,6 @@ def import_file_contacts(request, form_class=ImportContactForm, template_name='f
         contacts_file_form=form_class()
     return locals(), template_name
 
-@render_to()
 @login_required
 def import_google_contacts(request, redirect_to="invite_imported"):
     redirect_to=request.REQUEST.get(REDIRECT_FIELD_NAME, redirect_to)
