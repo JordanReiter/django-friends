@@ -378,22 +378,46 @@ def import_google_contacts(request, redirect_to="invite_imported"):
     if redirect_to and '/' not in redirect_to:
         redirect_to=reverse(redirect_to)
 
-    import gdata.contacts.service
+    from importer import get_oauth_var
+    import gdata.service
     import gdata.auth
-    AUTH_SCOPE = "http://www.google.com/m8/feeds"
-    contacts_service = gdata.contacts.service.ContactsService()
-    if request.GET.has_key('token'):
-        rsa_key = open(settings.PRIVATE_KEY,'r').read()
-        token = gdata.auth.extract_auth_sub_token_from_url(request.get_full_path(),rsa_key=rsa_key)
-        imported, total = import_google(token, request.user)
+    import gdata.base.service
+    gd_client = gdata.base.service.GBaseService()
+    gd_client.SetOAuthInputParameters(
+        gdata.auth.OAuthSignatureMethod.RSA_SHA1,
+        get_oauth_var('GOOGLE','OAUTH_CONSUMER_KEY'),
+        consumer_secret=get_oauth_var('GOOGLE','OAUTH_CONSUMER_SECRET'),
+        rsa_key=open(settings.PRIVATE_KEY,'r').read()
+    )
+    cp_scope = gdata.service.lookup_scopes('cp')
+    if request.GET.has_key('oauth_token'):
+        # swiped from http://github.com/mihasya/gdata_sample
+        #create a request token object from the URL (converts the query param into a token object)
+        request_token = gdata.auth.OAuthTokenFromUrl(url=request.build_absolute_uri())
+        #set the secret to what we saved above, before we went to Google
+        request_token.secret = request.session['token_secret']
+        #set the scope again
+        request_token.scopes = cp_scope;
+        #upgrade our request token to an access token (where the money at)
+        authorized_token=gd_client.UpgradeToOAuthAccessToken(authorized_request_token=request_token)
+        imported, total = import_google(authorized_token, request.user)
         messages.add_message(request, messages.SUCCESS,'A total of %d emails imported.' % imported)
         return {'imported':imported, 'total':total}, {'url': redirect_to} 
     else:
+        #create a request token with the contacts api scope
+        request_token = gd_client.FetchOAuthRequestToken(
+            scopes=cp_scope
+        )
+        #store the token's secret in a session variable
+        request.session['token_secret'] = request_token.secret
+        
+        #get an authorization URL for our token from gdata
+        gd_client.SetOAuthToken(request_token)
         next = "http://%s%s" % (
                 Site.objects.get_current(),
                 reverse('import_google_contacts') 
         )
-        url = contacts_service.GenerateAuthSubURL(next, AUTH_SCOPE, False, 1)
+        url = '%s&oauth_callback=%s' % (gd_client.GenerateOAuthAuthorizationURL(), next)
         return HttpResponseRedirect(url)
 
 
