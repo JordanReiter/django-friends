@@ -143,7 +143,13 @@ class Contact(models.Model):
             return self.email
     
     def __unicode__(self):
-        return "%s (%s's contact)" % (self.email, self.owner)
+        if self.name:
+            label = "%s <%s>" % (self.name, self.email)
+        elif self.first_name or self.last_name:
+            label = "%s %s <%s>" % (self.first_name, self.last_name, self.email)
+        else:
+            label = self.email
+        return "%s (%s's contact)" % (label.strip(), self.owner)
     
     class Meta:
         unique_together = (('owner','email'))
