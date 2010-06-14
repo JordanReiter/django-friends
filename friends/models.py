@@ -27,6 +27,17 @@ if "emailconfirmation" in settings.INSTALLED_APPS:
     from emailconfirmation.models import EmailAddress
 else:
     EmailAddress = None
+
+
+__all__ = [
+    "GoogleToken", 
+    "IMPORTED_TYPES", "CONTACT_TYPES", "Contact", 
+    "SUGGEST_BECAUSE_INVITE", "SUGGEST_BECAUSE_COWORKER", 
+    "SUGGEST_BECAUSE_COAUTHOR", "SUGGEST_BECAUSE_FRIENDOFFRIEND", 
+    "SUGGEST_BECAUSE_NEIGHBOR", "SUGGEST_WHY_CHOICES",
+    "FriendSuggestion", "Friendship", "INVITE_STATUS", "JoinInvitation",
+    "FriendshipInvitation", "FriendshipInvitationHistory", "delete_friendship", "friendship_invitation"
+]
     
 try:
     from django_countries import CountryField

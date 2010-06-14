@@ -1,8 +1,7 @@
 # Rendering & Requests
 from django.core.urlresolvers import reverse
 from django.http import Http404, HttpResponse, HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render_to_response
-from django.template import RequestContext, TemplateDoesNotExist
+from django.shortcuts import get_object_or_404
 from django.contrib import messages
 from django_rendering.decorators import render_to
 
@@ -10,18 +9,9 @@ from django_rendering.decorators import render_to
 from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
-import multi_oauth.oauth as oauth
-import multi_oauth.utils as oauth_utils
-
-# Queries, Results & Searching
-from django.core.paginator import InvalidPage, Paginator
-from django.db.models import Avg, Count, Max, Min, Q
-from haystack.query import EmptySearchQuerySet, SearchQuerySet
 
 # Forms
 from django.views.decorators.csrf import csrf_protect
-from django.forms.formsets import formset_factory
-from django.forms.models import modelformset_factory
 
 # Settings
 from django.conf import settings
@@ -29,10 +19,6 @@ from django.contrib.sites.models import Site
 
 # Utils
 import re, datetime
-try:
-    import json #Works with Python 2.6
-except ImportError:
-    from django.utils import simplejson as json
 
 # Messaging
 if "notification" in settings.INSTALLED_APPS:
@@ -41,12 +27,12 @@ else:
     notification = None
 
 # Locals (used only in Friends)
-from friends.models import GoogleToken, Contact, Friendship, FriendshipInvitation, JoinInvitation, FriendSuggestion, IMPORTED_TYPES                                            
+from friends.models import *
 from friends.forms import MultipleInviteForm, InviteFriendForm, ImportContactForm, ContactForm, FriendshipForm
 from friends.exporter import export_vcards
 from friends.importer import import_vcards, import_outlook, import_google
 from friends.signals import invite
-from friends.utils import shared_friends, friends_of_friends
+from friends.utils import shared_friends
 
 
 def get_user_profile(user):
@@ -171,7 +157,7 @@ def add_friend(request, friend, template_name='friends/add_friend.html', add_for
         messages.add_message(request, messages.ERROR,"You're not allowed to add %s as a contact." % (friend.get_full_name() or friend.username))
         if not redirect_to:
             redirect_to = reverse(settings.PROFILE_URL,args=[friend.username])
-        return {'success':False}, {'url': redirect}
+        return {'success':False}, {'url': redirect_to}
 
     if request.method == 'POST':
         add_friend_form = add_form(request.POST,user=request.user,friend=friend,prefix="friend")
@@ -557,3 +543,7 @@ def invitations_sent(request, template_name="friends/invitations_sent.html"):
 def requests_received(request, template_name="friends/requests_received.html"):
     requests_received = FriendshipInvitation.objects.invitations(to_user=request.user)
     return locals(), template_name
+
+
+
+

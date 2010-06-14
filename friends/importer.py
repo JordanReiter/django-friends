@@ -5,11 +5,6 @@ import re
 from collections import defaultdict
 
 try:
-    import gdata.contacts.service
-except ImportError:
-    pass
-
-try:
     import vobject
 except ImportError:
     pass
@@ -269,7 +264,7 @@ def import_google(user):
     from gdata.contacts.service import ContactsService, ContactsQuery
     from gdata.auth import OAuthSignatureMethod
     token_info = user.googletokens.all()[0]
-    token = token_info.get_token()
+    tk = token_info.get_token()
     token_secret = token_info.token
     Contact.objects.filter(owner=user, type='G', user__isnull=True).delete()
     contacts_service = ContactsService(source='AACE-AcademicExperts-v1')
@@ -277,7 +272,7 @@ def import_google(user):
     contacts_service.SetOAuthInputParameters(OAuthSignatureMethod.HMAC_SHA1, 
             get_oauth_var('GOOGLE','OAUTH_CONSUMER_KEY'), 
             consumer_secret=get_oauth_var('GOOGLE','OAUTH_CONSUMER_SECRET'))
-    contacts_service.SetOAuthToken(gdata.auth.OAuthToken(key=token, secret=token_secret))
+    contacts_service.SetOAuthToken(gdata.auth.OAuthToken(key=tk.token, secret=tk.token_secret))
     print "Set the token"
     entries = []
     groups = {}

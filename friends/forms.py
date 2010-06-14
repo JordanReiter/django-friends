@@ -289,4 +289,4 @@ class ContactForm(forms.ModelForm):
         
 
 class ImportContactForm(forms.Form):
-      contacts_file = forms.FileField(help_text="Upload a contacts file here. Current supported formats are vCard and Outlook.")
+    contacts_file = forms.FileField(help_text="Upload a contacts file here. Current supported formats are vCard and Outlook.")
