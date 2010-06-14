@@ -1,4 +1,4 @@
-import datetime
+import datetime, re
 
 from random import random
 
@@ -122,6 +122,13 @@ class Contact(models.Model):
     user = models.ForeignKey(User, null=True, blank=True, editable=False)
     
     objects = ContactManager()
+    
+    def save(self):
+        if self.email and not self.name and not (self.first_name or self.last_name):
+            ns = self.email.split('@')[0]
+            words = ' '.join(re.split(r'\W+',ns)).capitalize
+            self.name = words
+            self.save()
     
     def get_label(self):
         if self.user and self.user.get_full_name():
