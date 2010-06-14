@@ -126,7 +126,7 @@ class Contact(models.Model):
     def save(self, *args, **kwargs):
         if self.email and not self.name and not (self.first_name or self.last_name):
             ns = self.email.split('@')[0]
-            self.name = ' '.join(re.split(r'\W+',ns)).capitalize()
+            self.name = ' '.join(re.split(r'\W+',ns)).title()
         super(Contact,self).save(*args, **kwargs)
         return self
     
