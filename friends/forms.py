@@ -118,8 +118,15 @@ class InviteFriendForm(forms.Form):
         self.user.message_set.create(message="Friendship requested with %s" % to_user.username) # @@@ make link like notification
         return invitation
 
+class MultiEmailWidget(forms.Textarea):
+    def value_from_datadict(self, data, files, name):
+        from django.utils.datastructures import MultiValueDict, MergeDict
+        if isinstance(data, (MultiValueDict, MergeDict)):
+            return ",".join(data.getlist(name))
+        return data.get(name, None)
+
 class MultiEmailField(forms.CharField):
-    widget = forms.Textarea(attrs={ 'rows':5, 'cols':50})
+    widget = MultiEmailWidget(attrs={ 'rows':5, 'cols':50})
     
     def to_python(self, value):
         "Normalize data to a list of strings."
