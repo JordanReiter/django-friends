@@ -298,19 +298,20 @@ def import_google(user):
 #    raise Exception(result)
     for entry in entries:
         total += 1
-        contact_vals={}
-        contact_vals['name'] = entry.title.text
-        for e in entry.email:
-            if e.primary:
-                contact_vals['email'] = e.address
-                break
-            elif not contact_vals.has_key('email'):
-                contact_vals['email'] = e.address
-        if contact_vals['email'] not in imported_emails:
-            imported_emails.append(contact_vals['email'])
-            contact, created = create_contact_from_values(owner=user, type='G', **contact_vals)
-            if created:
-                imported += 1
+        if entry.has_key('email'): # only import records with e-mail addresses! 
+            contact_vals={}
+            contact_vals['name'] = entry.title.text
+            for e in entry.email:
+                if e.primary:
+                    contact_vals['email'] = e.address
+                    break
+                elif not contact_vals.has_key('email'):
+                    contact_vals['email'] = e.address
+            if contact_vals['email'] not in imported_emails:
+                imported_emails.append(contact_vals['email'])
+                contact, created = create_contact_from_values(owner=user, type='G', **contact_vals)
+                if created:
+                    imported += 1
     return imported, total
 
 def create_contact_from_values(owner=None, type=None, **values):
