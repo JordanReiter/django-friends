@@ -261,11 +261,11 @@ def import_google(user):
     
     Returns a tuple of (number imported, total number of entries).
     """
+    import sys
     from gdata.contacts.service import ContactsService, ContactsQuery
     from gdata.auth import OAuthSignatureMethod, OAuthToken
     token_info = user.googletokens.all()[0]
     tk = token_info.get_token()
-    token_secret = token_info.token
     Contact.objects.filter(owner=user, type='G', user__isnull=True).delete()
     contacts_service = ContactsService(source='AACE-AcademicExperts-v1')
     contacts_service.deug=True
@@ -273,12 +273,12 @@ def import_google(user):
             get_oauth_var('GOOGLE','OAUTH_CONSUMER_KEY'), 
             consumer_secret=get_oauth_var('GOOGLE','OAUTH_CONSUMER_SECRET'))
     contacts_service.SetOAuthToken(OAuthToken(key=tk.token, secret=tk.token_secret))
-    print "Set the token"
+    sys.stderr.write("Set the token")
     entries = []
     groups = {}
     result = ""
     query = ContactsQuery(feed='/m8/feeds/groups/default/full')
-    print "query is " % query
+    sys.stderr.write("query is " % query)
     feed = contacts_service.GetGroupsFeed(query.ToUri())
     SYS_GROUP_REGEX=r"\s*system group:\s*"
     for entry in feed.entry:
