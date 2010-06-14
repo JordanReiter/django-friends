@@ -129,6 +129,7 @@ class Contact(models.Model):
             words = ' '.join(re.split(r'\W+',ns)).capitalize
             self.name = words
             self.save()
+        return self
     
     def get_label(self):
         if self.user and self.user.get_full_name():
