@@ -99,6 +99,7 @@ def friend_lookup(request):
 @csrf_protect
 @login_required
 def invite_users(request,output_prefix="invite", redirect_to='edit_friends', form_class=MultipleInviteForm, template_name='friends/invite.html'):
+    return HttpResponse("%s" % request.POST.items())
     redirect_to=request.REQUEST.get(REDIRECT_FIELD_NAME, redirect_to)
     if redirect_to and '/' not in redirect_to:
         redirect_to=reverse(redirect_to)
