@@ -308,7 +308,7 @@ def import_google(user):
                 contact_vals['email'] = e.address
         if contact_vals.has_key('email') and contact_vals['email'] not in imported_emails:
             imported_emails.append(contact_vals['email'])
-            contact, created = create_contact_from_values(owner=user, type='G', **contact_vals)
+            _, created = create_contact_from_values(owner=user, type='G', **contact_vals)
             if created:
                 imported += 1
     return imported, total
