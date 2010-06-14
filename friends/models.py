@@ -124,13 +124,13 @@ class Contact(models.Model):
     objects = ContactManager()
     
     def save(self, *args, **kwargs):
-        m = super(Contact,self).save(*args, **kwargs)
-        if m.email and not m.name and not (m.first_name or m.last_name):
-            ns = m.email.split('@')[0]
+        super(Contact,self).save(*args, **kwargs)
+        if self.email and not self.name and not (self.first_name or self.last_name):
+            ns = self.email.split('@')[0]
             words = ' '.join(re.split(r'\W+',ns)).capitalize
-            m.name = words
-        m.save()
-        return m
+            self.name = words
+        self.save()
+        return self
     
     def get_label(self):
         if self.user and self.user.get_full_name():
