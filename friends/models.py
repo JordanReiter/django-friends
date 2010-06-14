@@ -128,7 +128,7 @@ class Contact(models.Model):
             ns = self.email.split('@')[0]
             words = ' '.join(re.split(r'\W+',ns)).capitalize
             self.name = words
-            self.save()
+        self.save()
         return self
     
     def get_label(self):
