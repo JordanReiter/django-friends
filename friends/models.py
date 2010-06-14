@@ -127,6 +127,8 @@ class Contact(models.Model):
         if self.email and not self.name and not (self.first_name or self.last_name):
             ns = self.email.split('@')[0]
             self.name = ' '.join(re.split(r'\W+',ns)).title()
+        if not self.name and (self.first_name or self.last_name):
+            self.name = ("%s %s" % (self.first_name, self.last_name)).strip()
         super(Contact,self).save(*args, **kwargs)
         return self
     
