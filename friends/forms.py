@@ -253,6 +253,7 @@ class ContactForm(forms.ModelForm):
         self.contact=kwargs.get('instance',None)
         self.user=kwargs.pop('user',None)
         super(ContactForm, self).__init__(*args, **kwargs)
+        self.is_friend = False
         if self.contact and self.contact.user:
             try:
                 self.is_friend = Friendship.objects.are_friends(self.contact.user, self.user)
