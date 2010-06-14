@@ -262,15 +262,14 @@ def import_google(user):
     Returns a tuple of (number imported, total number of entries).
     """
     from gdata.contacts.service import ContactsService, ContactsQuery
-    from gdata.auth import OAuthSignatureMethod
+    from gdata.auth import OAuthSignatureMethod, OAuthToken
     token_info = user.googletokens.all()[0]
     token = token_info.get_token()
     contacts_service = ContactsService()
     contacts_service.SetOAuthInputParameters(OAuthSignatureMethod.HMAC_SHA1, 
             get_oauth_var('GOOGLE','OAUTH_CONSUMER_KEY'), 
             consumer_secret=get_oauth_var('GOOGLE','OAUTH_CONSUMER_SECRET'))
-    token.oauth_input_params = contacts_service._oauth_input_params
-    contacts_service.SetOAuthToken(token)
+    contacts_service.SetOAuthToken(OAuthToken(key=token.token, secret=token.token_secret, oauth_input_params=contacts_service._oauth_input_params))
     entries = []
     groups = {}
     result = ""
