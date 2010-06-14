@@ -265,7 +265,7 @@ def import_google(user):
     from gdata.auth import OAuthSignatureMethod, OAuthToken
     token_info = user.googletokens.all()[0]
     token = token_info.get_token()
-    contacts_service = ContactsService()
+    contacts_service = ContactsService(additional_headers={"GData-Version":"2"})
     contacts_service.SetOAuthInputParameters(OAuthSignatureMethod.HMAC_SHA1, 
             get_oauth_var('GOOGLE','OAUTH_CONSUMER_KEY'), 
             consumer_secret=get_oauth_var('GOOGLE','OAUTH_CONSUMER_SECRET'))
