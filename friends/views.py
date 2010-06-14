@@ -407,11 +407,12 @@ def import_google_contacts(request, redirect_to="invite_imported"):
 @render_to()
 def invite_imported(request, type=None):
     type = request.REQUEST.get('type', type)
-    imported_contacts = Contact.objects.filter(owner=request.user).select_related("user__username","user__expert_profile__code").order_by('name','email')
+    imported_contacts = Contact.objects.filter(owner=request.user).select_related("user__username","user__expert_profile__code")
     if type:
         imported_contacts = imported_contacts.filter(type__iexact=type)
     else:
         imported_contacts = imported_contacts.filter(type__in=[t[0] for t in IMPORTED_TYPES])
+    imported_contacts = imported_contacts.order_by('name','email')
     return {'contacts':imported_contacts }, 'friends/invite_imported.html'
 
 
