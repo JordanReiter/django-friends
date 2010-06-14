@@ -126,7 +126,7 @@ class MultiEmailWidget(forms.Textarea):
         return data.get(name, None)
 
 class MultiEmailField(forms.CharField):
-    widget = MultiEmailWidget(attrs={ 'rows':5, 'cols':50})
+    widget = MultiEmailWidget
     
     def to_python(self, value):
         "Normalize data to a list of strings."
