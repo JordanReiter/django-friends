@@ -178,6 +178,7 @@ def import_outlook(stream, user):
             if not contact_vals.get('Name',None):
                 contact_vals['name']=("%s %s" % (contact_vals.get('first_name',''), contact_vals.get('last_name',''))).strip()
             if contact_vals.has_key('email') and re.match(EMAIL_REGEX_MATCH,contact_vals['email'], re.IGNORECASE):
+                print "Creating contact record with these values: %s" % contact_vals.items()
                 _, created = create_contact_from_values(owner=user, type='O', **contact_vals)
                 total += 1
                 if created:
