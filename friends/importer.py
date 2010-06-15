@@ -126,7 +126,7 @@ def import_outlook(stream, user):
             contact_vals = {}
             for col, col_indices in field_indices.items():
                 for col_index in col_indices:
-                    print "Now looking at column %d in %s" (col_index, line)
+                    print "Now looking at column %d in %s"  % (col_index, line)
                     if len(line[col_index].strip()):
                         if "street" in col:
                             if contact_vals.has_key(col):
