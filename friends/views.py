@@ -403,7 +403,13 @@ def import_google_contacts(request, redirect_to="invite_imported"):
 
     if token_for_user:
         imported, total = import_google(request.user)
-        messages.add_message(request, messages.SUCCESS,'A total of %d emails imported.' % imported)
+        if imported < total:
+            if imported:
+                messages.add_message(request, messages.SUCCESS,'A total of %d emails imported. %d records were already imported.' % (imported, total-imported))
+            else:
+                messages.add_message(request, messages.SUCCESS,'A total of %d emails were found, but they were already imported.' % (total))
+        else:
+            messages.add_message(request, messages.SUCCESS,'A total of %d emails imported vs %d.' % (imported,total))
         return {'imported':imported, 'total':total}, {'url': redirect_to} 
 
 
