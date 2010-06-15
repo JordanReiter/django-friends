@@ -318,7 +318,6 @@ def create_contact_from_values(owner=None, type=None, **values):
     created = False
     email = values.get('email')
     if not email:
-        raise Exception("No email!?!")
         return None, False
     try:
         contact = Contact.objects.get(owner=owner, email=email)
