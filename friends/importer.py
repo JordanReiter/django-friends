@@ -124,7 +124,7 @@ def import_outlook(stream, user):
     if not (field_indices.has_key('email') and len(field_indices['email']) >= 1):
         return 0, 0
     for line in lines:
-        if not re.search(EMAIL_REGEX,"".join(line)):
+        if not re.search(EMAIL_REGEX,"".join(line), re.IGNORECASE):
             print "No email in this line: %s" % line
             continue
         if len(line):
@@ -177,7 +177,7 @@ def import_outlook(stream, user):
                     contact_vals['address']=address
             if not contact_vals.get('Name',None):
                 contact_vals['name']=("%s %s" % (contact_vals.get('first_name',''), contact_vals.get('last_name',''))).strip()
-            if contact_vals.has_key('email') and re.match(EMAIL_REGEX,contact_vals['email']):
+            if contact_vals.has_key('email') and re.match(EMAIL_REGEX_MATCH,contact_vals['email'], re.IGNORECASE):
                 _, created = create_contact_from_values(owner=user, type='O', **contact_vals)
                 total += 1
                 if created:
