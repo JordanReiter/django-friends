@@ -172,6 +172,8 @@ def import_outlook(stream, user):
                 total += 1
                 if created:
                     imported += 1
+            else:
+                print "Not importing, the values we got for this line were %s" % contact_vals.items()
     return imported, total
             
 
