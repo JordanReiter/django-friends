@@ -236,7 +236,8 @@ def import_vcards(stream, user):
 
             contact, created = create_contact_from_values(owner=user, type='V', **contact_vals)
             if created:
-                total += 1
+                imported += 1
+            total += 1
         except AttributeError:
             pass # missing value so don't add anything
     return imported, total
