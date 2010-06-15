@@ -234,7 +234,7 @@ def import_vcards(stream, user):
             except:
                 pass
 
-            contact, created = create_contact_from_values(owner=user, type='V', **contact_vals)
+            _, created = create_contact_from_values(owner=user, type='V', **contact_vals)
             if created:
                 imported += 1
             total += 1
