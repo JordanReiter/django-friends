@@ -124,8 +124,8 @@ def import_outlook(stream, user):
     if not (field_indices.has_key('email') and len(field_indices['email']) >= 1):
         return 0, 0
     for line in lines:
-        if not re.search(EMAIL_REGEX,"".join(line), re.IGNORECASE):
-            print "No email in this line: %s" % line
+        if not re.search(EMAIL_REGEX," ".join(line), re.IGNORECASE):
+            print "No email in this line: %s" % " ".join(line)
             continue
         if len(line):
             total += 1
