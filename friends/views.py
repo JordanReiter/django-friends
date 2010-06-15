@@ -353,7 +353,7 @@ def import_file_contacts(request, form_class=ImportContactForm, template_name='f
                         else:
                             messages.add_message(request, messages.SUCCESS,'A total of %d emails were found, but they were already imported.' % (total))
                     else:
-                        messages.add_message(request, messages.SUCCESS,'A total of %d emails imported.' % imported)
+                        messages.add_message(request, messages.SUCCESS,'A total of %d emails imported vs %d.' % (imported,total))
                     return {'imported':imported, 'total':total}, {'url': redirect_to} 
                 else:
                     messages.add_message(request, messages.ERROR,'The file format you uploaded wasn\'t valid.')
