@@ -350,7 +350,8 @@ def import_file_contacts(request, form_class=ImportContactForm, template_name='f
                             messages.add_message(request, messages.SUCCESS,'A total of %d emails imported. %d records were already imported.' % (imported, total-imported))
                         else:
                             messages.add_message(request, messages.SUCCESS,'A total of %d emails were found, but they were already imported.' % (total))
-                    messages.add_message(request, messages.SUCCESS,'A total of %d emails imported.' % imported)
+                    else:
+                        messages.add_message(request, messages.SUCCESS,'A total of %d emails imported.' % imported)
                     return {'imported':imported, 'total':total}, {'url': redirect_to} 
                 elif format == 'OUTLOOK':
                     imported_type='O'
