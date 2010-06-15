@@ -58,6 +58,7 @@ def import_outlook(stream, user):
     reader = csv.reader(open(csfile.name,'rU'),delimiter=delim)
     lines = [row for row in reader]
     fields = ('\t'.join(lines[0]).lower()).split('\t')
+    print fields
     field_lookups = {
         'email': ["email","e-mail","e-mail address","email address"],
         'first_name': ["first_name","first name","first","given name"],
@@ -108,9 +109,14 @@ def import_outlook(stream, user):
         lines = lines[1:]
     else:
         # Find out which fields contain an email address. That's all we're gathering.
-        for f in range(0,len(lines[0])):
-            if re.match(EMAIL_REGEX, lines[0][f], re.IGNORECASE):
-                field_indices['email'].append(f)
+        hold_email_fields=set()
+        for l in lines[:10]:
+            for f in range(0,len(l)):
+                if re.match(EMAIL_REGEX, l[f], re.IGNORECASE):
+                    hold_email_fields.add(f)
+        field_indices['email']=hold_email_fields
+    if not (field_indices.has_key('email') and len(field_indices['email']) >= 1):
+        return 0, 0
     for line in lines:
         if len(line):
             total += 1
