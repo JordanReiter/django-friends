@@ -96,7 +96,7 @@ def import_outlook(stream, user):
     else:
         # Find out which fields contain an email address. That's all we're gathering.
         for f in range(0,len(lines[0])):
-            if re.match(EMAIL_REGEX, field[f], re.IGNORECASE):
+            if re.match(EMAIL_REGEX, lines[0][f], re.IGNORECASE):
                 field_indices['email'].append(f)
     for line in lines:
         if len(line):
