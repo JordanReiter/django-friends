@@ -345,6 +345,11 @@ def import_file_contacts(request, form_class=ImportContactForm, template_name='f
                 if format == 'VCARD':
                     imported_type='V'
                     imported, total = import_vcards(contact_file_content, request.user)
+                    if imported < total:
+                        if imported:
+                            messages.add_message(request, messages.SUCCESS,'A total of %d emails imported. %d records were already imported.' % (imported, total-imported))
+                        else:
+                            messages.add_message(request, messages.SUCCESS,'A total of %d emails were found, but they were already imported.' % (total))
                     messages.add_message(request, messages.SUCCESS,'A total of %d emails imported.' % imported)
                     return {'imported':imported, 'total':total}, {'url': redirect_to} 
                 elif format == 'OUTLOOK':
