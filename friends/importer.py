@@ -96,7 +96,7 @@ def import_outlook(stream, user):
                     print "Current lookup is %s" % current_lookup
                     match = fields.index(current_lookup)
                     if match > -1:
-                        print "Field %d is a match for %s" % lookup
+                        print "Field %d is a match for %s" % (match, lookup)
                         field_indices[current_field].append(match)
                 except ValueError:
                     pass
