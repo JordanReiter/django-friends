@@ -129,7 +129,7 @@ class Contact(models.Model):
             for w in re.split(r'\W+',self.email.split('@')[0]):
                 if not re.search(r'[A-Z][a-z]', w):
                     w = w.title()
-                name += " "
+                name += " " + w
                 print "Now name is %s" % name
             self.name = name.strip()
         if not self.name and (self.first_name or self.last_name):
