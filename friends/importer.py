@@ -43,6 +43,7 @@ def import_outlook(stream, user):
             csfile = open(stream,'rU')
             stream = csfile.read(500)
             csfile.close()
+            print csfile.name
         except IOError, inst:
             print "%s" % inst
             pass
