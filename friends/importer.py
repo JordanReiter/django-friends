@@ -38,6 +38,7 @@ def import_outlook(stream, user):
     Contact.objects.filter(owner=user, type='O', user__isnull=True).delete()
     # Fix lines that have breaks in them
     # Determine the delimiter
+    csfile = None
     if len(stream) < 100:
         try:
             csfile = open(stream,'rU')
@@ -57,7 +58,6 @@ def import_outlook(stream, user):
         delim = ","
     else:
         delim = "\t"
-    csfile = None
     reader = csv.reader(open(csfile.name,'rU'),delimiter=delim)
     lines = [row for row in reader]
     fields = ('\t'.join(lines[0]).lower()).split('\t')
