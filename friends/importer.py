@@ -167,9 +167,11 @@ def import_outlook(stream, user):
                     contact_vals['address']=address
             if not contact_vals.get('Name',None):
                 contact_vals['name']=("%s %s" % (contact_vals.get('first_name',''), contact_vals.get('last_name',''))).strip()
-            contact, created = create_contact_from_values(owner=user, type='O', **contact_vals)
-            if created:
+            if contact_vals.has_key('email') and re.match(EMAIL_REGEX,contact_vals['email']):
+                _, created = create_contact_from_values(owner=user, type='O', **contact_vals)
                 total += 1
+                if created:
+                    imported += 1
     return imported, total
             
 
