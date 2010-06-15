@@ -202,7 +202,8 @@ def import_vcards(stream, user):
         total += 1
         contact_vals = {}
         try:
-            contact_vals['name'] = card.fn.value
+            if card.fn.value != 'null':
+                contact_vals['name'] = card.fn.value
             contact_vals['email'] = card.email.value
             try:
                 name_field = card.contents.get('n')
