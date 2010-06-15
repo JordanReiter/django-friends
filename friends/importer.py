@@ -45,9 +45,9 @@ def import_outlook(stream, user):
             csfile = open(stream,'rU')
             stream = csfile.read(500)
             csfile.close()
-            print csfile.name
+            #print csfile.name
         except IOError, inst:
-            print "%s" % inst
+            #print "%s" % inst
             pass
     if not csfile:
         csfile = tempfile.NamedTemporaryFile()
@@ -62,7 +62,7 @@ def import_outlook(stream, user):
     reader = csv.reader(open(csfile.name,'rU'),delimiter=delim)
     lines = [row for row in reader]
     fields = ('\t'.join(lines[0]).lower()).split('\t')
-    print fields
+    #print fields
     field_lookups = {
         'email': ["email","e-mail","e-mail address","email address"],
         'first_name': ["first_name","first name","first","given name"],
@@ -88,16 +88,16 @@ def import_outlook(stream, user):
                     current_field = "%s_%s" % (c,field)
                 else:
                     current_field = field
-                print "Current field is %s" % current_field
+                #print "Current field is %s" % current_field
                 try:
                     if len(c):
                         current_lookup = "%s %s" % (c,lookup)
                     else:
                         current_lookup = lookup
-                    print "Current lookup is %s" % current_lookup
+                    #print "Current lookup is %s" % current_lookup
                     match = fields.index(current_lookup)
                     if match > -1:
-                        print "Field %d is a match for %s" % (match, lookup)
+                        #print "Field %d is a match for %s" % (match, lookup)
                         field_indices[current_field].append(match)
                 except ValueError:
                     pass
@@ -109,9 +109,9 @@ def import_outlook(stream, user):
                         pass
     if len(field_indices):
         # we are using the fields, so chop off the first line
-        print lines[0]
+        #print lines[0]
         lines = lines[1:]
-        print "Now the first line is \n%s" % lines[0]
+        #print "Now the first line is \n%s" % lines[0]
     if not field_indices.has_key('email'):
         # Find out which fields contain an email address. That's all we're gathering.
         hold_email_fields=set()
@@ -132,7 +132,7 @@ def import_outlook(stream, user):
             contact_vals = {}
             for col, col_indices in field_indices.items():
                 for col_index in col_indices:
-                    print "Now looking at column %d in %s"  % (col_index, line)
+                    #print "Now looking at column %d in %s"  % (col_index, line)
                     if len(line[col_index].strip()):
                         if "street" in col:
                             if contact_vals.has_key(col):
