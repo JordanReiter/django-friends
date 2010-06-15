@@ -179,8 +179,9 @@ def import_outlook(stream, user):
                 contact_vals['name']=("%s %s" % (contact_vals.get('first_name',''), contact_vals.get('last_name',''))).strip()
             if contact_vals.has_key('email') and re.match(EMAIL_REGEX_MATCH,contact_vals['email'], re.IGNORECASE):
                 print "Creating contact record with these values: %s" % contact_vals.items()
-                _, created = create_contact_from_values(owner=user, type='O', **contact_vals)
-                total += 1
+                contact, created = create_contact_from_values(owner=user, type='O', **contact_vals)
+                if contact:
+                    total += 1
                 if created:
                     imported += 1
             else:
@@ -235,10 +236,11 @@ def import_vcards(stream, user):
             except:
                 pass
 
-            _, created = create_contact_from_values(owner=user, type='V', **contact_vals)
+            contact, created = create_contact_from_values(owner=user, type='V', **contact_vals)
             if created:
                 imported += 1
-            total += 1
+            if contact:
+                total += 1
         except AttributeError:
             pass # missing value so don't add anything
     return imported, total
@@ -334,7 +336,6 @@ def import_google(user):
     imported_emails=[]
 #    raise Exception(result)
     for entry in entries:
-        total += 1
         contact_vals={}
         contact_vals['name'] = entry.title.text
         for e in entry.email:
@@ -345,9 +346,11 @@ def import_google(user):
                 contact_vals['email'] = e.address
         if contact_vals.has_key('email') and contact_vals['email'] not in imported_emails:
             imported_emails.append(contact_vals['email'])
-            _, created = create_contact_from_values(owner=user, type='G', **contact_vals)
+            contact, created = create_contact_from_values(owner=user, type='G', **contact_vals)
             if created:
                 imported += 1
+            if contact:
+                total += 1
     return imported, total
 
 def create_contact_from_values(owner=None, type=None, **values):
