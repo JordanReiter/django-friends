@@ -130,6 +130,7 @@ class Contact(models.Model):
                 if not re.search(r'[A-Z][a-z]', w):
                     w = w.title()
                 name += " "
+                print "Now name is %s" % name
             self.name = name.strip()
         if not self.name and (self.first_name or self.last_name):
             self.name = ("%s %s" % (self.first_name, self.last_name)).strip()
