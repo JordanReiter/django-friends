@@ -44,9 +44,17 @@ def import_outlook(stream, user):
         delim = ","
     else:
         delim = "\t"
-    csfile = tempfile.NamedTemporaryFile()
-    csfile.file.write(stream)
-    csfile.file.close()
+    csfile = None
+    if len(stream) < 100:
+        try:
+            csfile = open(stream,'rU')
+            csfile.close()
+        except IOError:
+            pass
+    if not csfile:
+        csfile = tempfile.NamedTemporaryFile()
+        csfile.file.write(stream)
+        csfile.file.close()
     reader = csv.reader(open(csfile.name,'rU'),delimiter=delim)
     lines = [row for row in reader]
     fields = ('\t'.join(lines[0]).lower()).split('\t')
