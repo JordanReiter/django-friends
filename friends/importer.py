@@ -36,7 +36,7 @@ def import_outlook(stream, user):
     """ 
     total = 0
     imported = 0
-    Contact.objects.filter(owner=user, type='O', user__isnull=True).delete()
+    #Contact.objects.filter(owner=user, type='O', user__isnull=True).delete()
     # Fix lines that have breaks in them
     # Determine the delimiter
     csfile = None
@@ -195,7 +195,7 @@ def import_vcards(stream, user):
     Returns a tuple of (number imported, total number of cards).
     """
     
-    Contact.objects.filter(owner=user, type='V', user__isnull=True).delete()
+    #Contact.objects.filter(owner=user, type='V', user__isnull=True).delete()
     total = 0
     imported = 0
     for card in vobject.readComponents(stream):
@@ -297,7 +297,7 @@ def import_google(user):
     
     Returns a tuple of (number imported, total number of entries).
     """
-    Contact.objects.filter(owner=user, type='G', user__isnull=True).delete()
+    #Contact.objects.filter(owner=user, type='G', user__isnull=True).delete()
     from gdata.contacts.service import ContactsService, ContactsQuery
     from gdata.auth import OAuthSignatureMethod, OAuthToken
     token_info = user.googletokens.all()[0]
