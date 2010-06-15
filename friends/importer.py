@@ -106,11 +106,10 @@ def import_outlook(stream, user):
                         field_indices[current_field.replace(' ','_')].append(match)
                     except ValueError:
                         pass
-    print field_indices
-    if len(field_indices) and field_indices.has_key('email'):
+    if len(field_indices):
         # we are using the fields, so chop off the first line
         lines = lines[1:]
-    else:
+    if not field_indices.has_key('email'):
         # Find out which fields contain an email address. That's all we're gathering.
         hold_email_fields=set()
         for l in lines[:10]:
@@ -118,6 +117,7 @@ def import_outlook(stream, user):
                 if re.match(EMAIL_REGEX, l[f], re.IGNORECASE):
                     hold_email_fields.add(f)
         field_indices['email']=hold_email_fields
+    print field_indices
     if not (field_indices.has_key('email') and len(field_indices['email']) >= 1):
         return 0, 0
     for line in lines:
