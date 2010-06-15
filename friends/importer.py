@@ -17,7 +17,9 @@ except ImportError:
 from django.contrib.auth.models import User
 from friends.models import Contact
 
-EMAIL_REGEX = r"^.*?\b([A-Z0-9._%%+-]+@[A-Z0-9.-]+\.([A-Z]{2,4}|museum))\b.*$"
+EMAIL_REGEX = r".*?\b([A-Z0-9._%%+-]+@[A-Z0-9.-]+\.([A-Z]{2,4}|museum))\b.*"
+EMAIL_REGEX_MATCH = r"^%s$" % EMAIL_REGEX
+EMAIL_REGEX_REPLACE = r"^.*(%s).*$" % EMAIL_REGEX
 
 def get_oauth_var(service, variable_key, settings=settings.OAUTH_SETTINGS):
     """ Helper to return OAuth variables from settings file """
@@ -116,7 +118,7 @@ def import_outlook(stream, user):
         hold_email_fields=set()
         for l in lines[:10]:
             for f in range(0,len(l)):
-                if re.match(EMAIL_REGEX, l[f], re.IGNORECASE):
+                if re.match(EMAIL_REGEX_MATCH, l[f], re.IGNORECASE):
                     hold_email_fields.add(f)
         field_indices['email']=list(hold_email_fields)
     print field_indices
@@ -141,7 +143,7 @@ def import_outlook(stream, user):
                             break
             if not contact_vals.has_key('email'):
                 if re.match(EMAIL_REGEX, (' ').join(line), re.IGNORECASE):
-                    contact_vals['email'] = re.sub(EMAIL_REGEX, r"\1", (' ').join(line), re.IGNORECASE)
+                    contact_vals['email'] = re.sub(EMAIL_REGEX_REPLACE, r"\1", (' ').join(line), re.IGNORECASE)
             for c in ["","work_","business_","home_"]:
                 if contact_vals.has_key("%semail" % c):
                     email=contact_vals.pop("%semail" % c)
