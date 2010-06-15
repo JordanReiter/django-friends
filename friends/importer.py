@@ -90,6 +90,7 @@ def import_outlook(stream, user):
                         field_indices[current_field.replace(' ','_')].append(match)
                     except ValueError:
                         pass
+    print field_indices
     if len(field_indices) and field_indices.has_key('email'):
         # we are using the fields, so chop off the first line
         lines = lines[1:]
