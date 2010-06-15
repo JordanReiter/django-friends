@@ -52,8 +52,9 @@ def import_outlook(stream, user):
     fields = ('\t'.join(lines[0]).lower()).split('\t')
     field_lookups = {
         'email': ["email","e-mail","e-mail address","email address"],
-        'first_name': ["first_name","first name","first"],
-        'last_name': ["last_name","last name","last"],
+        'first_name': ["first_name","first name","first","given name"],
+        'last_name': ["last_name","last name","last","family name"],
+        'name': ["name"],
         'address': ['address'],
         'street': ['street address','street','street_address'],
         'city': ['city'],
@@ -74,13 +75,16 @@ def import_outlook(stream, user):
                     current_field = "%s_%s" % (c,field)
                 else:
                     current_field = field
+                print "Current field is %s" % current_field
                 try:
                     if len(c):
                         current_lookup = "%s %s" % (c,lookup)
                     else:
                         current_lookup = lookup
+                    print "Current lookup is %s" % current_lookup
                     match = fields.index(current_lookup)
                     if match > -1:
+                        print "Field %d is a match for %s" % lookup
                         field_indices[current_field].append(match)
                 except ValueError:
                     pass
