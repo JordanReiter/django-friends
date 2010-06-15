@@ -200,7 +200,6 @@ def import_vcards(stream, user):
     total = 0
     imported = 0
     for card in vobject.readComponents(stream):
-        total += 1
         contact_vals = {}
         try:
             if card.fn.value != 'null':
