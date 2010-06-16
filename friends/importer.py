@@ -299,7 +299,7 @@ def import_google(user):
     Returns a tuple of (number imported, total number of entries).
     """
     #Contact.objects.filter(owner=user, type='G', user__isnull=True).delete()
-    from gdata.contacts.service import ContactsService, ContactsQuery
+    from gdata.contacts.service import ContactsService, ContactsQuery, RequestError
     from gdata.auth import OAuthSignatureMethod, OAuthToken
     token_info = user.googletokens.all()[0]
     token = token_info.get_token()
