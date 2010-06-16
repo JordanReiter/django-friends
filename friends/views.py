@@ -18,7 +18,7 @@ from django.conf import settings
 from django.contrib.sites.models import Site
 
 # Utils
-import re, datetime
+import re, datetime, urllib
 
 # Messaging
 if "notification" in settings.INSTALLED_APPS:
@@ -363,8 +363,8 @@ def import_file_contacts(request, form_class=ImportContactForm, template_name='f
 
 @render_to()
 @login_required
-def import_google_contacts(request, redirect_to="invite_imported"):
-    redirect_to=request.REQUEST.get(REDIRECT_FIELD_NAME, redirect_to)
+def import_google_contacts(request, redirect_to="invite_imported", redirect_field_name=REDIRECT_FIELD_NAME):
+    redirect_to=request.REQUEST.get(redirect_field_name, redirect_to)
     if redirect_to and '/' not in redirect_to:
         redirect_to=reverse(redirect_to)
 
@@ -402,7 +402,21 @@ def import_google_contacts(request, redirect_to="invite_imported"):
             return HttpResponseRedirect(url)
 
     if token_for_user:
-        imported, total = import_google(request.user)
+        try:
+            imported, total = import_google(request.user)
+        except gdata.service.RequestError:
+            if not request.session.has_key('_try_again'):
+                request.session["_try_again"]="import_google_contacts"
+                GoogleToken.objects.filter(user=request.user).delete()
+                if request.session.has_key('request_token'):
+                    del(request.session['request_token'])
+                return HttpResponseRedirect(
+                                        "%s?%s" % (reverse('import_google_contacts'),
+                                        urllib.urlencode({ 
+                                        redirect_field_name: redirect_to})))
+            else:
+                del(request.session['_try_again'])
+                messages.add_message(request, messages.ERROR,"There was an error posting to Twitter. Please make sure this site isn't blocked in your settings in Twitter.")
         if imported < total:
             if imported:
                 messages.add_message(request, messages.SUCCESS,'A total of %d emails imported. %d records were already imported.' % (imported, total-imported))
