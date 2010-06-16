@@ -314,8 +314,8 @@ def import_google(user):
     query = ContactsQuery(feed='/m8/feeds/groups/default/full')
     try:
         feed = contacts_service.GetGroupsFeed(query.ToUri())
-    except RequestError, inst:
-        print "The error was %s" % inst
+    except Exception, inst:
+        raise Exception( "The error was %s\n%s\n%s" % (inst, type(inst), help(type(inst))))
     SYS_GROUP_REGEX=r"\s*system group:\s*"
     for entry in feed.entry:
         groups[re.sub(SYS_GROUP_REGEX,"",entry.title.text.lower())]=entry.id.text
