@@ -299,7 +299,8 @@ def import_google(user):
     Returns a tuple of (number imported, total number of entries).
     """
     #Contact.objects.filter(owner=user, type='G', user__isnull=True).delete()
-    from gdata.contacts.service import ContactsService, ContactsQuery, RequestError
+    from gdata.contacts.service import ContactsService, ContactsQuery
+    from gdata.service import RequestError
     from gdata.auth import OAuthSignatureMethod, OAuthToken
     token_info = user.googletokens.all()[0]
     token = token_info.get_token()
@@ -314,7 +315,7 @@ def import_google(user):
     query = ContactsQuery(feed='/m8/feeds/groups/default/full')
     try:
         feed = contacts_service.GetGroupsFeed(query.ToUri())
-    except Exception, inst:
+    except RequestError, inst:
         raise Exception( "The error was %s\n%s\n%s" % (inst, type(inst), help(type(inst))))
     SYS_GROUP_REGEX=r"\s*system group:\s*"
     for entry in feed.entry:
