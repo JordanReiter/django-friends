@@ -381,10 +381,14 @@ def import_google_contacts(request, redirect_to="invite_imported", redirect_fiel
         gd_client = gdata.contacts.client.ContactsClient(source='AACE-AcademicExperts-v1')
         if request.GET.has_key('oauth_token'):
             request_token = gdata.gauth.AuthorizeRequestToken(request.session['request_token'], request.build_absolute_uri())
-            access_token = gd_client.GetAccessToken(request_token)
-            access_token_string = pickle.dumps(access_token)
-            token_for_user = GoogleToken(user=request.user, token=access_token_string, token_secret=request.session['request_token'].token_secret)
-            token_for_user.save()
+            try:
+                access_token = gd_client.GetAccessToken(request_token)
+                access_token_string = pickle.dumps(access_token)
+                token_for_user = GoogleToken(user=request.user, token=access_token_string, token_secret=request.session['request_token'].token_secret)
+                token_for_user.save()
+            except gdata.service.RequestError:
+                messages.add_message(request, messages.ERROR,"It looks like you didn't allow access to Google, so I couldn't import the contacts.")
+                return {}, {'url': redirect_to} 
         else:
             next = "http://%s%s" % (
                     Site.objects.get_current(),
@@ -417,6 +421,7 @@ def import_google_contacts(request, redirect_to="invite_imported", redirect_fiel
             else:
                 del(request.session['_try_again'])
                 messages.add_message(request, messages.ERROR,"There was an error posting to Twitter. Please make sure this site isn't blocked in your settings in Twitter.")
+                return {}, {'url': redirect_to} 
         if imported < total:
             if imported:
                 messages.add_message(request, messages.SUCCESS,'A total of %d emails imported. %d records were already imported.' % (imported, total-imported))
