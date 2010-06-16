@@ -364,6 +364,11 @@ def import_file_contacts(request, form_class=ImportContactForm, template_name='f
 @render_to()
 @login_required
 def import_google_contacts(request, redirect_to="invite_imported", redirect_field_name=REDIRECT_FIELD_NAME):
+    from importer import get_oauth_var
+    import gdata.service
+    import gdata.gauth
+    import gdata.contacts.client
+    import pickle
     redirect_to=request.REQUEST.get(redirect_field_name, redirect_to)
     if redirect_to and '/' not in redirect_to:
         redirect_to=reverse(redirect_to)
@@ -372,11 +377,6 @@ def import_google_contacts(request, redirect_to="invite_imported", redirect_fiel
     try:
         token_for_user = GoogleToken.objects.get(user=request.user)
     except:
-        from importer import get_oauth_var
-        import gdata.service
-        import gdata.gauth
-        import gdata.contacts.client
-        import pickle
         cp_scope = gdata.service.lookup_scopes('cp')
         gd_client = gdata.contacts.client.ContactsClient(source='AACE-AcademicExperts-v1')
         if request.GET.has_key('oauth_token'):

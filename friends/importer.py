@@ -300,7 +300,6 @@ def import_google(user):
     """
     #Contact.objects.filter(owner=user, type='G', user__isnull=True).delete()
     from gdata.contacts.service import ContactsService, ContactsQuery
-    from gdata.service import RequestError
     from gdata.auth import OAuthSignatureMethod, OAuthToken
     token_info = user.googletokens.all()[0]
     token = token_info.get_token()
