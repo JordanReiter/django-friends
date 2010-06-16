@@ -386,8 +386,7 @@ def import_google_contacts(request, redirect_to="invite_imported", redirect_fiel
                 access_token_string = pickle.dumps(access_token)
                 token_for_user = GoogleToken(user=request.user, token=access_token_string, token_secret=request.session['request_token'].token_secret)
                 token_for_user.save()
-            except Exception, inst:
-                messages.add_message(request, messages.ERROR,"The error was %s (%s)." % (inst, type(inst)))
+            except gdata.client.RequestError:
                 messages.add_message(request, messages.ERROR,"It looks like you didn't allow access to Google, so I couldn't import the contacts.")
                 return {}, {'url': redirect_to} 
         else:
