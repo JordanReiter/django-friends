@@ -108,9 +108,9 @@ def invite_users(request,output_prefix="invite", redirect_to='edit_friends', for
             total, requests, existing, invitations = invite_users_form.send_invitations()
             if total == 1:
                 if existing:
-                    messages.add_message(request, messages.SUCCESS,"%(user)s is already a member, so they received a request to add you as a contact" % {'user':User.objects.get(email__in=invite_users_form.cleaned_data['invited_email'])})
+                    messages.add_message(request, messages.SUCCESS,"%(user)s is already a member, so they received a request to add you as a contact" % {'user':User.objects.get(email__in=invite_users_form.cleaned_data['invited_emails'])})
                 else:
-                    messages.add_message(request, messages.SUCCESS,"You have sent an invitation to %(email)s." % {'email':"".join(invite_users_form.cleaned_data['invited_email'])})
+                    messages.add_message(request, messages.SUCCESS,"You have sent an invitation to %(email)s." % {'email':"".join(invite_users_form.cleaned_data['invited_emails'])})
             else:
                 messages.add_message(request, messages.SUCCESS,"You have sent invitations to %(invite_count)d email addresses." % {'invite_count':requests+invitations})
                 if requests:
