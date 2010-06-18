@@ -111,9 +111,9 @@ def invite_users(request,output_prefix="invite", redirect_to='edit_friends', for
                     requested_match = User.objects.get(email__in=invite_users_form.cleaned_data['invited_emails'])
                     requested_user = requested_match.get_full_name() or requested_match.username
                     if existing:
-                        messages.add_message(request, messages.SUCCESS,"%(user)s is already one of your contacts" % {'user': requested_user})
+                        messages.add_message(request, messages.WARNING,"%(user)s is already one of your contacts" % {'user': requested_user})
                     else:
-                        messages.add_message(request, messages.SUCCESS,"%(user)s is already a member, so they received a request to add you as a contact" % {'user': requested_user})
+                        messages.add_message(request, messages.INFO,"%(user)s is already a member, so they received a request to add you as a contact" % {'user': requested_user})
                 else:
                     messages.add_message(request, messages.SUCCESS,"You have sent an invitation to %(email)s." % {'email':"".join(invite_users_form.cleaned_data['invited_emails'])})
             else:
