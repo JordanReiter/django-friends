@@ -229,8 +229,8 @@ class FriendshipManager(models.Manager):
                 friend = friendship.from_user
             else:
                 friend = friendship.to_user
-            if friendship.to_user not in already:
-                already.append(friendship.to_user)
+            if friend not in already:
+                already.append(friend)
                 friends.append({"friend": friend, "friendship": friendship})
         return friends
     
