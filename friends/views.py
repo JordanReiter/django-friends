@@ -106,11 +106,17 @@ def invite_users(request,output_prefix="invite", redirect_to='edit_friends', for
         invite_users_form = form_class(data=request.POST, user=request.user)
         if invite_users_form.is_valid():
             total, requests, existing, invitations = invite_users_form.send_invitations()
-            messages.add_message(request, messages.SUCCESS,"You have sent invitations to %(invite_count)d email addresses." % {'invite_count':requests+invitations})
-            if requests:
-                messages.add_message(request, messages.INFO,"%(requests)d email(s) belonged to someone who is already a member of the site, so they received a request to add you as a contact." % {'requests':requests})
-            if existing:
-                messages.add_message(request, messages.WARNING,"%(existing)d email(s) belonged to someone who is already one of your contacts." % {'existing':existing})
+            if total == 1:
+                if existing:
+                    messages.add_message(request, messages.SUCCESS,"%(user)s is already a member, so they received a request to add you as a contact" % {'user':User.objects.get(email__in=invite_users_form.cleaned_data['invited_email'])})
+                else:
+                    messages.add_message(request, messages.SUCCESS,"You have sent an invitation to %(email)s." % {'email':"".join(invite_users_form.cleaned_data['invited_email'])})
+            else:
+                messages.add_message(request, messages.SUCCESS,"You have sent invitations to %(invite_count)d email addresses." % {'invite_count':requests+invitations})
+                if requests:
+                    messages.add_message(request, messages.INFO,"%(requests)d email(s) belonged to someone who is already a member of the site, so they received a request to add you as a contact." % {'requests':requests})
+                if existing:
+                    messages.add_message(request, messages.WARNING,"%(existing)d email(s) belonged to someone who is already one of your contacts." % {'existing':existing})
             return {'success':True}, {'url':redirect_to }
     if request.method == 'GET':
         invite_users_form = form_class()
