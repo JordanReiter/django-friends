@@ -223,7 +223,7 @@ class FriendshipManager(models.Manager):
     def friends_for_user(self, user):
         friends = []
         already = []
-        all_friends = self.filter(from_user=user).select_related("user__name","user__expert_profile__name") | self.filter(to_user=user).select_related("user__name","user__expert_profile__name") 
+        all_friends = self.filter(from_user=user).select_related("to_user__id","to_user__expert_profile__id","from_user__id","from_user__expert_profile__id") | self.filter(to_user=user).select_related("user__name","user__expert_profile__name") 
         for friendship in all_friends:
             if friendship.to_user == user:
                 friend = friendship.from_user
