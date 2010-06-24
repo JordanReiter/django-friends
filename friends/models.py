@@ -305,7 +305,7 @@ class Friendship(models.Model):
                     reason_list.append(HOW_RELATED_LABELS[hr][reason_index])
                 except IndexError, inst:
                     pass
-        other = ' '.join(reason_list)
+        other = ' '.join(how_related_tokens)
         if len(reason_list) > 2:
             reason_list[-1]=_('and %(last)s' % {'last': reason_list[-1]})
             reason_string = ', '.join(reason_list)
