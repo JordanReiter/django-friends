@@ -280,7 +280,7 @@ class Friendship(models.Model):
         return self.render_related(you=True)
 
     def render_related(self, you=False):
-        if not self.how_related:
+        if not (self.how_related and len(self.how_related):
             return None
         reason_list = []
         how_related_tokens = self.how_related.split()
