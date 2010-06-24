@@ -252,8 +252,8 @@ class Friendship(models.Model):
     have both agreed to the association.
     """
     
-    to_user = models.ForeignKey(User, related_name="friends", editable=False)
-    from_user = models.ForeignKey(User, related_name="_unused_", editable=False)
+    to_user = models.ForeignKey(User, related_name="_unused_", editable=False)
+    from_user = models.ForeignKey(User, related_name="friends", editable=False)
     how_related = models.CharField(max_length=100, null=True, blank=True)
     added = models.DateField(default=datetime.date.today, editable=False)
     
@@ -261,6 +261,9 @@ class Friendship(models.Model):
     
     class Meta:
         unique_together = (('to_user', 'from_user'),)
+
+    def render_related(self):
+        
         
     def __unicode__(self):
         result = "%s is friend of %s" % (self.from_user, self.to_user)
