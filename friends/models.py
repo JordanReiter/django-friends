@@ -255,6 +255,7 @@ class FriendshipManager(models.Manager):
 
 HOW_RELATED_LABELS = {
     'colleague':[_('are colleagues'),_('are colleagues')],
+    'met':[_('have met'),_('have met')],
     'co-worker':[_('work together'),_('work together')],
     'friend': [_('are friends'),_('are friends')],
     'co-author': [_('are co-authors (co-wrote a paper)'),_('are co-authors (co-wrote a paper)')],
