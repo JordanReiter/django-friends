@@ -252,6 +252,13 @@ class FriendshipManager(models.Manager):
         self.filter(from_user=user2, to_user=user1).delete()
 
 
+HOW_RELATED_LABELS = {
+    'colleague':[_('are colleagues'),_('are colleagues')],
+    'co-worker':[_('work together'),_('work together')],
+    'friend': [_('are friends'),_('are friends')],
+    'co-author': [_('are co-authors (co-wrote a paper)'),_('are co-authors (co-wrote a paper)')],
+    'unknown': None,
+}
 class Friendship(models.Model):
     """
     A friendship is a bi-directional association between two users who
@@ -268,8 +275,47 @@ class Friendship(models.Model):
     class Meta:
         unique_together = (('to_user', 'from_user'),)
 
-    def render_related(self):
-        pass
+    def render_related_you(self):
+        return self.render_related(you=True)
+
+    def render_related(self, you=False):
+        reason_list = []
+        how_related_tokens = self.how_related.split()
+        how_related_codes = [r[0] for r in HOW_RELATED_LABELS]
+        if you:
+            reason_index = 0
+        else:
+            reason_index = 1
+        while len(how_related_tokens):
+            # next two lines simulate shift function
+            hr=how_related_tokens[0]
+            del(how_related_tokens[:1]) 
+            if hr.lower() in how_related_codes:
+                try:
+                    reason_list.append(HOW_RELATED_LABELS[reason.lower()][reason_index])
+                except:
+                    pass
+            else:
+                break
+        other = ' '.join(reason_list)
+        if len(reason_list) > 2:
+            reason_list[-1]=_('and %(last)s' % {'last': reason_list[-1]})
+            reason_string = ', '.join(reason_list)
+        else:
+            reason_string = ' and '.join(reason_list)
+        if len(reason_string):
+            if not you:
+                subject = _("%(onefriend)s and %(twofriend)s" % {
+                    'onefriend': (self.from_user.first_name or self.from_user.username),
+                    'twofriend': (self.to_user.first_name or self.to_user.username),
+                })
+            else:
+                subject = _("You")
+            result = _("%(subject)s %(reasons)s." % {'subject': subject, 'reasons': reason_string})
+        if other:
+            result = result + _(" %(other)s" % {'other': other})
+        return result
+        
         
     def __unicode__(self):
         result = "%s is friend of %s" % (self.from_user, self.to_user)
