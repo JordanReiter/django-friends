@@ -284,7 +284,7 @@ class Friendship(models.Model):
         if not (self.how_related and len(self.how_related)):
             return None
         reason_list = []
-        how_related_tokens = self.how_related.split()
+        how_related_tokens = self.how_related.split(' ')
         how_related_codes = [r[0] for r in HOW_RELATED_LABELS]
         if you:
             reason_index = 0
@@ -293,6 +293,7 @@ class Friendship(models.Model):
         while len(how_related_tokens):
             # next two lines simulate shift function
             hr=how_related_tokens[0]
+            print "%s, %s" % (hr, how_related_tokens)
             del(how_related_tokens[:1]) 
             if hr.lower() in how_related_codes:
                 try:
