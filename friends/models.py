@@ -280,6 +280,7 @@ class Friendship(models.Model):
         return self.render_related(you=True)
 
     def render_related(self, you=False):
+        result = ""
         if not (self.how_related and len(self.how_related)):
             return None
         reason_list = []
@@ -314,9 +315,9 @@ class Friendship(models.Model):
                 })
             else:
                 subject = _("You")
-            result = _("%(subject)s %(reasons)s." % {'subject': subject, 'reasons': reason_string})
+            result += _("%(subject)s %(reasons)s." % {'subject': subject, 'reasons': reason_string})
         if other:
-            result = result + _(" %(other)s" % {'other': other})
+            result += _(" %(other)s" % {'other': other})
         return result
         
         
