@@ -134,7 +134,7 @@ class MultiEmailField(forms.CharField):
         EMAIL_REGEX=r'\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,6}\b'
         if not value:
             return []
-        return re.find
+        return re.findall(EMAIL_REGEX, value)
 
     def validate(self, value):
         "Check if value consists only of valid emails."
