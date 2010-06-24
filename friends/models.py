@@ -298,7 +298,7 @@ class Friendship(models.Model):
                 break
             del(how_related_tokens[:1])
             if hr in reasons_shown:
-                pass 
+                continue 
             else:
                 reasons_shown.append(hr)
                 try:
