@@ -223,15 +223,21 @@ class FriendshipManager(models.Manager):
     def friends_for_user(self, user):
         friends = []
         already = []
-        all_friends = self.filter(from_user=user).select_related("to_user__id","to_user__expert_profile__id","from_user__id","from_user__expert_profile__id") | self.filter(to_user=user).select_related("to_user__id","to_user__expert_profile__id","from_user__id","from_user__expert_profile__id") 
+        all_friends = self.filter(from_user=user).select_related("to_user__id","to_user__expert_profile__id","from_user__id","from_user__expert_profile__id")
+        # give priority to "from" records. This is done by looping through them twice and only adding "to" records
+        # if absolutely necessary.
+        for friendship in all_friends:
+            if friendship.from_user == user:
+                friend = friendship.to_user
+                if friend not in already:
+                    already.append(friend)
+                    friends.append({"friend": friend, "friendship": friendship})
         for friendship in all_friends:
             if friendship.to_user == user:
                 friend = friendship.from_user
-            else:
-                friend = friendship.to_user
-            if friend not in already:
-                already.append(friend)
-                friends.append({"friend": friend, "friendship": friendship})
+                if friend not in already:
+                    already.append(friend)
+                    friends.append({"friend": friend, "friendship": friendship})
         return friends
     
     def are_friends(self, user1, user2):
