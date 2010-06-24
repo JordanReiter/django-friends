@@ -293,11 +293,11 @@ class Friendship(models.Model):
         reasons_shown = []
         while len(how_related_tokens):
             # next two lines simulate shift function
-            hr=how_related_tokens[0].lower()
+            hr=how_related_tokens[0].lower().strip()
             del(how_related_tokens[:1])
             if hr in reasons_shown:
-                continue 
-            if hr in how_related_codes:
+                pass 
+            elif hr in how_related_codes:
                 reasons_shown.append(hr)
                 try:
                     reason_list.append(HOW_RELATED_LABELS[hr][reason_index])
@@ -305,7 +305,7 @@ class Friendship(models.Model):
                     pass
             else:
                 break
-        other = ' '.join(reason_list)
+        other = ' '.join(how_related_tokens)
         if len(reason_list) > 2:
             reason_list[-1]=_('and %(last)s' % {'last': reason_list[-1]})
             reason_string = ', '.join(reason_list)
