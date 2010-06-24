@@ -297,7 +297,8 @@ class Friendship(models.Model):
             if hr.lower() in how_related_codes:
                 try:
                     reason_list.append(HOW_RELATED_LABELS[hr.lower()][reason_index])
-                except IndexError:
+                except IndexError, inst:
+                    print "%s %s, %d: %s" % (hr.lower(), HOW_RELATED_LABELS[hr.lower()], reason_index, inst)
                     pass
             else:
                 break
