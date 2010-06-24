@@ -285,7 +285,7 @@ class Friendship(models.Model):
             return None
         reason_list = []
         how_related_tokens = self.how_related.split(' ')
-        how_related_codes = [r[0] for r in HOW_RELATED_LABELS]
+        how_related_codes = HOW_RELATED_LABELS.keys()
         if you:
             reason_index = 0
         else:
