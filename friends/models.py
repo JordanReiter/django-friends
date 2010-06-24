@@ -299,7 +299,7 @@ class Friendship(models.Model):
             del(how_related_tokens[:1])
             if hr in reasons_shown:
                 pass 
-            else
+            else:
                 reasons_shown.append(hr)
                 try:
                     reason_list.append(HOW_RELATED_LABELS[hr][reason_index])
