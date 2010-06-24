@@ -295,8 +295,8 @@ class Friendship(models.Model):
             del(how_related_tokens[:1]) 
             if hr.lower() in how_related_codes:
                 try:
-                    reason_list.append(HOW_RELATED_LABELS[reason.lower()][reason_index])
-                except:
+                    reason_list.append(HOW_RELATED_LABELS[hr.lower()][reason_index])
+                except IndexError:
                     pass
             else:
                 break
