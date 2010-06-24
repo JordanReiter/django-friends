@@ -1,4 +1,5 @@
 import datetime, re
+from django.utils.translation import ugettext as _
 
 from random import random
 
