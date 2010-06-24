@@ -131,10 +131,10 @@ class MultiEmailField(forms.CharField):
     def to_python(self, value):
         "Normalize data to a list of strings."
         # Return an empty list if no input was given.
+        EMAIL_REGEX=r'\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,6}\b'
         if not value:
             return []
-        value = re.sub(r'[;,\r\n\t]+?\s*("?[^<@>]+?"?\s)?<?([A-Za-z0-9._%+-]+?@[A-Za-z0-9.-]+?\.([A-Za-z]{2,4}|museum))>?',r'\t\2\t',"\t%s\t" % value,re.IGNORECASE)
-        return re.split(r'[\s,;]+',value.strip())
+        return re.find
 
     def validate(self, value):
         "Check if value consists only of valid emails."
