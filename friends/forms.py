@@ -20,7 +20,7 @@ else:
 
 RELATED_CHOICES = (
     ('colleague',_('We are colleagues')),
-    ('co-worker',_('We we work together')),
+    ('co-worker',_('We work together')),
     ('friend',_('We are friends')),
     ('co-author',_('We are co-authors (co-wrote a paper)')),
     ('unknown',_('I don\'t know them')),
