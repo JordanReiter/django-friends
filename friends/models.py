@@ -290,16 +290,20 @@ class Friendship(models.Model):
             reason_index = 0
         else:
             reason_index = 1
+        reasons_shown = []
         while len(how_related_tokens):
             # next two lines simulate shift function
-            hr=how_related_tokens[0]
+            hr=how_related_tokens[0].lower()
             print "%s, %s" % (hr, how_related_tokens)
-            del(how_related_tokens[:1]) 
-            if hr.lower() in how_related_codes:
+            del(how_related_tokens[:1])
+            if hr in reasons_shown:
+                continue 
+            if hr in how_related_codes:
+                reasons_shown.append(hr)
                 try:
-                    reason_list.append(HOW_RELATED_LABELS[hr.lower()][reason_index])
+                    reason_list.append(HOW_RELATED_LABELS[hr][reason_index])
                 except IndexError, inst:
-                    print "%s %s, %d: %s" % (hr.lower(), HOW_RELATED_LABELS[hr.lower()], reason_index, inst)
+                    print "%s %s, %d: %s" % (hr, HOW_RELATED_LABELS[hr], reason_index, inst)
                     pass
             else:
                 break
