@@ -263,7 +263,7 @@ class Friendship(models.Model):
         unique_together = (('to_user', 'from_user'),)
 
     def render_related(self):
-        
+        pass
         
     def __unicode__(self):
         result = "%s is friend of %s" % (self.from_user, self.to_user)
