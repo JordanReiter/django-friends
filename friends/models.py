@@ -356,6 +356,9 @@ class JoinInvitation(models.Model):
                     friends.append(user)
             if notify_friends:
                 notification.send(friends, "friends_otherconnect", {"invitation": self, "to_user": new_user})
+    
+    class Meta:
+        ordering=['-sent']
 
 
 class FriendshipInvitationManager(models.Manager):
