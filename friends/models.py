@@ -291,11 +291,9 @@ class Friendship(models.Model):
         else:
             reason_index = 1
         reasons_shown = []
-        print self.how_related
         while len(how_related_tokens):
             # next two lines simulate shift function
             hr=how_related_tokens[0].lower()
-            print "%s, %s" % (hr, how_related_tokens)
             del(how_related_tokens[:1])
             if hr in reasons_shown:
                 continue 
@@ -304,7 +302,6 @@ class Friendship(models.Model):
                 try:
                     reason_list.append(HOW_RELATED_LABELS[hr][reason_index])
                 except IndexError, inst:
-                    print "%s %s, %d: %s" % (hr, HOW_RELATED_LABELS[hr], reason_index, inst)
                     pass
             else:
                 break
