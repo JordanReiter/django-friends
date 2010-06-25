@@ -33,10 +33,10 @@ def build_friend_suggestions(user, *args, **kwargs):
         pass        
 
 def shared_friends(me, them):
-    my_friends = User.objects.filter(friends__from_user=me)
-    their_friends = User.objects.filter(friends__from_user=them)
+    my_friends = User.objects.filter(friends__to_user=me)
+    their_friends = User.objects.filter(friends__to_user=them)
     shared_friends = my_friends & their_friends
     return shared_friends.exclude(id__in=[me.id, them.id])
 
 def friends_of_friends(user):
-    return User.objects.filter(friends__from_user__friends__from_user=user).exclude(id=user.id).exclude(friends__from_user=user)
+    return User.objects.filter(friends__to_user__friends__to_user=user).exclude(id=user.id).exclude(friends__to_user=user)
