@@ -241,7 +241,7 @@ class FriendshipManager(models.Manager):
                 if friend not in already:
                     already.append(friend)
                     friends.append({"friend": friend, "friendship": friendship})
-        return sorted(friends, key=lambda k: "%s%s" % (k['friend'].last_name, k['friend'].first_nae) )
+        return sorted(friends, key=lambda k: "%s%s" % (k['friend'].last_name, k['friend'].first_name) )
     
     def are_friends(self, user1, user2):
         if self.filter(from_user=user1, to_user=user2).count() > 0:
