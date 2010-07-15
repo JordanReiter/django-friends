@@ -415,13 +415,13 @@ class JoinInvitation(models.Model):
         friendship.save()
         # notify
         if notification:
-            notification.send([self.from_user], "join_accept", {"invitation": self, "new_user": new_user})
+            notification.send([self.from_user], "join_accept", {"invitation": self, "new_user": new_user, "current_site": Site.objects.get_current()})
             friends = []
             for user in friend_set_for(new_user) | friend_set_for(self.from_user):
                 if user != new_user and user != self.from_user:
                     friends.append(user)
             if notify_friends:
-                notification.send(friends, "friends_otherconnect", {"invitation": self, "to_user": new_user})
+                notification.send(friends, "friends_otherconnect", {"invitation": self, "to_user": new_user, "curent_site": Site.objects.get_current()})
     
     class Meta:
         ordering=['-sent']
@@ -455,12 +455,12 @@ class FriendshipInvitation(models.Model):
             self.status = "5"
             self.save()
             if notification:
-                notification.send([self.from_user], "friends_accept", {"invitation": self})
-                notification.send([self.to_user], "friends_accept_sent", {"invitation": self})
+                notification.send([self.from_user], "friends_accept", {"invitation": self, "curent_site": Site.objects.get_current()})
+                notification.send([self.to_user], "friends_accept_sent", {"invitation": self, "curent_site": Site.objects.get_current()})
                 if notify_friends:
                     for user in friend_set_for(self.to_user) | friend_set_for(self.from_user):
                         if user != self.to_user and user != self.from_user:
-                            notification.send([user], "friends_otherconnect", {"invitation": self, "to_user": self.to_user})
+                            notification.send([user], "friends_otherconnect", {"invitation": self, "to_user": self.to_user, "curent_site": Site.objects.get_current()})
     
     def decline(self):
         if not Friendship.objects.are_friends(self.to_user, self.from_user):
