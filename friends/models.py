@@ -234,13 +234,13 @@ class FriendshipManager(models.Manager):
                 friend = friendship.to_user
                 if friend.pk not in already:
                     already.append(friend.pk)
-                    friends.append({"friend": friend, "how_related": friendship.how_related})
+                    friends.append({"friend": friend, "how_related": None })
         for friendship in all_friends:
             if friendship.to_user_id == user.id:
                 friend = friendship.from_user
                 if friend.pk not in already:
                     already.append(friend.pk)
-                    friends.append({"friend": friend, "how_related": friendship.how_related})
+                    friends.append({"friend": friend, "how_related": None })
         return sorted(friends, key=lambda k: "%s%s" % (k['friend'].last_name, k['friend'].first_name) )
     
     def are_friends(self, user1, user2):
