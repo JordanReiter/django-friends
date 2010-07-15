@@ -67,7 +67,7 @@ def view_friends(request, user, template_name="friends/friends.html", redirect_t
             return {'success':False}, {'url': redirect_to}
     except AttributeError:
         pass
-    friends = Friendship.objects.friends_for_user(user).order_by("user__first_name","user__last_name")
+    friends = Friendship.objects.friends_for_user(user).order_by("friend__first_name","friend__last_name")
     return locals(), template_name
 
 @render_to()
