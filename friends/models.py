@@ -229,13 +229,17 @@ class FriendshipManager(models.Manager):
         all_friends = me_friends | them_friends
         # give priority to "from" records. This is done by looping through them twice and only adding "to" records
         # if absolutely necessary.
+        idx = 0
         for friendship in all_friends:
+            idx += 1
             if friendship.from_user_id == user.id:
                 friend = friendship.to_user
                 if friend not in already:
                     already.append(friend)
-                    friends.append({"friend": friend, "friendship": friendship})
+                    friends.append({"friend": friend, "friendship": all_friends[idx]})
+        idx = 0
         for friendship in all_friends:
+            idx += 1
             if friendship.to_user_id == user.id:
                 friend = friendship.from_user
                 if friend not in already:
