@@ -6,6 +6,7 @@ from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User
 
 from friends.models import *
+from friends.utils import send_invitations
 
 if "notification" in settings.INSTALLED_APPS:
     from notification import models as notification
@@ -172,36 +173,7 @@ class MultipleInviteForm(forms.Form):
     def send_invitations(self):
         message = self.cleaned_data.get('message',None)
         invited_emails = [email for email in self.cleaned_data.get('invited_emails')]
-        processed_emails = []
-        existing_users = User.objects.filter(email__in=invited_emails)
-        requests = 0
-        invitations = 0
-        existing = 0
-        total = len(invited_emails)
-        friend_users = [f['friend'] for f in Friendship.objects.friends_for_user(self.user)]
-        if existing_users:
-            for user in existing_users:
-                if user in friend_users:
-                    existing += 1
-                else:
-                    requests += 1
-                    invitation = FriendshipInvitation(from_user=self.user, to_user=user, message=message, status="2")
-                    invitation.save()
-                    if notification:
-                        notification.send([user], "friends_invite", {"invitation": invitation})
-                        notification.send([self.user], "friends_invite_sent", {"invitation": invitation})
-            for user in existing_users:
-                processed_emails.append(user.email)
-                try:
-                    invited_emails.remove(user.email)
-                except:
-                    pass #guess it was already gone?
-        for email in invited_emails:
-            if email not in processed_emails:
-                processed_emails.append(email)
-                invitations += 1
-                JoinInvitation.objects.send_invitation(self.user, email, None)
-        return total, requests, existing, invitations
+        return send_invitations(self.user, invited_emails, message)
 
         
 class FriendshipForm(forms.ModelForm):
