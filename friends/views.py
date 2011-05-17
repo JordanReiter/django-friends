@@ -32,7 +32,7 @@ from friends.forms import MultipleInviteForm, InviteFriendForm, ImportContactFor
 from friends.exporter import export_vcards
 from friends.importer import import_vcards, import_outlook, import_google
 from friends.signals import invite
-from friends.utils import shared_friends
+from friends.utils import shared_friends, get_friends
 
 
 def get_user_profile(user):
@@ -320,7 +320,7 @@ def remove_friend(request,friend,template_name='confirm.html',redirect_to='edit_
 
 
 def export_friends(request):
-    vcard = export_vcards([ec.friend.user for ec in request.user.get_profile().get_friends()])
+    vcard = export_vcards([ec.friend.user for ec in get_friends(request.user)])
     response = HttpResponse(vcard, mimetype='text/x-vcard')
     response['Content-Disposition'] = 'attachment; filename=friends.vcf'
     return response    
@@ -538,7 +538,9 @@ def edit_friends(request, friend=None, redirect_to='edit_friends', form_class=Fr
             friend_form=form_class(instance=friendship, user=request.user, friend=friend, prefix='friend')
     else:
         friend_forms = []
-        friendship_list = request.user.get_profile().get_friends()
+        try:
+            friendship_list = get_friends(request.user)
+        except:
         counter = 0
         for f in friendship_list:
             counter += 1

@@ -79,3 +79,17 @@ def send_invitations(me, invited_emails=[], message=None):
                 invitations += 1
                 JoinInvitation.objects.send_invitation(me, email, None)
         return total, requests, existing, invitations
+
+def get_friends(user=None):
+    if not hasattr(user, '_friends'):
+        friend_list = Friendship.objects.friends_for_user(user)
+        friend_users = {}
+        for u in User.objects.filter(pk__in=[f['friend'].pk for f in friend_list]):
+            friend_users[u.id]=u
+        already = []
+        user._friends = []
+        for f in friend_list:
+            if f['friend'] not in already:
+                user._friends.append(f)
+                already.append(f['friend'])
+    return user._friends
