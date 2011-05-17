@@ -538,9 +538,7 @@ def edit_friends(request, friend=None, redirect_to='edit_friends', form_class=Fr
             friend_form=form_class(instance=friendship, user=request.user, friend=friend, prefix='friend')
     else:
         friend_forms = []
-        try:
-            friendship_list = get_friends(request.user)
-        except:
+        friendship_list = get_friends(request.user)
         counter = 0
         for f in friendship_list:
             counter += 1
