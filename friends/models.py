@@ -185,6 +185,15 @@ SUGGEST_WHY_CHOICES = (
     (SUGGEST_BECAUSE_FRIENDOFFRIEND, "They're connected to you through another member on the site."),
     (SUGGEST_BECAUSE_NEIGHBOR,"They live in the same town or city."),
 )
+
+class FriendSuggestionQuerySet(models.query.QuerySet):
+    def filter(self, *args, **kwargs):
+        self.ex
+
+class FriendSuggestionManager(models.Manager):
+    def get_query_set(self, *args, **kwargs):
+        return FriendSuggestionQuerySet(self.model, using=self._db)
+
 class FriendSuggestion(models.Model):
     email = models.EmailField(null=True, blank=True)
     user = models.ForeignKey(User, null=True, blank=True, related_name="suggested_friends")
@@ -281,6 +290,11 @@ class Friendship(models.Model):
 
     def render_related_you(self):
         return self.render_related(you=True)
+
+    def save(self, *args, **kwargs):
+        matching_fs = FriendSuggestion.objects.filter(suggested_user=self.to_user, user=self.from_user) | FriendSuggestion.objects.filter(suggested_user=self.from_user, user=self.to_user)
+        matching_fs.delete()
+        super(Friendship, self).save(*args, **kwargs)
 
     def render_related(self, you=False):
         result = ""
