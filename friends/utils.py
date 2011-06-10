@@ -12,7 +12,7 @@ def build_friend_suggestions(user, *args, **kwargs):
     profile = user.get_profile()
     friend_suggestions_users = [fs.suggested_user for fs in FriendSuggestion.objects.select_related('suggested_user__id').filter(user=user)]
     try:
-        coworkers = profile.get_neighbors().exclude(user__in=friend_suggestions_users)
+        coworkers = profile.get_coworkers().exclude(user__in=friend_suggestions_users)
         for coworker in coworkers:
             try:
                 FriendSuggestion.objects.get(user=user, suggested_user=coworker.user)
