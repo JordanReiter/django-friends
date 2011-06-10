@@ -65,6 +65,7 @@
 		}
 		$(".invite-contact").click(function (e){
 			id = $(this).attr('id').replace('invite-contact-','');
+			alert(id);
 			name = $('#contact-'+id+' .contact-name').html();
 			email = $('#contact-'+id+' .contact-email').html();
 			action='{% url invite_contact 0 %}'.replace('0', id);

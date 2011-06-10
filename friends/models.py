@@ -100,7 +100,7 @@ class Contact(models.Model):
     """
     
     # the user who created the contact; switched to owner so I can use 'user' for the actual user this corresponds to
-    owner = models.ForeignKey(User, related_name="contacts", editable=False)
+    owner = models.ForeignKey(User, related_name="contacts", editable=False, null=True, blank=True, on_delete=models.SET_NULL)
     
     name = models.CharField(max_length=100, null=True, blank=True)
     first_name = models.CharField(max_length=50, null=True, blank=True)
