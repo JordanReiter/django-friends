@@ -224,8 +224,8 @@ class FriendshipManager(models.Manager):
     def friends_for_user(self, user):
         friends = []
         already = []
-        me_friends = self.filter(from_user=user).select_related("to_user__id","to_user__expert_profile__id","from_user__id","from_user__expert_profile__id").order_by('to_user__last_name','to_user__first_name')
-        them_friends = self.filter(to_user=user).select_related("to_user__id","to_user__expert_profile__id","from_user__id","from_user__expert_profile__id").order_by('from_user__last_name','from_user__first_name')
+        me_friends = self.filter(from_user=user).select_related("to_user__pk","to_user__profile__pk","from_user__pk","from_user__profile__pk").order_by('to_user__last_name','to_user__first_name')
+        them_friends = self.filter(to_user=user).select_related("to_user__pk","to_user__profile__pk","from_user__pk","from_user__profile__pk").order_by('from_user__last_name','from_user__first_name')
         all_friends = me_friends | them_friends
         # give priority to "from" records. This is done by looping through them twice and only adding "to" records
         # if absolutely necessary.
