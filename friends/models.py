@@ -295,7 +295,7 @@ class Friendship(models.Model):
         matching_fs = FriendSuggestion.objects.filter(suggested_user=self.to_user, user=self.from_user) | FriendSuggestion.objects.filter(suggested_user=self.from_user, user=self.to_user)
         matching_fs.delete()
         matching_fis = FriendshipInvitation.objects.filter(from_user=self.from_user, to_user=self.to_user) | FriendshipInvitation.objects.filter(from_user=self.to_user, to_user=self.from_user)
-        matching_fis.update(status='S')
+        matching_fis.update(status='5')
         super(Friendship, self).save(*args, **kwargs)
 
     def render_related(self, you=False):
