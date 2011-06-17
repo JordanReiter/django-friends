@@ -444,6 +444,9 @@ class JoinInvitation(models.Model):
 
 
 class FriendshipInvitationManager(models.Manager):
+
+    def active(self, *args, **kwargs):
+        self.filter(*args, **kwargs).filter(status_in=["1","2","7"])
     
     def invitations(self, *args, **kwargs):
         return self.filter(*args, **kwargs).exclude(status__in=["6", "8"])
