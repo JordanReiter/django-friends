@@ -230,6 +230,9 @@ def friendship_destroys_suggestions(sender, instance, created, *args, **kwargs):
 
 class FriendshipManager(models.Manager):
     
+    def newest(self):
+        return self.order_by('-added')
+    
     def friends_for_user(self, user):
         friends = []
         already = []
