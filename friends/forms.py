@@ -97,7 +97,9 @@ class InviteFriendForm(forms.Form):
         self.fields['to_user'].initial = self.friend.username
     
     def clean(self):
-        to_user = User.objects.get(username=self.cleaned_data["to_user"])
+        if not self.cleaned_data.get("to_user", False):
+            raise forms.ValidationError("No user selected.")
+        to_user = User.objects.get(username=self.cleaned_data.get("to_user"))
         previous_invitations_to = FriendshipInvitation.objects.invitations(to_user=to_user, from_user=self.user)
         if previous_invitations_to.count() > 0:
             raise forms.ValidationError(u"Already requested friendship with %s" % to_user.username)
