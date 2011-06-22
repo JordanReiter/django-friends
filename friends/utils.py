@@ -12,7 +12,7 @@ def build_friend_suggestions(user, *args, **kwargs):
     profile = user.get_profile()
     friend_suggestions_users = [fs.suggested_user for fs in FriendSuggestion.objects.select_related('suggested_user__id').filter(user=user)]
     try:
-        coworkers = profile.get_coworkers().exclude(user__in=friend_suggestions_users)
+        coworkers = profile.get_coworkers().exclude(user__in=friend_suggestions_users).exclude(user=user)
         for coworker in coworkers:
             try:
                 FriendSuggestion.objects.get(user=user, suggested_user=coworker.user)
@@ -27,7 +27,7 @@ def build_friend_suggestions(user, *args, **kwargs):
             except FriendSuggestion.DoesNotExist:
                 FriendSuggestion(user=user, suggested_user=fof, why=SUGGEST_BECAUSE_FRIENDOFFRIEND).save()
     try:
-        neighbors = profile.get_neighbors().exclude(user__in=friend_suggestions_users)
+        neighbors = profile.get_neighbors().exclude(user__in=friend_suggestions_users).exclude(user=user)
         MAX_NEIGHBORS = 100 # Don't add them as suggestions if you're in an area with a ton of people.
         if neighbors.count() < MAX_NEIGHBORS:
             for neighbor in neighbors:
