@@ -4,11 +4,12 @@ from django.core.urlresolvers import NoReverseMatch
 
 register = template.Library()
 
-def shared_friends(context, friend):
+def shared_friends(context):
+    friend = context['user']
+    request = context['request']
     return {
         'request': context['request'],
-        'user': context['user'],
         'friend': friend,
-        'shared_friends': shared_friends(context['user'], friend)
+        'shared_friends': shared_friends(request.user, friend)
     }
 register.inclusion_tag('friends/shared_friends.inc', takes_context=True)(shared_friends)
