@@ -62,7 +62,6 @@ if EmailAddress:
         
         def save(self, user):
             join_request = JoinInvitation.objects.send_invitation(user, self.cleaned_data["email"], self.cleaned_data["message"])
-            user.message_set.create(message="Invitation to join sent to %s" % join_request.contact.email)
             return join_request
 
 
@@ -118,7 +117,6 @@ class InviteFriendForm(forms.Form):
         if notification:
             notification.send([to_user], "friends_invite", {"invitation": invitation})
             notification.send([self.user], "friends_invite_sent", {"invitation": invitation})
-        self.user.message_set.create(message="Friendship requested with %s" % to_user.username) # @@@ make link like notification
         return invitation
 
 class MultiEmailWidget(forms.Textarea):
